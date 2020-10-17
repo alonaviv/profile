@@ -1,0 +1,21 @@
+Teachers:
+First Name
+Last Name
+
+
+Students:
+First Name
+Last Name
+Homeroom Teacher
+Classes they are in - ManyToMany
+
+Classes:
+Subject
+Teacher
+
+Evaluations:
+# TODO: Need to make sure that the student is in that class. Maybe in the logic before writing to db.
+Student - Key
+Class - Key
+Trimester, 1-3 - Key
+Text
