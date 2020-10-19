@@ -55,7 +55,7 @@ ROOT_URLCONF = 'profile_server.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -77,8 +77,8 @@ WSGI_APPLICATION = 'profile_server.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'profile',
-        'USER': 'alona',
+        'NAME': 'profile-db',
+        'USER': 'postgres',
         'PASSWORD': '76697421',
         'HOST': 'localhost'
     }

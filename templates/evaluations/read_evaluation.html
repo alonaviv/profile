@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <h1>קריאת דיווחים</h1>
+    {% if evaluations_by_student %}
+      {% for student, evaluations in evaluations_by_student.items %}
+        <h3><b>{{student}}</b></h3>
+        {% for evaluation in evaluations %}
+
+         <p> {{evaluation.evaluated_class.name}} ({{evaluation.evaluated_class.teacher}})
+         </p>
+         <p> {{evaluation.evaluation_text}}</p>
+        <br>
+        {% endfor %}
+    <hr>
+      {% endfor %}
+    {% endif %}
+
+{% endblock %}
