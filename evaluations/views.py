@@ -1,27 +1,51 @@
 from django.shortcuts import render
-from .models import Evaluation, Student
+from .models import Teacher, Evaluation
+from .forms import EvaluationForm, EvaluationFormSet
 
 
 def main_evaluations_page(request):
     return render(request, 'evaluations/index.html')
 
 
+def _populate_evaluations(class_to_evaluate, trimester):
+    """
+    Make sure that there is an evaluation object in the DB for each student in each class of the given teacher.
+    If there isn't, create an entry with empty text.
+    The forms will then be populated from all existing entries, whether with text or not.
+    """
+    for student in class_to_evaluate.student_set.all():
+        try:
+            Evaluation.objects.get(student=student, evaluated_class=evaluated_class)
+        except Evaluation.DoesNotExist:
+            Evaluation.objects.create(student=student, evaluated_class=evaluated_class, trimester=trimester)
+
+
 def write_evaluations(request):
-    return render(request, 'evaluations/write_evaluation.html')
+    teacher_first_name = 'שני'
+    teacher_last_name = 'ורמן'
+    teacher = Teacher.objects.get(first_name=teacher_first_name, last_name=teacher_last_name)
+    _populate_evaluations(teacher, 1)
+    classes = teacher.class_set.all()
+
+    if request.method == 'POST':
+        formset = EvaluationFormSet(request.POST)
+        #breakpoint()
+
+        formset.save()
+
+    else:
+        formset = EvaluationFormSet()
+
+    context = {'classes': classes, 'formset': formset, 'trimester': 1}
+    return render(request, 'evaluations/write_evaluation.html', context)
 
 
 def read_evaluations(request):
     teacher_first_name = 'שני'
     teacher_last_name = 'ורמן'
+    teacher = Teacher.objects.get(first_name=teacher_first_name, last_name=teacher_last_name)
+    students = teacher.student_set.all()
 
-    students = Student.objects.filter(homeroom_teacher__first_name=teacher_first_name,
-                                      homeroom_teacher__last_name=teacher_last_name).order_by('first_name',
-                                                                                              'last_name')
-    evaluations_by_student = {}
-    for student in students:
-        evaluations_by_student[student] = Evaluation.objects.filter(student=student).order_by('evaluated_class__name')
-
-    context = {'evaluations_by_student': evaluations_by_student}
-
+    context = {'students': students}
     return render(request, 'evaluations/read_evaluation.html', context)
 

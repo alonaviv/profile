@@ -49,6 +49,7 @@ class Student(Model):
 
     class Meta:
         unique_together = ['first_name', 'last_name', 'house']
+
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
 
@@ -57,7 +58,7 @@ class Evaluation(Model):
     student = ForeignKey(Student, on_delete=DO_NOTHING)
     evaluated_class = ForeignKey(Class, on_delete=DO_NOTHING)
     trimester = SmallIntegerField(choices=((1, 'First meeting'), (2, 'Second meeting'), (3, 'Third meeting')))
-    evaluation_text = TextField()
+    evaluation_text = TextField(default='', blank=True)
 
     class Meta:
         unique_together = ['student', 'evaluated_class', 'trimester']

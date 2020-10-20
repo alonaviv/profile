@@ -1,0 +1,8 @@
+* Have each teacher add and remove students from their own class.
+* Change admin area so drop down lists correspond to the previous selections.
+* Trimester should be a kind of environment variable. Think about it - maybe the admin "opens up" the website
+for evaluations period for that semester, and then everything is according to that semester. For writes, you can only
+write into that semester. For reads, maybe it shows the default of that semester, but have links to previous semesters
+(and years), if these exist.
+
+* Along with semester, I think we should add year. Need to think how to define the hebrew school year.
