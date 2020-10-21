@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1>כתיבת דיווחים לשיעור {{ formset.instance }}</h1>
+<form action = "" method="post">
+    {% csrf_token %}
+    {{ formset.management_form }}
+        {% for form in formset %}
+    דיווח על {{ form.instance.student }}:
+    <br>
+    <!-- Need to have the hidden fields, so you can return them back to the database -->
+    {% for field in form.hidden_fields %}
+        {{ field }}
+    {% endfor %}
+    {% for field in form.visible_fields %}
+        {{ field }}
+    {% endfor %}
+
+    <input type="submit" value="שלח דיווח">
+
+    <br>
+        {% endfor %}
+</form>
+
+{% endblock %}
+

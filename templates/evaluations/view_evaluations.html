@@ -8,10 +8,12 @@
         <h3><b>{{student}}</b></h3>
         {% for evaluation in student.evaluation_set.all %}
 
-         <p> {{evaluation.evaluated_class.name}} ({{evaluation.evaluated_class.teacher}})
-         </p>
-         <p> {{evaluation.evaluation_text}}</p>
-        <br>
+            {% if evaluation.evaluation_text %}
+             <p> {{evaluation.evaluated_class.name}} ({{evaluation.evaluated_class.teacher}})
+             </p>
+             <p> {{evaluation.evaluation_text}}</p>
+            <br>
+            {% endif %}
         {% endfor %}
     <hr>
       {% endfor %}

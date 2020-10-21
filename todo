@@ -4,5 +4,8 @@
 for evaluations period for that semester, and then everything is according to that semester. For writes, you can only
 write into that semester. For reads, maybe it shows the default of that semester, but have links to previous semesters
 (and years), if these exist.
-
 * Along with semester, I think we should add year. Need to think how to define the hebrew school year.
+* Not sure it's right that it populates all evaluations when the teacher goes into the write evaluations main page.
+Maybe do it whenever the admin starts and evaluation period, and every time relevant databases change.
+* Think about what happens, especially to evaluations in the database, if there are changes like students leaving
+classes etc.
