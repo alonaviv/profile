@@ -2,5 +2,15 @@
 
 {% block content %}
 
+{% if classes %}
+    <h1>בחר/י שיעור לכתיבת דיווחים</h1>
+      {% for class in classes %}
+        <h2><a href="{% url 'write_class_evaluations' class.id %}"> {{ class.name }}</a></h2>
+      {% endfor %}
+{% else %}
+<h1>לא קיימים שיעורים למורה</h1>
+{% endif %}
+
+
 
 {% endblock %}

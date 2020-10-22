@@ -17,6 +17,14 @@ class ClassAdmin(admin.ModelAdmin):
     list_filter = ('house', 'subject')
 
 
+class TeacherAdmin(admin.ModelAdmin):
+    def _get_string(self, model):
+        return str(model)
+
+    list_display = ('id', '_get_string', 'is_homeroom_teacher')
+    list_display_links = ('id', '_get_string')
+
+
 class StudentAdmin(admin.ModelAdmin):
     def _get_string(self, model):
         return str(model)
@@ -34,7 +42,7 @@ class StudentAdmin(admin.ModelAdmin):
 
 admin.site.register(Evaluation, EvaluationAdmin)
 admin.site.register(Class, ClassAdmin)
-admin.site.register(Teacher)
+admin.site.register(Teacher, TeacherAdmin)
 admin.site.register(Subject)
 admin.site.register(House)
 admin.site.register(Student, StudentAdmin)

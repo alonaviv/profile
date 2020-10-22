@@ -1,9 +1,25 @@
-from django.db.models import CharField, ForeignKey, ManyToManyField, Model, DO_NOTHING, SmallIntegerField, TextField
+from django.db.models import (
+    CharField, ForeignKey, ManyToManyField, Model, DO_NOTHING, SmallIntegerField, TextField,
+    BooleanField, EmailField, OneToOneField, CASCADE
+)
+from django.contrib.auth.models import User
+
+
+class House(Model):
+    house_name = CharField(max_length=20, unique=True)
+
+    def __str__(self):
+        return self.house_name
 
 
 class Teacher(Model):
     first_name = CharField(max_length=20)
     last_name = CharField(max_length=30)
+    email = EmailField()
+    is_homeroom_teacher = BooleanField()
+    house = ForeignKey(House, on_delete=DO_NOTHING)
+    # TODO: Take off the null
+    user = OneToOneField(User, on_delete=CASCADE, null=True)
 
     class Meta:
         unique_together = ['first_name', 'last_name']
@@ -17,13 +33,6 @@ class Subject(Model):
 
     def __str__(self):
         return self.subject_name
-
-
-class House(Model):
-    house_name = CharField(max_length=20, unique=True)
-
-    def __str__(self):
-        return self.house_name
 
 
 class Class(Model):

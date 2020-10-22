@@ -1,16 +1,22 @@
-from django.forms import inlineformset_factory, HiddenInput
+from django.forms import inlineformset_factory, HiddenInput, Textarea
 from django.http import HttpResponseBadRequest
 from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
 
 from .models import Teacher, Evaluation, Class
 
 TRIMESTER = 1
-TEACHER_FIRST_NAME = 'שני'
-TEACHER_LAST_NAME = 'ורמן'
+
+
+def _get_teacher_object(request):
+    user = request.user
+    if not user.is_anonymous:
+        return user.teacher
 
 
 def main_evaluations_page(request):
-    return render(request, 'evaluations/index.html')
+    context = {'teacher': _get_teacher_object(request)}
+    return render(request, 'evaluations/index.html', context)
 
 
 def _populate_evaluations(teacher):
@@ -26,9 +32,9 @@ def _populate_evaluations(teacher):
                 Evaluation.objects.create(student=student, evaluated_class=evaluated_class, trimester=TRIMESTER)
 
 
+@login_required
 def write_class_evaluations(request, class_id):
-    teacher = Teacher.objects.get(first_name=TEACHER_FIRST_NAME, last_name=TEACHER_LAST_NAME)
-
+    teacher = _get_teacher_object(request)
     try:
         class_to_evaluate = Class.objects.get(id=class_id, teacher=teacher)
     except Class.DoesNotExist:
@@ -37,7 +43,10 @@ def write_class_evaluations(request, class_id):
     EvaluationFormSet = inlineformset_factory(Class,
                                               Evaluation,
                                               fields=['evaluation_text', 'student'],
-                                              widgets={'student': HiddenInput()},
+                                              widgets={
+                                                  'student': HiddenInput(),
+                                                  'evaluation_text': Textarea(attrs={'rows': 20, 'cols': 60}),
+                                              },
                                               extra=0,
                                               can_delete=False)
     classes = teacher.class_set.all()
@@ -53,16 +62,19 @@ def write_class_evaluations(request, class_id):
     return render(request, 'evaluations/write_evaluations.html', context)
 
 
+@login_required
 def write_evaluations_main_page(request):
-    teacher = Teacher.objects.get(first_name=TEACHER_FIRST_NAME, last_name=TEACHER_LAST_NAME)
-    _populate_evaluations(teacher)
+    teacher = _get_teacher_object(request)
+    classes = teacher.class_set.all()
+    _populate_evaluations(teacher)  # TODO Put this elsewhere
 
-    from django.http import HttpResponse
-    return HttpResponse("<h1> Write Evaluations </h1>")
+    context = {'classes': classes}
+    return render(request, 'evaluations/write_evaluations_index.html', context)
 
 
+@login_required
 def view_evaluations(request):
-    teacher = Teacher.objects.get(first_name=TEACHER_FIRST_NAME, last_name=TEACHER_LAST_NAME)
+    teacher = _get_teacher_object(request)
     students = teacher.student_set.all()
 
     context = {'students': students}

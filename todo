@@ -1,11 +1,33 @@
-* Have each teacher add and remove students from their own class.
-* Change admin area so drop down lists correspond to the previous selections.
 * Trimester should be a kind of environment variable. Think about it - maybe the admin "opens up" the website
 for evaluations period for that semester, and then everything is according to that semester. For writes, you can only
 write into that semester. For reads, maybe it shows the default of that semester, but have links to previous semesters
 (and years), if these exist.
 * Along with semester, I think we should add year. Need to think how to define the hebrew school year.
+
+
 * Not sure it's right that it populates all evaluations when the teacher goes into the write evaluations main page.
 Maybe do it whenever the admin starts and evaluation period, and every time relevant databases change.
+
 * Think about what happens, especially to evaluations in the database, if there are changes like students leaving
 classes etc.
+* Be better with the on_delete of the SQL. Do nothing is a bad idea. Think well what you want to do when any item is
+deleted.
+
+* House, only if homeroom teacher
+
+* Add another system for reporting who came when.
+
+
+===========
+Each teacher needs three more pages, another app I think. And maybe move some of the models there.
+Take a sec to decide if maybe the class should have the kids and not the opposite. Is that a possible change?
+
+1. Choose what classes you're teaching. Filter by house and by subject.
+2. Choose what students are in each class. For now, a page for each class listing the students, and you can edit it.
+Be able to delete kids easily, and add from a pool you can filter from.
+3. Same exact thing for your homeroom. UI wise acts like a single class.
+
+
+* That way, the only thing that the school itself needs to do is to add the list of students (and subjects).
+I may even be able to do that programmatically somehow.
+

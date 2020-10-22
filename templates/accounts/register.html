@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% load crispy_forms_tags %}
+{% block content %}
+
+<h1>יצירת משתמש למורה בדמוקרטי</h1>
+
+<form method="POST" class="form-group">
+	{% csrf_token %}
+	{{ form|crispy }}
+	<button type="submit" class="btn btn-success">הרשמה</button>
+</form>
+
+
+{% endblock %}
+
+
