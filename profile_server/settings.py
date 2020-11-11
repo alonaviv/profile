@@ -25,7 +25,7 @@ SECRET_KEY = '^i34c0ernf6maes&z7d=5uk))vq8i^ot!p!qzk@c5-9rx+i%*@'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.0.111']
+ALLOWED_HOSTS = ['192.168.0.111', 'localhost']
 
 
 # Application definition
@@ -33,13 +33,14 @@ ALLOWED_HOSTS = ['192.168.0.111']
 INSTALLED_APPS = [
     'evaluations.apps.EvaluationsConfig',
     'accounts.apps.AccountsConfig',
+    'class_manager.apps.ClassManagerConfig'
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'crispy_forms'
+    'crispy_forms',
 ]
 
 MIDDLEWARE = [
@@ -123,8 +124,13 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'profile_server/static')
+]
+
 
 CRISPY_TEMPLATE_PACK="bootstrap4"
 
-LOGIN_URL = '/accounts/teacher_login'
+LOGIN_URL = '/evaluations/failed_login'

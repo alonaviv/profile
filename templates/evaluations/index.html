@@ -7,10 +7,11 @@
     <h2><a href="{% url 'write' %}">כתיבת דיווחים לשיעורים שלך</a></h2>
 
     {% if teacher.is_homeroom_teacher == True %}
-    <h2><a href="{% url 'read' %}">צפייה בדיווחים של קבוצת החונכות שלך</a></h2>
+    <h2><a href="{% url 'view' %}">צפייה בדיווחים של קבוצת החונכות שלך</a></h2>
     {% endif %}
     <br><br>
     <h2><a href="{% url 'logout' %}">להתנתקות</a></h2>
+
 {% else %}
 <h2><a href="{% url 'register' %}">להרשמה</a></h2>
 <h2><a href="{% url 'login' %}">להתחברות</a></h2>

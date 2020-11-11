@@ -17,6 +17,12 @@ deleted.
 
 * Add another system for reporting who came when.
 
+* Currently any teacher can sign up and add their own classes and attendance. Is that OK? Do we maybe want some process
+of authorizing the teacher that sign up? Maybe talk to Dalit. Right now they sign up themselves and it has to match the
+existing teachers in the school.
+
+* Need to give a correct error if school teacher already exists
+
 
 ===========
 Each teacher needs three more pages, another app I think. And maybe move some of the models there.

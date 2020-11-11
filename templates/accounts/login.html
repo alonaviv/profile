@@ -1,9 +1,14 @@
 {% extends 'base.html' %}
-{% load crispy_forms_tags %}
 
 
 {% block content %}
   <h1>התחברות</h1>
+{% if messages %}
+  {% for message in messages %}
+	{{ message }}
+  {% endfor %}
+{% endif %}
+
   <form method="POST">
     {% csrf_token %}
     {{ form.as_p }}

@@ -1,10 +1,11 @@
+from django.contrib import auth, messages
 from django.contrib.auth.models import User
-from django.contrib import auth
-from django.shortcuts import render, redirect
-from evaluations.models import Teacher
-from evaluations.views import main_evaluations_page
+from django.db import IntegrityError
+from django.shortcuts import render, redirect, HttpResponse
 
 from accounts.forms import RegisterForm, LoginForm
+from evaluations.models import Teacher
+from evaluations.views import main_evaluations_page
 
 
 def get_username(first_name, last_name):
@@ -16,21 +17,27 @@ def register(request):
         form = RegisterForm(request.POST)
         if form.is_valid():
             username = get_username(form.cleaned_data['first_name'], form.cleaned_data['last_name'])
-            user = User.objects.create_user(username=username,
-                                            email=form.cleaned_data['email'],
-                                            password=form.cleaned_data['password'],
-                                            first_name=form.cleaned_data['first_name'],
-                                            last_name=form.cleaned_data['last_name'])
-            Teacher.objects.create(first_name=form.cleaned_data['first_name'],
-                                   last_name=form.cleaned_data['last_name'],
-                                   email=form.cleaned_data['email'],
-                                   is_homeroom_teacher=form.cleaned_data['is_homeroom_teacher'],
-                                   house=form.cleaned_data['house'],
-                                   user=user)
-            auth.authenticate(username=username, password=form.cleaned_data['password'])
-            auth.login(request, user)
+            try:
+                user = User.objects.create_user(username=username,
+                                                email=form.cleaned_data['email'],
+                                                password=form.cleaned_data['password'],
+                                                first_name=form.cleaned_data['first_name'],
+                                                last_name=form.cleaned_data['last_name'])
+            except IntegrityError:
+                messages.error(request, "User already exists")
 
-            return redirect(main_evaluations_page)
+            else:
+                Teacher.objects.get_or_create(first_name=form.cleaned_data['first_name'],
+                                              last_name=form.cleaned_data['last_name'],
+                                              email=form.cleaned_data['email'],
+                                              is_homeroom_teacher=form.cleaned_data['is_homeroom_teacher'],
+                                              house=form.cleaned_data['house'],
+                                              user=user)
+
+                auth.authenticate(username=username, password=form.cleaned_data['password'])
+                auth.login(request, user)
+
+                return redirect(main_evaluations_page)
 
     else:
         form = RegisterForm()
@@ -50,7 +57,7 @@ def login(request):
                 auth.login(request, user)
                 return redirect(main_evaluations_page)
             else:
-                return redirect('login')
+                messages.error(request, "Wrong Credentials")
 
     else:
         form = LoginForm()

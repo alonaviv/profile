@@ -1,10 +1,53 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html dir="rtl" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Profile - The Democratic School Management System</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link href='http://serve.fontsproject.com/css?family=Noot:400'
+  rel='stylesheet' type='text/css'>`
+  <link href='http://serve.fontsproject.com/css?family=Pfennig:500'
+  rel='stylesheet' type='text/css'>
+  <title>Profile | בית הספר הדמוקרטי </title>
 </head>
 <body>
+  <header>
+    <div id="navbar">
+        <a href="{% url 'index' %}"><h1 class="logo">בית הספר הדמוקרטי</h1></a>
+        <ul class="categories" id="page-links">
+          <li
+                  {% if 'write' in request.path or 'write' in request.GET.next %} class="active" {% endif %}
+          >
+            <a href="{% url 'write' %}">רישום דיווחים</a></li>
+            <li
+                    {% if 'view' in request.path or 'view' in request.GET.next %} class="active" {% endif %}
+            >
+              <a href="{% url 'view' %}">צפייה בדיווחים</a></li>
+            <li
+                    {% if 'class_manager' in request.path or 'class_manager' in request.GET.next %} class="active" {% endif %}
+            >
+              <a href="class_manager">ניהול כיתות</a></li>
+        </ul>
+        <ul class="categories" id="user-space">
+          {% if user.is_authenticated %}
+          <li>
+          <a href="{% url 'logout' %}">התנתקות</a></li>
+
+          {% else %}
+          <li
+                  {% if 'register' in request.path %} class="active" {% endif %}
+          >
+            <a href="{% url 'register' %}">הרשמה</a></li>
+          <li
+                  {% if 'teacher_login' in request.path %} class="active" {% endif %}
+          >
+            <a href="{% url 'login' %}">כניסה</a></li>
+          {% endif %}
+        </ul>
+      </div>
+  </header>
 
 {% block content %} {% endblock %}
 

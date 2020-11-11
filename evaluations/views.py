@@ -4,18 +4,12 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 
 from .models import Teacher, Evaluation, Class
+from common.utils import get_teacher_object
 
 TRIMESTER = 1
 
-
-def _get_teacher_object(request):
-    user = request.user
-    if not user.is_anonymous:
-        return user.teacher
-
-
 def main_evaluations_page(request):
-    context = {'teacher': _get_teacher_object(request)}
+    context = {'teacher': get_teacher_object(request)}
     return render(request, 'evaluations/index.html', context)
 
 
@@ -34,7 +28,7 @@ def _populate_evaluations(teacher):
 
 @login_required
 def write_class_evaluations(request, class_id):
-    teacher = _get_teacher_object(request)
+    teacher = get_teacher_object(request)
     try:
         class_to_evaluate = Class.objects.get(id=class_id, teacher=teacher)
     except Class.DoesNotExist:
@@ -64,9 +58,12 @@ def write_class_evaluations(request, class_id):
 
 @login_required
 def write_evaluations_main_page(request):
-    teacher = _get_teacher_object(request)
-    classes = teacher.class_set.all()
-    _populate_evaluations(teacher)  # TODO Put this elsewhere
+    teacher = get_teacher_object(request)
+    if teacher:
+        classes = teacher.class_set.all()
+        _populate_evaluations(teacher)  # TODO Put this elsewhere
+    else:
+        classes = []
 
     context = {'classes': classes}
     return render(request, 'evaluations/write_evaluations_index.html', context)
@@ -74,8 +71,16 @@ def write_evaluations_main_page(request):
 
 @login_required
 def view_evaluations(request):
-    teacher = _get_teacher_object(request)
-    students = teacher.student_set.all()
+    teacher = get_teacher_object(request)
+
+    if teacher:
+        students = teacher.student_set.all()
+    else:
+        students = []
 
     context = {'students': students}
     return render(request, 'evaluations/view_evaluations.html', context)
+
+
+def failed_login(request):
+    return render(request, 'evaluations/failed_login.html')
