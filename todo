@@ -2,7 +2,7 @@
 for evaluations period for that semester, and then everything is according to that semester. For writes, you can only
 write into that semester. For reads, maybe it shows the default of that semester, but have links to previous semesters
 (and years), if these exist.
-* Along with semester, I think we should add year. Need to think how to define the hebrew school year.
+* Along with semester, I think we should add year. Need to think how to define the hebrew school year. Same thing - add it staticlly for now just so it's in the db. Next time around, your'll use that and change the variable.
 
 
 * Not sure it's right that it populates all evaluations when the teacher goes into the write evaluations main page.
@@ -15,19 +15,18 @@ deleted.
 
 * House, only if homeroom teacher
 
-* Add another system for reporting who came when.
 
-* Currently any teacher can sign up and add their own classes and attendance. Is that OK? Do we maybe want some process
-of authorizing the teacher that sign up? Maybe talk to Dalit. Right now they sign up themselves and it has to match the
-existing teachers in the school.
+* A system to show everyone what is missing - maybe on the home page?
+Show on the home page a status maybe, how many classes you added, with how many kids total.
+How many reviews total you have left to write.
+And on the side of the homeroom teacher, How many are missing, and from how many teachers (showing the number missing from each teacher)
 
-* Need to give a correct error if school teacher already exists
+In the read reviews, write in red below each kid what divuchim they are missing and from what teacher.
+In the write reviews, write in the top of each class, and in the index page, how many of how many were written. 
+Also in the written, have a sign of green or red next to each review, to see if it was submitted successfully. 
 
 
 ===========
-Each teacher needs three more pages, another app I think. And maybe move some of the models there.
-Take a sec to decide if maybe the class should have the kids and not the opposite. Is that a possible change?
-
 1. Choose what classes you're teaching. Filter by house and by subject.
 2. Choose what students are in each class. For now, a page for each class listing the students, and you can edit it.
 Be able to delete kids easily, and add from a pool you can filter from.
@@ -37,3 +36,42 @@ Be able to delete kids easily, and add from a pool you can filter from.
 * That way, the only thing that the school itself needs to do is to add the list of students (and subjects).
 I may even be able to do that programmatically somehow.
 
+
+Editing/adding class form:
+Each class should have a beit, default should be the teacher's house. 
+You'll have a name of the class, given if it already exists. Empty if not. You can always change it. 
+
+Then you'll have the list of existing students in the class, with a button to delete the student if you want. 
+If you do - need an alert window verifying that you're sure that you want to delete that kid from the class.
+
+Below you'll have a button to add kids. 
+That will move you to a window that has a form in which you can select all the kids in the beit, alphabetised of course. The title will say the name of the beit it's adding.
+After clicking add, it'll move you back to the page with the kids, and you'll see the number change.
+
+In the add page, you'll have another link - add kids from a different beit (not [name of beit])
+Then you'll get to another page to select which beit, and finally to exactly that same page as before, only with that beit. 
+
+Editing your home room:
+Should be exactly the same as a single class. Copy almost everything. 
+
+
+Additions later on:
+Filter form by letters maybe?
+Delete a class after it is empty - currenly not available
+Search for a kid's name, don't just select all from a form.
+use javascript to make all of this responsive.
+
+================
+
+
+* Have a running task that all kids have a homeroom teacher. If they don't, maybe send an email to Dalit or me. 
+* I think we should maybe define two stages - first all teachers have to create their classes and home rooms. Then I should run verifications on the database. The divuchim adding part can be orthoganal. The main thing to check is that all kids have a homeroom teacher that can track them. 
+
+===========
+Stupid things teachers might do and I should validate:
+* Not have any classes
+* Not be added at all to the database. Need to check the teacher users against a static list of their names I think. Maybe go back and decide that the teachers should actually be static - only then someone else could somehow take their spot? I actually think that's better - have a new user associated with the teacher, and then only those teachers can register, and we can validate that all teachers have a user defined. 
+* Not write any divuchim - that's fine, the other teachers will tell them. 
+* Not add any kids to homerooms - the validation of kids in homeroom will find that.
+* Not add all the kids to their classes - nothing to do about that, but we should make sure that their classes all have at least one kid (or maybe more?)
+* DB Sanity - verify that all evaluations match the students and the classes that they are in

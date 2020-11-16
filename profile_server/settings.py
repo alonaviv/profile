@@ -33,7 +33,7 @@ ALLOWED_HOSTS = ['192.168.0.111', 'localhost']
 INSTALLED_APPS = [
     'evaluations.apps.EvaluationsConfig',
     'accounts.apps.AccountsConfig',
-    'class_manager.apps.ClassManagerConfig'
+    'class_manager.apps.ClassManagerConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

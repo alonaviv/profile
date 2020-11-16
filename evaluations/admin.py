@@ -30,7 +30,7 @@ class StudentAdmin(admin.ModelAdmin):
         return str(model)
 
     def _get_classes(self, model):
-        return ', '.join(str(student_class) for student_class in model.classes.all())
+        return ', '.join(str(student_class) for student_class in model.class_set.all())
 
     _get_classes.short_description = 'Classes'
     _get_string.short_description = 'Student Name'

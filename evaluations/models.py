@@ -35,32 +35,53 @@ class Subject(Model):
         return self.subject_name
 
 
-class Class(Model):
-    name = CharField(max_length=100, unique=True)
-    subject = ForeignKey(Subject, on_delete=DO_NOTHING)
-    house = ForeignKey(House, on_delete=DO_NOTHING)
-    teacher = ForeignKey(Teacher, on_delete=DO_NOTHING, default=1)
-
-    class Meta:
-        verbose_name_plural = "Classes"
-
-    def __str__(self):
-        return self.name
 
 
 class Student(Model):
     first_name = CharField(max_length=20)
     last_name = CharField(max_length=30)
-    # TODO: Not all teachers are homeroom teachers. Select only from the homeroom teachers (a boolean)
-    homeroom_teacher = ForeignKey(Teacher, on_delete=DO_NOTHING)
-    classes = ManyToManyField(Class)
     house = ForeignKey(House, on_delete=DO_NOTHING)
+    # To be later added when the homeroom teachers add their kids
+    # TODO: Important!! Have a running task that makes sure all kids have a homeroom teacher.
+    homeroom_teacher = ForeignKey(Teacher, on_delete=DO_NOTHING, blank=True, null=True)
+
+    @property
+    def completed_evals(self):
+        completed_evals = 0
+        for evaluation in self.evaluation_set.all():
+            if evaluation.evaluation_text:
+                completed_evals += 1
+        
+        return completed_evals
 
     class Meta:
         unique_together = ['first_name', 'last_name', 'house']
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
+
+
+class Class(Model):
+    name = CharField(max_length=100, unique=True)
+    subject = ForeignKey(Subject, on_delete=DO_NOTHING)
+    house = ForeignKey(House, on_delete=DO_NOTHING)
+    teacher = ForeignKey(Teacher, on_delete=DO_NOTHING, default=1)
+    students = ManyToManyField(Student, blank=True)
+
+    @property
+    def completed_evals(self):
+        completed_evals = 0
+        for evaluation in self.evaluation_set.all():
+            if evaluation.evaluation_text:
+                completed_evals += 1
+        
+        return completed_evals
+
+    class Meta:
+        verbose_name_plural = "Classes"
+
+    def __str__(self):
+        return self.name
 
 
 class Evaluation(Model):

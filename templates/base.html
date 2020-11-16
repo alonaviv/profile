@@ -10,6 +10,7 @@
   rel='stylesheet' type='text/css'>`
   <link href='http://serve.fontsproject.com/css?family=Pfennig:500'
   rel='stylesheet' type='text/css'>
+  <script src="https://kit.fontawesome.com/4078bed46b.js" crossorigin="anonymous"></script>
   <title>Profile | בית הספר הדמוקרטי </title>
 </head>
 <body>
@@ -28,10 +29,11 @@
             <li
                     {% if 'class_manager' in request.path or 'class_manager' in request.GET.next %} class="active" {% endif %}
             >
-              <a href="class_manager">ניהול כיתות</a></li>
+              <a href="{% url 'manage_classes' %}">ניהול כיתות</a></li>
         </ul>
         <ul class="categories" id="user-space">
           {% if user.is_authenticated %}
+          <li class="logged_in"> {{ teacher }}</li>
           <li>
           <a href="{% url 'logout' %}">התנתקות</a></li>
 
@@ -49,7 +51,8 @@
       </div>
   </header>
 
+  <main>
 {% block content %} {% endblock %}
-
+ </main>
 </body>
 </html>

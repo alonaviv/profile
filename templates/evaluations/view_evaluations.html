@@ -1,27 +1,34 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <!-- If not homeroom teacher, don't allow access to this page - write something about that he's not a chonech -->
+    <!-- TODO: If not homeroom teacher, don't allow access to this page - write something about that he's not a chonech -->
 
-
-{% if students %}
-    <h1>קריאת דיווחים</h1>
-      {% for student in students %}
-        <h3><b>{{student}}</b></h3>
+    <h1>הדיווחים של {{student}}</h1>
+    <div id="view_evaluations">
+    <div id="summary">
+      {% with num_classes=student.class_set.count completed_evals=student.completed_evals %}
+    <div id="status" {% if num_classes == completed_evals %} class="completed" {% endif %}>
+      הגיעו {{completed_evals}} דיווחים מתוך {{num_classes}} שיעורים
+      {% if num_classes != completed_evals %}
+      <a href="{% url 'missing_student_evaluations' student.id %}">לפרטים</a>
+      {% else %}
+      <i class="fas fa-check-circle fa-2x"></i>
+      {% endif %}
+      {% endwith %}
+    </div>
+    <a class="back_button" href="{% url 'view' %}">חזרה לכל הדיווחים</a>
+    </div>
+    <section class="evaluations">
         {% for evaluation in student.evaluation_set.all %}
-
             {% if evaluation.evaluation_text %}
-             <p> {{evaluation.evaluated_class.name}} ({{evaluation.evaluated_class.teacher}}):
-             </p>
-             <p> {{evaluation.evaluation_text|linebreaks}}</p>
-            <br>
+            <article class="evaluation_output">
+              <h4 class="evaluation_title">{{evaluation.evaluated_class.name}} ({{evaluation.evaluated_class.teacher}}) </h4>
+             <p class="evaluation_text"> {{evaluation.evaluation_text|linebreaks}}</p>
+            </article>
             {% endif %}
         {% endfor %}
-    <hr>
-      {% endfor %}
+    </section>
+    </div>
 
-{% else %}
-<h1>לא קיימים עדיין דיווחים</h1>
-{% endif %}
 
 {% endblock %}

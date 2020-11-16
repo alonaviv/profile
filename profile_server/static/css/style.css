@@ -9,6 +9,7 @@
 /* Main styling */
 html {
   line-height: 1.7em;
+  background-color: #e6e6ec;
 }
 
 body {
@@ -16,9 +17,45 @@ body {
 }
 
 
+main h1 {
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 40px;
+}
+
+
 a {
   text-decoration: none;
   color: inherit;
+}
+
+p {
+  margin: 20px;
+}
+
+
+.block-container {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+
+}
+
+
+/* Buttons */
+
+.back_button {
+  border: 1px black solid;
+  display: block;
+  width: 200px;
+  height: 50px;
+  background-color: lightblue;
+  color: black;
+  text-align: center;
+  padding: 10px;
+  margin: 30px;
+  border-radius: 10px;
+  
 }
 
 
@@ -68,8 +105,127 @@ a {
   font-weight: 500px;
 }
 
-#navbar li:hover,
+#navbar li:not(.logged_in):hover,
 #navbar li.active{
   background-color: #0f60d6;
+}
 
+#navbar li.logged_in {
+  color: black;
+  font-size: 15px;
+  padding: 5px;
+}
+
+
+/* List of items*/
+
+.items_list {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.items_list a{
+  font-size: 30px;
+  padding: 15px;
+}
+
+.items_list a:hover {
+  color: #6984a5;
+}
+
+.items_list i {
+  padding: 0 30px;
+}
+
+.items_list li {
+  margin: 20px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.items_list .review_status {
+  text-align: center;
+  font-size: 25px;
+  padding: 15px;
+}
+
+
+/* Font Awesome change */
+.fa-check-circle {
+  color: #3a9f5a;
+  padding: 15px;
+}
+
+.fa-tachometer-alt {
+  color: red;
+  padding: 15px;
+}
+
+i.fa-times-circle {
+  color: red;
+  padding: 15px;
+}
+
+
+
+/* Read Evaluations */
+
+#view_evaluations {
+  margin: 30px;
+  display: flex;
+  flex-direction: column;
+}
+
+#view_evaluations #summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+}
+
+#view_evaluations #summary #status {
+  border: 3px #b30000 solid;
+  width:  250px;
+  height: 100px;
+  padding: auto;
+  text-align: center;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+}
+
+#view_evaluations #summary #status.completed {
+  border: 3px #208000 solid;
+}
+
+
+#view_evaluations #summary #status a{
+  color: #b30000;
+  font-weight: 500;
+  text-decoration: underline;
+}
+
+
+.evaluation_output {
+  border: 1px black solid;
+  margin: 10px 0;
+  padding: 20px;
+  
+}
+
+.evaluation_title {
+  font-size: 20px;
+}
+
+.evaluation_text {
+  font-size: 18px;
+}
+
+.missing_evaluation {
+  font-size: 30px;
+  padding: 15px;
+  color: #800000
 }
