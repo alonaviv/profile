@@ -133,4 +133,4 @@ STATICFILES_DIRS = [
 
 CRISPY_TEMPLATE_PACK="bootstrap4"
 
-LOGIN_URL = '/evaluations/failed_login'
+LOGIN_URL = '/failed_login'

@@ -1,8 +1,10 @@
 {% extends 'base.html' %}
 
-
 {% block content %}
-  <h1>התחברות</h1>
+
+<h1>יצירת שיעור חדש</h1>
+<a class="back_button" href="{% url 'manage_classes' %}">חזרה לרשימת השיעורים</a>
+
 {% if messages %}
   {% for message in messages %}
 	{{ message }}
@@ -13,7 +15,8 @@
     <ul>
     {% csrf_token %}
     {{ form.as_ul }}
-    <button type="submit">התחברות</button>
+    <button type="submit">הוספת שיעור</button>
     </ul>
   </form>
+
 {% endblock %}

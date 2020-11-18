@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1> הוספת תלמידים לשיעור {{class}} </h1>
+
+<a class="back_button" href="{% url 'manage_students_in_class' class.id %}">חזרה לניהול השיעור</a>
+
+{% if messages %}
+  {% for message in messages %}
+	{{ message }}
+  {% endfor %}
+{% endif %}
+
+<h3>הוספת תלמידים משכבת {{current_house}}</h3>
+
+  <form method="POST">
+    <ul>
+    {% csrf_token %}
+    {% if form.students|length == 0 %}
+    <li>לא קיימים תלמידים בשכבה</li>
+    {% else %}
+    {{ form.as_ul }}
+    <button type="submit">הוסף את התלמידים</button>
+    {% endif %}
+    </ul>
+  </form>
+
+{% for house in houses %}
+   {% if house != current_house and house.id != 5%}
+<a class="back_button bigger" href="{% url 'add_students_to_class' class.id house.id  %}">
+  הוספת תלמידים נוספים משכבת {{house}}
+</a>
+{% endif %}
+
+{% endfor %}
+
+{% endblock %}

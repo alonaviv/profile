@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1>לא ניתן להכנס לאיזור זה מבלי להתחבר לאתר</h1>
+<br><br>
+<h2><a href="{% url 'login' %}">להתחברות</a></h2>
+<br><br>
+<h2><a href="{% url 'register' %}">להרשמה</a></h2>
+
+
+{% endblock %}

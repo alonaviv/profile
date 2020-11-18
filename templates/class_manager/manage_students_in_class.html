@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+
+<div class='block-container center'>
+<h1>ניהול שיעור - {{class}}</h1>
+<a href="{% url 'edit_class_data' class.id %}" class="clickable"><i class="fas fa-edit fa-2x"></i></a>
+</div>
+
+<a class="back_button" href="{% url 'manage_classes' %}">חזרה לרשימת השיעורים</a>
+
+<div class="items_list">
+  <!-- If you want to add numbers here, you need to use a counter - ol doesn't work within flexbox -->
+<ul> 
+  {% if students %}
+    {% for student in students %}
+      <li><div class="item">{{student}}</div>
+        <a href="{% url 'delete_student_from_class' class.id student.id %}" onclick="return confirm('האם להסיר את {{student}} משיעור {{class}}? פעולה זו תמחק את כל הדיווחים הקיימים לתלמיד\/ה בשיעור!')"><i class="fas fa-trash-alt"></i></a>
+      </li>
+    {% endfor %}
+  {% else %}
+  <li>
+    <a href="{% url 'delete_class' class.id %}" onclick="return confirm('האם למחוק את שיעור {{class}}?')"><i class="fas fa-trash-alt delete-class-icon"></i></a> 
+    <div class="item">ביטול שיעור {{class}}</div>
+  {% endif %}
+  <li class="add_new_class"><a href="{% url 'add_students_to_class' class.id %}"><i class="fas fa-plus"></i>הוספת תלמידים לכיתה</i></a></li>
+</ul>
+</div>  
+
+{% endblock %}

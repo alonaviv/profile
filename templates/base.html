@@ -22,14 +22,24 @@
                   {% if 'write' in request.path or 'write' in request.GET.next %} class="active" {% endif %}
           >
             <a href="{% url 'write' %}">רישום דיווחים</a></li>
+
+            {% if teacher.is_homeroom_teacher %}
             <li
                     {% if 'view' in request.path or 'view' in request.GET.next %} class="active" {% endif %}
             >
               <a href="{% url 'view' %}">צפייה בדיווחים</a></li>
+            {% endif %}
             <li
-                    {% if 'class_manager' in request.path or 'class_manager' in request.GET.next %} class="active" {% endif %}
+                    {% if 'manage_students_in_class' in request.path or 'manage_students_in_class' in request.GET.next %} class="active" {% endif %}
             >
               <a href="{% url 'manage_classes' %}">ניהול כיתות</a></li>
+
+            {% if teacher.is_homeroom_teacher %}
+            <li
+                    {% if 'manage_students_in_homeroom' in request.path or 'manage_students_in_homeroom' in request.GET.next %} class="active" {% endif %}
+            >
+              <a href="{% url 'manage_homeroom' %}">ניהול קבוצת חונכות</a></li>
+            {% endif %}
         </ul>
         <ul class="categories" id="user-space">
           {% if user.is_authenticated %}
@@ -39,13 +49,13 @@
 
           {% else %}
           <li
-                  {% if 'register' in request.path %} class="active" {% endif %}
-          >
-            <a href="{% url 'register' %}">הרשמה</a></li>
-          <li
                   {% if 'teacher_login' in request.path %} class="active" {% endif %}
           >
             <a href="{% url 'login' %}">כניסה</a></li>
+          <li
+                  {% if 'register' in request.path %} class="active" {% endif %}
+          >
+            <a href="{% url 'register' %}">הרשמה</a></li>
           {% endif %}
         </ul>
       </div>

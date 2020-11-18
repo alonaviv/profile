@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1>ניהול שיעורים</h1>
+
+<div class="items_list">
+<ul>
+ {% if classes %}
+    {% for class in classes %}
+      <li><a class="class_to_manage" href="{% url 'manage_students_in_class' class.id %}">{{class.name}} - ישנם {{class.students.count }}  תלמידים בכיתה </a>
+        <a href="{% url 'manage_students_in_class' class.id %}" class="edit_class"><i class="fas fa-edit"></i></a>
+      </li>
+    {% endfor %}
+  {% endif %}
+  <li class="add_new_class"><a href="{% url 'add_new_class' %}"><i class="fas fa-plus"></i>
+   יצירת שיעור חדש</i></a></li>
+</ul>
+</div>  
+
+{% endblock %}

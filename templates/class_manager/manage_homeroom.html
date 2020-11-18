@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+
+<h1>ניהול קבוצת החונכות של {{teacher}}</h1>
+
+<div class="items_list">
+  <!-- If you want to add numbers here, you need to use a counter - ol doesn't work within flexbox -->
+<ul> 
+  {% if teacher.student_set %}
+    {% for student in teacher.student_set.all %}
+      <li><div class="item">{{student}}</div>
+        <a href="{% url 'delete_student_from_homeroom' student.id %}" onclick="return confirm('האם להסיר את {{student}} מקבוצת החונכות שלך?')"><i class="fas fa-trash-alt"></i></a>
+      </li>
+    {% endfor %}
+  {% endif %}
+  <li><a href="{% url 'add_students_to_homeroom' %}"><i class="fas fa-plus"></i>
+    הוספת תלמידים לקבוצת החונכות</i></a></li>
+</ul>
+</div>  
+
+{% endblock %}

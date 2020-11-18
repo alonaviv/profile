@@ -8,5 +8,4 @@ urlpatterns = [
     path('view_evaluations', views.view_evaluations_main_page, name='view'),
     path('view_evaluations/<int:student_id>', views.view_student_evaluations, name='view_student_evaluations'),
     path('missing_evaluations/<int:student_id>', views.missing_evaluations, name='missing_student_evaluations'),
-    path('failed_login', views.failed_login, name='failed_login')
 ]

@@ -34,11 +34,22 @@ p {
 }
 
 
-.block-container {
+.block-container{
   display: flex;
-  justify-content: flex-end;
   align-items: center;
+}
 
+.block-container * {
+  margin: 15px;
+}
+
+
+.block-container.reverse {
+  justify-content: flex-end;
+}
+
+.block-container.center {
+  justify-content: center;
 }
 
 
@@ -55,7 +66,11 @@ p {
   padding: 10px;
   margin: 30px;
   border-radius: 10px;
-  
+}
+
+
+.back_button.bigger {
+  width: 300px;
 }
 
 
@@ -126,12 +141,13 @@ p {
   align-items: center;
 }
 
-.items_list a{
+.items_list a, .items_list .item{
   font-size: 30px;
   padding: 15px;
+  text-align: center;
 }
 
-.items_list a:hover {
+.items_list a:hover, a.clickable:hover{
   color: #6984a5;
 }
 
@@ -145,11 +161,6 @@ p {
   justify-content: space-between;
 }
 
-.items_list .review_status {
-  text-align: center;
-  font-size: 25px;
-  padding: 15px;
-}
 
 
 /* Font Awesome change */
@@ -166,6 +177,10 @@ p {
 i.fa-times-circle {
   color: red;
   padding: 15px;
+}
+
+.delete-class-icon {
+  color: red;
 }
 
 

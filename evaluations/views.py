@@ -1,9 +1,9 @@
 from django.forms import inlineformset_factory, HiddenInput, Textarea
 from django.http import HttpResponseBadRequest
-from django.shortcuts import render
+from django.shortcuts import render, reverse, redirect
 from django.contrib.auth.decorators import login_required
 
-from .models import Teacher, Evaluation, Class, Student
+from .models import Teacher, Evaluation, Class, Student, StudentNotInClassError
 from common.utils import get_teacher_object
 
 TRIMESTER = 1
@@ -18,18 +18,25 @@ def main_evaluations_page(request):
     return render(request, 'evaluations/index.html', context)
 
 
-# TODO: I think this should happen each time a teacher is finished adding students/classes
-def _populate_evaluations_in_teachers_classes(teacher):
+def populate_evaluations_in_teachers_classes(teacher):
     """
     Make sure that there is an evaluation object in the DB for each student in each class of the given teacher.
-    If there isn't, create an entry with empty text.
+    If there isn't, create an entry with empty text. Delete all evaluations where the student isn't in the class. 
     """
     for evaluated_class in teacher.class_set.all():
         for student in evaluated_class.students.all():
             try:
                 Evaluation.objects.get(student=student, evaluated_class=evaluated_class)
             except Evaluation.DoesNotExist:
-                Evaluation.objects.create(student=student, evaluated_class=evaluated_class, trimester=TRIMESTER)
+                evaluation = Evaluation(student=student, evaluated_class=evaluated_class, trimester=TRIMESTER)
+                evaluation.clean()
+                evaluation.save()
+
+    for evaluation in Evaluation.objects.all():
+        try:
+            evaluation.clean()
+        except StudentNotInClassError:
+            evaluation.delete()
 
 
 @login_required
@@ -67,7 +74,6 @@ def write_evaluations_main_page(request):
     teacher = get_teacher_object(request)
     if teacher:
         classes = teacher.class_set.all()
-        _populate_evaluations_in_teachers_classes(teacher)  # TODO Put this elsewhere
     else:
         classes = []
 
@@ -77,6 +83,10 @@ def write_evaluations_main_page(request):
 @login_required
 def view_student_evaluations(request, student_id):
     teacher = get_teacher_object(request)
+
+    if not teacher.is_homeroom_teacher:
+        return redirect(reverse('not_homeroom_teacher_error'))
+
     student = Student.objects.get(id=student_id)
     context = {'student': student, 'teacher': teacher}
     return render(request, 'evaluations/view_evaluations.html', context)
@@ -85,6 +95,9 @@ def view_student_evaluations(request, student_id):
 @login_required
 def view_evaluations_main_page(request):
     teacher = get_teacher_object(request)
+
+    if not teacher.is_homeroom_teacher:
+        return redirect(reverse('not_homeroom_teacher_error'))
 
     if teacher:
         students = teacher.student_set.all()
@@ -98,6 +111,10 @@ def view_evaluations_main_page(request):
 @login_required
 def missing_evaluations(request, student_id):
     teacher = get_teacher_object(request)
+
+    if not teacher.is_homeroom_teacher:
+        return redirect(reverse('not_homeroom_teacher_error'))
+
     student = Student.objects.get(id=student_id)
 
     missing_classes = []

@@ -1,8 +1,13 @@
 from django.db.models import (
-    CharField, ForeignKey, ManyToManyField, Model, DO_NOTHING, SmallIntegerField, TextField,
-    BooleanField, EmailField, OneToOneField, CASCADE
+    CharField, ForeignKey, ManyToManyField, Model, DO_NOTHING, SmallIntegerField, TextField, PROTECT,
+    BooleanField, EmailField, OneToOneField, CASCADE, SET_NULL, CheckConstraint
 )
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+
+
+class StudentNotInClassError(ValidationError):
+    pass
 
 
 class House(Model):
@@ -17,9 +22,8 @@ class Teacher(Model):
     last_name = CharField(max_length=30)
     email = EmailField()
     is_homeroom_teacher = BooleanField()
-    house = ForeignKey(House, on_delete=DO_NOTHING)
-    # TODO: Take off the null
-    user = OneToOneField(User, on_delete=CASCADE, null=True)
+    house = ForeignKey(House, on_delete=PROTECT)
+    user = OneToOneField(User, on_delete=SET_NULL, null=True)
 
     class Meta:
         unique_together = ['first_name', 'last_name']
@@ -35,15 +39,12 @@ class Subject(Model):
         return self.subject_name
 
 
-
-
 class Student(Model):
     first_name = CharField(max_length=20)
     last_name = CharField(max_length=30)
-    house = ForeignKey(House, on_delete=DO_NOTHING)
+    house = ForeignKey(House, on_delete=PROTECT)
     # To be later added when the homeroom teachers add their kids
-    # TODO: Important!! Have a running task that makes sure all kids have a homeroom teacher.
-    homeroom_teacher = ForeignKey(Teacher, on_delete=DO_NOTHING, blank=True, null=True)
+    homeroom_teacher = ForeignKey(Teacher, on_delete=SET_NULL, blank=True, null=True)
 
     @property
     def completed_evals(self):
@@ -63,9 +64,9 @@ class Student(Model):
 
 class Class(Model):
     name = CharField(max_length=100, unique=True)
-    subject = ForeignKey(Subject, on_delete=DO_NOTHING)
-    house = ForeignKey(House, on_delete=DO_NOTHING)
-    teacher = ForeignKey(Teacher, on_delete=DO_NOTHING, default=1)
+    subject = ForeignKey(Subject, on_delete=PROTECT)
+    house = ForeignKey(House, on_delete=PROTECT)
+    teacher = ForeignKey(Teacher, on_delete=PROTECT, default=1)
     students = ManyToManyField(Student, blank=True)
 
     @property
@@ -82,13 +83,24 @@ class Class(Model):
 
     def __str__(self):
         return self.name
+    
+    def delete(self, *args, **kwargs):
+        if self.students.count() >  0:
+            raise ValueError("Cannot delete class that has students")
+        else:
+            super().delete(*args, **kwargs)
+
 
 
 class Evaluation(Model):
-    student = ForeignKey(Student, on_delete=DO_NOTHING)
-    evaluated_class = ForeignKey(Class, on_delete=DO_NOTHING)
+    student = ForeignKey(Student, on_delete=CASCADE)
+    evaluated_class = ForeignKey(Class, on_delete=CASCADE)
     trimester = SmallIntegerField(choices=((1, 'First meeting'), (2, 'Second meeting'), (3, 'Third meeting')))
     evaluation_text = TextField(default='', blank=True)
 
     class Meta:
         unique_together = ['student', 'evaluated_class', 'trimester']
+    
+    def clean(self):
+        if self.student not in self.evaluated_class.students.all():
+            raise StudentNotInClassError("The student of this evaluation doesn't match the class")

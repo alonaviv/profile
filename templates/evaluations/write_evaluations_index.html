@@ -10,7 +10,7 @@
     {% for class in classes %}
       {% with num_students=class.students.count completed_evals=class.completed_evals %}
 
-      <li><a href="{% url 'write_class_evaluations' class.id %}"><i class="fas fa-pen"></i>{{class.name}}</a><div class="review_status completed">כתבת {{completed_evals}} מתוך {{num_students}} דיווחים</div>
+      <li><a href="{% url 'write_class_evaluations' class.id %}"><i class="fas fa-pen"></i>{{class.name}}</a><div class="item">כתבת {{completed_evals}} מתוך {{num_students}} דיווחים</div>
         {% if num_students == completed_evals %}
           <i class="fas fa-check-circle fa-2x"></i>
         {% else %}

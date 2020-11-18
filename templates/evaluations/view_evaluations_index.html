@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1>צפייה בדיווחים</h1>
+
+{% if students %}
+<div class="items_list">
+<ul>
+    {% for student in students %}
+      <li><a href="{% url 'view_student_evaluations' student.id %}"><i class="fas fa-eye"></i>{{student}}</a>
+    {% endfor %}
+  {% endif %}
+</ul>
+</div>  
+
+{% endblock %}

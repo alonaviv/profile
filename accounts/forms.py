@@ -3,17 +3,16 @@ from django.contrib.auth.models import User
 from evaluations.models import House
 
 
-# TODO: Validate password and email twice
 class RegisterForm(Form):
-    first_name = CharField()
-    last_name = CharField()
-    is_homeroom_teacher = BooleanField(required=False)
-    house = ModelChoiceField(House.objects.all())
-    email = EmailField()
-    password = CharField(widget=PasswordInput())
+    first_name = CharField(label='שם פרטי')
+    last_name = CharField(label='שם משפחה')
+    is_homeroom_teacher = BooleanField(required=False, label='?האם חונכ/ת')
+    house = ModelChoiceField(House.objects.all(), label="שכבה")
+    email = EmailField(label="אימייל")
+    password = CharField(widget=PasswordInput(), label='סיסמא')
 
 
 class LoginForm(Form):
-    first_name = CharField()
-    last_name = CharField()
-    password = CharField(widget=PasswordInput())
+    first_name = CharField(label='שם פרטי')
+    last_name = CharField(label='שם משפחה')
+    password = CharField(widget=PasswordInput(), label='סיסמא')

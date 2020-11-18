@@ -5,6 +5,7 @@
 
 {% if user.is_authenticated %}
     <h2><a href="{% url 'write' %}">כתיבת דיווחים לשיעורים שלך</a></h2>
+    <br><br>
 
     {% if teacher.is_homeroom_teacher == True %}
     <h2><a href="{% url 'view' %}">צפייה בדיווחים של קבוצת החונכות שלך</a></h2>

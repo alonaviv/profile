@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1>עריכת פרטי השיעור {{class}}</h1>
+
+<a class="back_button" href="{% url 'manage_students_in_class' class.id %}">חזרה לניהול השיעור</a>
+
+{% if messages %}
+  {% for message in messages %}
+	{{ message }}
+  {% endfor %}
+{% endif %}
+
+  <form method="POST">
+    <ul>
+    {% csrf_token %}
+    {{ form.as_ul }}
+    <button type="submit">עריכת פרטי השיעור</button>
+    </ul>
+  </form>
+{% endblock %}

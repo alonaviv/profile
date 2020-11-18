@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1> הוספת תלמידים לקבוצת החונכות של {{teacher}} </h1>
+<a class="back_button" href="{% url 'manage_homeroom' %}">חזרה לקבוצת החונכות</a>
+{% if messages %}
+  {% for message in messages %}
+	{{ message }}
+  {% endfor %}
+{% endif %}
+
+<h3>הוספת תלמידים (פנויים) משכבת {{house_of_homeroom}}</h3>
+
+
+  <form method="POST">
+    <ul>
+    {% csrf_token %}
+    {% if form.students|length == 0 %}
+    <li>לא נותרו תלמידים ללא חונכים בשכבה</li>
+    {% else %}
+    {{ form.as_ul }}
+    <button type="submit">הוסף את התלמידים</button>
+    {% endif %}
+    </ul>
+  </form>
+
+{% for house in houses %}
+   {% if house != house_of_homeroom and house.id != 5%}
+<a class="back_button bigger" href="{% url 'add_students_to_homeroom' house.id %}">
+  הוספת תלמידים נוספים משכבת {{house}}
+</a>
+{% endif %}
+
+{% endfor %}
+
+{% endblock %}`
