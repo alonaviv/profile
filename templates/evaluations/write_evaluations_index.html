@@ -19,6 +19,10 @@
       </li>
       {% endwith %}
     {% endfor %}
+{% else %}
+<h3>לא יצרת שיעורים עדיין, לכן לא ניתן לכתוב דיווחים</h3>
+<br>
+<a href="{% url 'manage_classes' %}" class="clickable">לניהול שיעורים</a>
   {% endif %}
 </ul>
 </div>  

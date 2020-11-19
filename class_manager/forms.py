@@ -5,8 +5,7 @@ from evaluations.models import Class
 class ClassForm(ModelForm):
   class Meta:
       model = Class
-      exclude = ['students']
-      widgets = {'teacher': HiddenInput()}
+      exclude = ['students', 'teacher']
       labels = {'name': 'שם השיעור', 'subject': "מקצוע", 'house': "שכבה"}
 
 class AddStudentsForm(Form):

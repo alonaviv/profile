@@ -21,8 +21,8 @@ class TeacherAdmin(admin.ModelAdmin):
     def _get_string(self, model):
         return str(model)
 
-    list_display = ('id', '_get_string', 'is_homeroom_teacher')
-    list_display_links = ('id', '_get_string')
+    list_display = ('id', 'first_name', 'last_name')
+    list_display_links = ('id', 'first_name', 'last_name')
 
 
 class StudentAdmin(admin.ModelAdmin):

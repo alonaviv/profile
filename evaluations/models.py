@@ -2,8 +2,8 @@ from django.db.models import (
     CharField, ForeignKey, ManyToManyField, Model, DO_NOTHING, SmallIntegerField, TextField, PROTECT,
     BooleanField, EmailField, OneToOneField, CASCADE, SET_NULL, CheckConstraint
 )
-from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from accounts.models import TeacherUser
 
 
 class StudentNotInClassError(ValidationError):
@@ -18,18 +18,18 @@ class House(Model):
 
 
 class Teacher(Model):
+    """
+    This model is only used to verify that the TeacherUser is created based on an existing teacher in school.
+    We'll populate all the school teachers with this model before allowing them to create users.
+    """
     first_name = CharField(max_length=20)
     last_name = CharField(max_length=30)
-    email = EmailField()
-    is_homeroom_teacher = BooleanField()
-    house = ForeignKey(House, on_delete=PROTECT)
-    user = OneToOneField(User, on_delete=SET_NULL, null=True)
 
     class Meta:
         unique_together = ['first_name', 'last_name']
 
     def __str__(self):
-        return f"{self.first_name} {self.last_name}"
+        return f"{self.first_name} {self.last_name}" 
 
 
 class Subject(Model):
@@ -44,7 +44,7 @@ class Student(Model):
     last_name = CharField(max_length=30)
     house = ForeignKey(House, on_delete=PROTECT)
     # To be later added when the homeroom teachers add their kids
-    homeroom_teacher = ForeignKey(Teacher, on_delete=SET_NULL, blank=True, null=True)
+    homeroom_teacher = ForeignKey(TeacherUser, on_delete=SET_NULL, blank=True, null=True)
 
     @property
     def completed_evals(self):
@@ -66,7 +66,7 @@ class Class(Model):
     name = CharField(max_length=100, unique=True)
     subject = ForeignKey(Subject, on_delete=PROTECT)
     house = ForeignKey(House, on_delete=PROTECT)
-    teacher = ForeignKey(Teacher, on_delete=PROTECT, default=1)
+    teacher = ForeignKey(TeacherUser, on_delete=PROTECT)
     students = ManyToManyField(Student, blank=True)
 
     @property

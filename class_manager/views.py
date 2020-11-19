@@ -1,6 +1,5 @@
 from django.shortcuts import render, redirect, reverse
 from django.http import HttpResponseForbidden
-from common.utils import get_teacher_object
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from class_manager.forms import ClassForm, AddStudentsForm 
@@ -16,7 +15,7 @@ of the logged in teacher in the navbar. Get it from the function get_teacher_obj
 
 @login_required
 def manage_classes(request):
-    teacher = get_teacher_object(request)
+    teacher = request.user
 
     if teacher:
         classes = teacher.class_set.all()
@@ -28,7 +27,7 @@ def manage_classes(request):
 
 @login_required
 def manage_students_in_class(request, class_id):
-    teacher = get_teacher_object(request)
+    teacher = request.user
     klass = Class.objects.get(id=class_id)
 
     if klass.teacher != teacher:
@@ -40,7 +39,7 @@ def manage_students_in_class(request, class_id):
 
 @login_required
 def delete_student_from_class(request, class_id, student_id):
-    teacher = get_teacher_object(request)
+    teacher = request.user
     klass = Class.objects.get(id=class_id)
 
     if klass.teacher != teacher:
@@ -58,7 +57,7 @@ def delete_student_from_class(request, class_id, student_id):
 
 @login_required
 def delete_class(request, class_id):
-    teacher = get_teacher_object(request)
+    teacher = request.user
     klass = Class.objects.get(id=class_id)
 
     if klass.teacher != teacher:
@@ -70,7 +69,7 @@ def delete_class(request, class_id):
 
 @login_required
 def add_new_class(request):
-    teacher = get_teacher_object(request)
+    teacher = request.user
 
     if request.method == "POST":
         form = ClassForm(request.POST)
@@ -93,7 +92,7 @@ def add_new_class(request):
 
 @login_required
 def edit_class_data(request, class_id):
-    teacher = get_teacher_object(request)
+    teacher = request.user
     klass = Class.objects.get(id=class_id)
 
     if klass.teacher != teacher:
@@ -115,7 +114,7 @@ def edit_class_data(request, class_id):
         
 
 def add_students_to_class(request, class_id, house_id=None):
-    teacher = get_teacher_object(request)
+    teacher = request.user
     klass = Class.objects.get(id=class_id)
 
     # The default behavior is to display students from the house that matches the class
@@ -148,7 +147,7 @@ def add_students_to_class(request, class_id, house_id=None):
 # Managing Homeroom
 @login_required
 def manage_homeroom(request):
-    teacher = get_teacher_object(request)
+    teacher = request.user
 
     if not teacher.is_homeroom_teacher:
         return redirect(reverse('not_homeroom_teacher_error'))
@@ -159,7 +158,7 @@ def manage_homeroom(request):
 
 @login_required
 def add_students_to_homeroom(request, house_id=None):
-    teacher = get_teacher_object(request)
+    teacher = request.user
 
     if not teacher.is_homeroom_teacher:
         return redirect(reverse('not_homeroom_teacher_error'))
@@ -197,7 +196,7 @@ def add_students_to_homeroom(request, house_id=None):
 
 @login_required
 def delete_student_from_homeroom(request, student_id):
-    teacher = get_teacher_object(request)
+    teacher = request.user
 
     if not teacher.is_homeroom_teacher:
         return redirect(reverse('not_homeroom_teacher_error'))

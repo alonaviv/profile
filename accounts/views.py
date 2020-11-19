@@ -1,11 +1,13 @@
 from django.contrib import auth, messages
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.db import IntegrityError
 from django.shortcuts import render, redirect, HttpResponse
 
 from accounts.forms import RegisterForm, LoginForm
 from evaluations.models import Teacher
 from evaluations.views import main_evaluations_page
+
+TeacherUser = get_user_model()
 
 
 def get_username(first_name, last_name):
@@ -16,28 +18,34 @@ def register(request):
     if request.method == "POST":
         form = RegisterForm(request.POST)
         if form.is_valid():
-            username = get_username(form.cleaned_data['first_name'], form.cleaned_data['last_name'])
+            first_name = form.cleaned_data['first_name']
+            last_name = form.cleaned_data['last_name']
+
             try:
-                user = User.objects.create_user(username=username,
+                teacher_object = Teacher.objects.get(first_name=first_name, last_name=last_name)
+            except Teacher.DoesNotExist:
+                messages.error(request, f"המורה {first_name} {last_name} לא רשומ/ה במאגר בית הספר")
+                return render(request, "accounts/register.html", {'form': form})
+
+            username = get_username(first_name, last_name)
+            try:
+                user = TeacherUser.objects.create_user(username=username,
                                                 email=form.cleaned_data['email'],
                                                 password=form.cleaned_data['password'],
-                                                first_name=form.cleaned_data['first_name'],
-                                                last_name=form.cleaned_data['last_name'])
-            except IntegrityError:
-                messages.error(request, "User already exists")
-
-            else:
-                Teacher.objects.get_or_create(first_name=form.cleaned_data['first_name'],
-                                              last_name=form.cleaned_data['last_name'],
-                                              email=form.cleaned_data['email'],
-                                              is_homeroom_teacher=form.cleaned_data['is_homeroom_teacher'],
-                                              house=form.cleaned_data['house'],
-                                              user=user)
+                                                first_name=first_name,
+                                                last_name=last_name,
+                                                house=form.cleaned_data['house'],
+                                                is_homeroom_teacher=form.cleaned_data['is_homeroom_teacher'],
+                                                teacher_object=teacher_object)
 
                 auth.authenticate(username=username, password=form.cleaned_data['password'])
                 auth.login(request, user)
 
                 return redirect(main_evaluations_page)
+
+            except IntegrityError:
+                messages.error(request, f"המשתמש/ת {teacher_object} כבר קיימ/ת במערכת")
+
 
     else:
         form = RegisterForm()

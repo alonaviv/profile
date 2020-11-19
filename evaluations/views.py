@@ -4,17 +4,16 @@ from django.shortcuts import render, reverse, redirect
 from django.contrib.auth.decorators import login_required
 
 from .models import Teacher, Evaluation, Class, Student, StudentNotInClassError
-from common.utils import get_teacher_object
 
 TRIMESTER = 1
 
 """
 Every view in the site needs to pass the teacher object in the context, so it can display the name
-of the logged in teacher in the navbar. Get it from the function get_teacher_object
+of the logged in teacher in the navbar. Note that teacher in this context is the TeacherUser, not the Teacher object which is used to verify that the user is expected.
 """
 
 def main_evaluations_page(request):
-    context = {'teacher': get_teacher_object(request)}
+    context = {'teacher': request.user}
     return render(request, 'evaluations/index.html', context)
 
 
@@ -41,7 +40,7 @@ def populate_evaluations_in_teachers_classes(teacher):
 
 @login_required
 def write_class_evaluations(request, class_id):
-    teacher = get_teacher_object(request)
+    teacher = request.user
     try:
         class_to_evaluate = Class.objects.get(id=class_id, teacher=teacher)
     except Class.DoesNotExist:
@@ -71,7 +70,8 @@ def write_class_evaluations(request, class_id):
 
 @login_required
 def write_evaluations_main_page(request):
-    teacher = get_teacher_object(request)
+    teacher = request.user
+
     if teacher:
         classes = teacher.class_set.all()
     else:
@@ -82,7 +82,7 @@ def write_evaluations_main_page(request):
 
 @login_required
 def view_student_evaluations(request, student_id):
-    teacher = get_teacher_object(request)
+    teacher = request.user
 
     if not teacher.is_homeroom_teacher:
         return redirect(reverse('not_homeroom_teacher_error'))
@@ -94,7 +94,7 @@ def view_student_evaluations(request, student_id):
 
 @login_required
 def view_evaluations_main_page(request):
-    teacher = get_teacher_object(request)
+    teacher = request.user
 
     if not teacher.is_homeroom_teacher:
         return redirect(reverse('not_homeroom_teacher_error'))
@@ -110,7 +110,7 @@ def view_evaluations_main_page(request):
 
 @login_required
 def missing_evaluations(request, student_id):
-    teacher = get_teacher_object(request)
+    teacher = request.user
 
     if not teacher.is_homeroom_teacher:
         return redirect(reverse('not_homeroom_teacher_error'))

@@ -32,7 +32,7 @@
             <li
                     {% if 'manage_students_in_class' in request.path or 'manage_students_in_class' in request.GET.next %} class="active" {% endif %}
             >
-              <a href="{% url 'manage_classes' %}">ניהול כיתות</a></li>
+              <a href="{% url 'manage_classes' %}">ניהול שיעורים</a></li>
 
             {% if teacher.is_homeroom_teacher %}
             <li

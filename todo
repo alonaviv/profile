@@ -7,7 +7,10 @@ write into that semester. For reads, maybe it shows the default of that semester
 * Save evaluations that were actually deleted.
 
 
-* Fix how teacher and users interact. Also, allow teachers that aren't homeroom teachers to not have a house, but for homeroom teachers its mandatory. See if the null=True in the Teacher model makes sense. 
+* "Forgot password" mechanism - also, double checking password seems important here.
+
+* Format the forms. In the write review form for a class, show on the top again how many you wrote. 
+Also, have a sign of green or red next to each review, to see if it was submitted successfully. Tricky work with the form formatting. Do the same with adding students to classes.
 
 * A system to show everyone what is missing - maybe on the home page?
 Show on the home page a status maybe, how many classes you added, with how many kids total.
@@ -15,13 +18,12 @@ How many reviews total you have left to write.
 And on the side of the homeroom teacher, How many are missing, and from how many teachers (showing the number missing from each teacher)
 Also have a section to show how many students they have in the homeroom, how many classes they have, and how many students total do they teach. Link to edit classes/homeroom.
 
-* In the write review form for a class, show on the top again how many you wrote. 
-Also, have a sign of green or red next to each review, to see if it was submitted successfully. Tricky work with the form formatting. Do the same with adding students to classes.
 
 
 ======================
-The only thing that the school itself needs to do is to add the list of students, teachers, and subjects.
-I may even be able to do that programmatically somehow.
+The only thing that the school itself needs to do is to give me a list of students (first name, last name and house), teachers (first name and last name)
+and subject (just name - but remember to add אחר)
+I can write a basic script that reads csv/excel and puts each line into the model.
 
 ================
 
@@ -38,6 +40,8 @@ Stupid things teachers might do and I should validate.
 * Not add all the kids to their classes - nothing to do about that, but we should make sure that their classes all have at least one kid (or maybe more?)
 * Think about the issue of the fact that evaluations are deleted when a kid is removed from a class. Is this OK?
 
+I think I should implement all these things as clean methods for the models - and then have something that runs clean on all of them. clean should maybe just return a boolean. Or maybe a different name, so I can use clean for models that should never be created that way. Maybe use validate() 
+
 ======================
 Additions later on:
 * Filter forms by letters maybe?
@@ -46,3 +50,4 @@ use javascript to make all of this responsive.
 * Add subjects that teachers in general teach to their user (can be several or none), Use that for default for all their classes when they add in a new class.
 * Pagination everywhere
 * Request email and password twice in register form
+* Use django authentication backend instead of creating a needless username from first+last name
