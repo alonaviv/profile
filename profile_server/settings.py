@@ -137,3 +137,10 @@ LOGIN_URL = '/failed_login'
 
 
 AUTH_USER_MODEL = 'accounts.TeacherUser'
+
+
+try:
+    from .local_settings import *
+except ImportError:
+    pass
+
