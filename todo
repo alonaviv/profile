@@ -20,12 +20,12 @@ Also have a section to show how many students they have in the homeroom, how man
 
 * See if you should pay for backups on digital ocean.
 
+* Write script to imports student/teacher data
 
 
 ======================
 The only thing that the school itself needs to do is to give me a list of students (first name, last name and house), teachers (first name and last name)
-and subject (just name - but remember to add אחר)
-I can write a basic script that reads csv/excel and puts each line into the model.
+and subjects (just name - but remember to add אחר)
 
 ================
 
