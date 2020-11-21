@@ -1,0 +1,20 @@
+- model: evaluations.house
+  pk: 1
+  fields:
+    house_name: חט״צ
+- model: evaluations.house
+  pk: 2
+  fields:
+    house_name: צעירי יסודי
+- model: evaluations.house
+  pk: 3
+  fields:
+    house_name: בוגרי יסודי
+- model: evaluations.house
+  pk: 4
+  fields:
+    house_name: חט״ב
+- model: evaluations.house
+  pk: 5
+  fields:
+    house_name: חט״ע
