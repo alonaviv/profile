@@ -1,9 +1,11 @@
-from django.db.models import (
-    CharField, ForeignKey, ManyToManyField, Model, DO_NOTHING, SmallIntegerField, TextField, PROTECT,
-    BooleanField, EmailField, OneToOneField, CASCADE, SET_NULL, CheckConstraint
-)
 from django.core.exceptions import ValidationError
+from django.db.models import (
+    CharField, ForeignKey, ManyToManyField, Model, TextField, PROTECT,
+    CASCADE, SET_NULL, IntegerField
+)
+
 from accounts.models import TeacherUser
+from utils.school_dates import Trimester, get_current_trimester_and_hebrew_year
 
 
 class StudentNotInClassError(ValidationError):
@@ -29,7 +31,7 @@ class Teacher(Model):
         unique_together = ['first_name', 'last_name']
 
     def __str__(self):
-        return f"{self.first_name} {self.last_name}" 
+        return f"{self.first_name} {self.last_name}"
 
 
 class Subject(Model):
@@ -52,7 +54,7 @@ class Student(Model):
         for evaluation in self.evaluation_set.all():
             if evaluation.evaluation_text:
                 completed_evals += 1
-        
+
         return completed_evals
 
     class Meta:
@@ -61,46 +63,71 @@ class Student(Model):
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
 
+    @property
+    def completed_evals_in_current_trimester(self):
+        current_trimester, current_year = get_current_trimester_and_hebrew_year()
+
+        completed_evals = []
+        for evaluation in self.evaluation_set.filter(trimester=current_trimester, hebrew_year=current_year):
+            if evaluation.evaluation_text:
+                completed_evals.append(evaluation)
+
+        return completed_evals
+
+    @property
+    def all_evals_in_current_trimester(self):
+        current_trimester, current_year = get_current_trimester_and_hebrew_year()
+        return list(self.evaluation_set.filter(trimester=current_trimester, hebrew_year=current_year))
+
 
 class Class(Model):
-    name = CharField(max_length=100, unique=True)
+    name = CharField(max_length=100)
     subject = ForeignKey(Subject, on_delete=PROTECT)
     house = ForeignKey(House, on_delete=PROTECT)
     teacher = ForeignKey(TeacherUser, on_delete=PROTECT)
     students = ManyToManyField(Student, blank=True)
-
-    @property
-    def completed_evals(self):
-        completed_evals = 0
-        for evaluation in self.evaluation_set.all():
-            if evaluation.evaluation_text:
-                completed_evals += 1
-        
-        return completed_evals
+    hebrew_year = IntegerField()
 
     class Meta:
         verbose_name_plural = "Classes"
+        unique_together = ('name', 'hebrew_year')
 
     def __str__(self):
         return self.name
-    
+
     def delete(self, *args, **kwargs):
-        if self.students.count() >  0:
+        if self.students.count() > 0:
             raise ValueError("Cannot delete class that has students")
         else:
             super().delete(*args, **kwargs)
 
+    @property
+    def completed_evals_in_current_trimester(self):
+        current_trimester, current_year = get_current_trimester_and_hebrew_year()
+
+        completed_evals = []
+        for evaluation in self.evaluation_set.filter(trimester=current_trimester, hebrew_year=current_year):
+            if evaluation.evaluation_text:
+                completed_evals.append(evaluation)
+
+        return completed_evals
+
+    @property
+    def all_evals_in_current_trimester(self):
+        current_trimester, current_year = get_current_trimester_and_hebrew_year()
+        return list(self.evaluation_set.filter(trimester=current_trimester, hebrew_year=current_year))
 
 
 class Evaluation(Model):
     student = ForeignKey(Student, on_delete=CASCADE)
     evaluated_class = ForeignKey(Class, on_delete=CASCADE)
-    trimester = SmallIntegerField(choices=((1, 'First meeting'), (2, 'Second meeting'), (3, 'Third meeting')))
     evaluation_text = TextField(default='', blank=True)
+    hebrew_year = IntegerField()
+    trimester = IntegerField(choices=Trimester.get_choices())
 
     class Meta:
         unique_together = ['student', 'evaluated_class', 'trimester']
-    
+
     def clean(self):
         if self.student not in self.evaluated_class.students.all():
             raise StudentNotInClassError("The student of this evaluation doesn't match the class")

@@ -1,15 +1,17 @@
-from django.forms import ModelForm, HiddenInput, Form, ModelMultipleChoiceField, CheckboxSelectMultiple
+from django.forms import ModelForm, Form, ModelMultipleChoiceField, CheckboxSelectMultiple, HiddenInput
+
 from evaluations.models import Class
 
 
 class ClassForm(ModelForm):
-  class Meta:
-      model = Class
-      exclude = ['students', 'teacher']
-      labels = {'name': 'שם השיעור', 'subject': "מקצוע", 'house': "שכבה"}
+    class Meta:
+        model = Class
+        exclude = ['students', 'teacher', 'hebrew_year']
+        labels = {'name': 'שם השיעור', 'subject': "מקצוע", 'house': "שכבה"}
+
 
 class AddStudentsForm(Form):
-    def __init__(self, *args, **kwargs):  
+    def __init__(self, *args, **kwargs):
         """
         Pass the field 'all_students', with all the students to select from.
         Pass the field 'current_students', with the students that are already selected.
@@ -18,5 +20,5 @@ class AddStudentsForm(Form):
         current_students = kwargs.pop('current_students')
         super().__init__(*args, **kwargs)
 
-        self.fields['students'] = ModelMultipleChoiceField(all_students, widget=CheckboxSelectMultiple, label="", initial=current_students)
-
+        self.fields['students'] = ModelMultipleChoiceField(all_students, widget=CheckboxSelectMultiple, label="",
+                                                           initial=current_students)

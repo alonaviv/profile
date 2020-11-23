@@ -1,11 +1,6 @@
-* Trimester should be a kind of environment variable. Think about it - maybe the admin "opens up" the website
-for evaluations period for that semester, and then everything is according to that semester. For writes, you can only
-write into that semester. For reads, maybe it shows the default of that semester, but have links to previous semesters
-(and years), if these exist.
-* Along with semester, I think we should add year. Need to think how to define the hebrew school year. Same thing - add it staticlly for now just so it's in the db. Next time around, your'll use that and change the variable. Need to think how to mark classes per year as well. This gets tricky.
-* Think about the fact that teachers can stop being chonchim next year and other changes that could happen between years.
-* Save evaluations that were actually deleted.
-
+* Work on all forms of deletion:
+ - Think about the fact that teachers can stop being chonchim next year and other changes that could happen between years.
+ - Save evaluations that were actually deleted. Focuse on the automatic deletion of evaluations when student leaves a class/class is deleted. Not sure we ever want to delete an evaluation, we'll see. And if we do, make sure that we don't delete evaluations from previous semesters.
 
 * "Forgot password" mechanism - also, double checking password seems important here.
 
@@ -20,14 +15,13 @@ Also have a section to show how many students they have in the homeroom, how man
 
 * See if you should pay for backups on digital ocean.
 
-* Write script to imports student/teacher data
+* Think about several teacher teaching same class, sometimes it means a few topics
 
+* Filter students better.
 
-======================
-The only thing that the school itself needs to do is to give me a list of students (first name, last name and house), teachers (first name and last name)
-and subjects (just name - but remember to add אחר)
+* Add square on top of page with the year/trimester.
 
-================
+==================================================
 
 * Have a running task that all kids have a homeroom teacher. If they don't, maybe send an email to Dalit or me. 
 
@@ -53,3 +47,4 @@ use javascript to make all of this responsive.
 * Pagination everywhere
 * Request email and password twice in register form
 * Use django authentication backend instead of creating a needless username from first+last name
+* For next time - add viewing of previous evalutions - both written by 

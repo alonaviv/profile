@@ -4,14 +4,14 @@ from .models import Class, Teacher, Subject, House, Student, Evaluation
 
 
 class EvaluationAdmin(admin.ModelAdmin):
-    list_display = ('id', 'student', 'evaluated_class', 'trimester')
+    list_display = ('id', 'student', 'evaluated_class', 'trimester', 'hebrew_year')
     list_display_links = ('id', 'student', 'evaluated_class')
 
     list_filter = ('student', 'evaluated_class', 'trimester')
 
 
 class ClassAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'subject', 'house', 'teacher')
+    list_display = ('id', 'name', 'subject', 'house', 'teacher', 'hebrew_year')
     list_display_links = ('id', 'name')
 
     list_filter = ('house', 'subject')

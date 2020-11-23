@@ -1,9 +1,11 @@
-from django.shortcuts import render, redirect, reverse
-from django.http import HttpResponseForbidden
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
-from class_manager.forms import ClassForm, AddStudentsForm 
+from django.http import HttpResponseForbidden
+from django.shortcuts import render, redirect, reverse, HttpResponse
+
+from class_manager.forms import ClassForm, AddStudentsForm
 from evaluations.models import Class, Student, House
+from utils.school_dates import get_hebrew_year_as_int
 from evaluations.views import populate_evaluations_in_teachers_classes
 
 """
@@ -11,19 +13,21 @@ Every view in the site needs to pass the teacher object in the context, so it ca
 of the logged in teacher in the navbar. Get it from the function get_teacher_object
 """
 
+
 # Managing Classes
 
 @login_required
 def manage_classes(request):
     teacher = request.user
-
     if teacher:
-        classes = teacher.class_set.all()
+        current_hebrew_year = get_hebrew_year_as_int()
+        classes = teacher.class_set.filter(hebrew_year=current_hebrew_year)
     else:
         classes = []
 
     context = {'classes': classes, 'teacher': teacher}
     return render(request, 'class_manager/manage_classes.html', context)
+
 
 @login_required
 def manage_students_in_class(request, class_id):
@@ -32,10 +36,13 @@ def manage_students_in_class(request, class_id):
 
     if klass.teacher != teacher:
         return HttpResponseForbidden(f"<h1> לא ניתן לערוך את השיעור {klass} שאינכם מלמדים")
+    if klass.hebrew_year != get_hebrew_year_as_int():
+        return HttpResponseForbidden(f"<h1> לא ניתן לערוך שיעור של שנה {klass.hebrew_year} </h1>")
 
     students = klass.students.all()
     context = {'class': klass, 'students': students, 'teacher': teacher}
     return render(request, 'class_manager/manage_students_in_class.html', context)
+
 
 @login_required
 def delete_student_from_class(request, class_id, student_id):
@@ -44,6 +51,8 @@ def delete_student_from_class(request, class_id, student_id):
 
     if klass.teacher != teacher:
         return HttpResponseForbidden(f"<h1> לא ניתן לערוך את השיעור {klass} שאינכם מלמדים")
+    if klass.hebrew_year != get_hebrew_year_as_int():
+        return HttpResponseForbidden(f"<h1> לא ניתן לערוך שיעור של שנה {klass.hebrew_year} </h1>")
 
     student = Student.objects.get(id=student_id)
 
@@ -55,6 +64,7 @@ def delete_student_from_class(request, class_id, student_id):
 
     return redirect(manage_students_in_class, klass.id)
 
+
 @login_required
 def delete_class(request, class_id):
     teacher = request.user
@@ -62,7 +72,9 @@ def delete_class(request, class_id):
 
     if klass.teacher != teacher:
         return HttpResponseForbidden(f"<h1> לא ניתן לערוך את השיעור {klass} שאינכם מלמדים")
-    
+    if klass.hebrew_year != get_hebrew_year_as_int():
+        return HttpResponseForbidden(f"<h1> לא ניתן למחוק שיעור של שנה {klass.hebrew_year} </h1>")
+
     klass.delete()
     return redirect(manage_classes)
 
@@ -79,10 +91,11 @@ def add_new_class(request):
             subject = form.cleaned_data['subject']
             house = form.cleaned_data['house']
 
-            new_class = Class.objects.create(name=name, subject=subject, house=house, teacher=teacher)
+            new_class = Class.objects.create(name=name, subject=subject, house=house, teacher=teacher,
+                                             hebrew_year=get_hebrew_year_as_int())
             populate_evaluations_in_teachers_classes(teacher)
             return redirect(add_students_to_class, new_class.id)
-    
+
     else:
         form = ClassForm(initial={'house': teacher.house})
 
@@ -97,6 +110,8 @@ def edit_class_data(request, class_id):
 
     if klass.teacher != teacher:
         return HttpResponse(f"<h1> לא ניתן לערוך את השיעור {klass} שאינכם מלמדים")
+    if klass.hebrew_year != get_hebrew_year_as_int():
+        return HttpResponseForbidden(f"<h1> לא ניתן לערוך שיעור של שנה {klass.hebrew_year} </h1>")
 
     if request.method == "POST":
         form = ClassForm(request.POST, instance=klass)
@@ -105,13 +120,13 @@ def edit_class_data(request, class_id):
             form.save()
             populate_evaluations_in_teachers_classes(teacher)
             return redirect(manage_students_in_class, klass.id)
-    
+
     else:
         form = ClassForm(instance=klass)
 
     context = {"form": form, "teacher": teacher, "class": klass}
     return render(request, "class_manager/edit_class_data.html", context)
-        
+
 
 def add_students_to_class(request, class_id, house_id=None):
     teacher = request.user
@@ -125,6 +140,8 @@ def add_students_to_class(request, class_id, house_id=None):
 
     if klass.teacher != teacher:
         return HttpResponse(f"<h1> לא ניתן לערוך את השיעור {klass} שאינכם מלמדים")
+    if klass.hebrew_year != get_hebrew_year_as_int():
+        return HttpResponseForbidden(f"<h1> לא ניתן לערוך שיעור של שנה {klass.hebrew_year} </h1>")
 
     students_to_choose_from = Student.objects.filter(house=house)
     current_students = klass.students.all()
@@ -136,13 +153,16 @@ def add_students_to_class(request, class_id, house_id=None):
             selected_students = form.cleaned_data['students']
             klass.students.add(*selected_students)
             populate_evaluations_in_teachers_classes(teacher)
-    
+
     else:
         form = AddStudentsForm(all_students=students_to_choose_from, current_students=current_students)
 
-    context = {"form": form, "teacher": teacher, "class": klass, 
-               "current_house": house, "houses": House.objects.all()}
+    context = {
+        "form": form, "teacher": teacher, "class": klass,
+        "current_house": house, "houses": House.objects.all()
+    }
     return render(request, "class_manager/add_students_to_class.html", context)
+
 
 # Managing Homeroom
 @login_required
@@ -171,8 +191,8 @@ def add_students_to_homeroom(request, house_id=None):
 
     # Get all students from house that don't already have a homeroom teacher
     students_to_choose_from = Student.objects.filter(
-    Q(homeroom_teacher=None)| Q(homeroom_teacher=teacher),
-    house=house)
+        Q(homeroom_teacher=None) | Q(homeroom_teacher=teacher),
+        house=house)
     current_students = teacher.student_set.all()
 
     if request.method == "POST":
@@ -184,9 +204,9 @@ def add_students_to_homeroom(request, house_id=None):
             for student in selected_students:
                 if student.homeroom_teacher:
                     raise ValueError(f"Cannot add student {student}, as he/she already has a homeroom")
-                
+
             teacher.student_set.add(*list(selected_students))
-    
+
     else:
         form = AddStudentsForm(all_students=students_to_choose_from, current_students=current_students)
 

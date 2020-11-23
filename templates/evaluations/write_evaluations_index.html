@@ -8,10 +8,11 @@
 <div class="items_list">
 <ul>
     {% for class in classes %}
-      {% with num_students=class.students.count completed_evals=class.completed_evals %}
+        {% with all_evals_count=class.all_evals_in_current_trimester|length completed_evals_count=class.completed_evals_in_current_trimester|length %}
 
-      <li><a href="{% url 'write_class_evaluations' class.id %}"><i class="fas fa-pen"></i>{{class.name}}</a><div class="item">כתבת {{completed_evals}} מתוך {{num_students}} דיווחים</div>
-        {% if num_students == completed_evals %}
+      <li><a href="{% url 'write_class_evaluations' class.id %}"><i class="fas fa-pen"></i>{{class.name}}</a><div
+              class="item">כתבת {{completed_evals_count}} מתוך {{all_evals_count}} דיווחים</div>
+        {% if all_evals_count == completed_evals_count %}
           <i class="fas fa-check-circle fa-2x"></i>
         {% else %}
         <i class="fas fa-tachometer-alt fa-2x"></i>

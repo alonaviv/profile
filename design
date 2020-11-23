@@ -1,0 +1,17 @@
+Marking time:
+Classes:
+Needs to have a year, given automatically when the class is created. Each start of a new year, automatically all classes won't appear anywhere. No need to see them anymore - only the evaluations are important now. 
+
+Students + teachers - always there. Need to deal with deletion later. 
+
+Evaluations:
+Need a year in the same way. 
+Need a trimester. Given upon creation of the evaluations automatically, based on a config file that determines when the
+trimesters start and end.
+
+Needs to match the year of the class, but I don't think this is a problem. The evaluations always match existing
+classes and students as they are created automatically. When populating evaluations, always use classes from the current
+year, and pass that year to the created evaluation.
+
+When writing and reading evaluations, only the evaluations of the current trimester and year should appear.
+
