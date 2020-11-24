@@ -42,7 +42,7 @@ class Subject(Model):
 
 
 class Student(Model):
-    first_name = CharField(max_length=20)
+    first_name = CharField(max_length=30)
     last_name = CharField(max_length=30)
     house = ForeignKey(House, on_delete=PROTECT)
     # To be later added when the homeroom teachers add their kids
