@@ -1,7 +1,7 @@
 from django.contrib import auth, messages
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError
-from django.shortcuts import render, redirect, HttpResponse
+from django.shortcuts import render, redirect
 
 from accounts.forms import RegisterForm, LoginForm
 from evaluations.models import Teacher
@@ -30,13 +30,13 @@ def register(request):
             username = get_username(first_name, last_name)
             try:
                 user = TeacherUser.objects.create_user(username=username,
-                                                email=form.cleaned_data['email'],
-                                                password=form.cleaned_data['password'],
-                                                first_name=first_name,
-                                                last_name=last_name,
-                                                house=form.cleaned_data['house'],
-                                                is_homeroom_teacher=form.cleaned_data['is_homeroom_teacher'],
-                                                teacher_object=teacher_object)
+                                                       email=form.cleaned_data['email'],
+                                                       password=form.cleaned_data['password'],
+                                                       first_name=first_name,
+                                                       last_name=last_name,
+                                                       house=form.cleaned_data['house'],
+                                                       is_homeroom_teacher=form.cleaned_data['is_homeroom_teacher'],
+                                                       teacher_object=teacher_object)
 
                 auth.authenticate(username=username, password=form.cleaned_data['password'])
                 auth.login(request, user)
@@ -45,7 +45,6 @@ def register(request):
 
             except IntegrityError:
                 messages.error(request, f"המשתמש/ת {teacher_object} כבר קיימ/ת במערכת")
-
 
     else:
         form = RegisterForm()
@@ -77,5 +76,3 @@ def login(request):
 def logout(request):
     auth.logout(request)
     return redirect(main_evaluations_page)
-
-
