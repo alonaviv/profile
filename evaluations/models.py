@@ -1,7 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.db.models import (
     CharField, ForeignKey, ManyToManyField, Model, TextField, PROTECT,
-    CASCADE, SET_NULL, IntegerField
+    CASCADE, SET_NULL, IntegerField, Manager
 )
 
 from accounts.models import TeacherUser
@@ -75,9 +75,10 @@ class Student(Model):
         return completed_evals
 
     @property
-    def all_evals_in_current_trimester(self):
+    def required_evals_in_current_trimester(self):
         current_trimester, current_year = get_current_trimester_and_hebrew_year()
-        return list(self.evaluation_set.filter(trimester=current_trimester, hebrew_year=current_year))
+        return list(self.evaluation_set.get_evaluations_with_active_students().filter(trimester=current_trimester,
+                                                                                      hebrew_year=current_year))
 
 
 class Class(Model):
@@ -113,21 +114,36 @@ class Class(Model):
         return completed_evals
 
     @property
-    def all_evals_in_current_trimester(self):
+    def required_evals_in_current_trimester(self):
         current_trimester, current_year = get_current_trimester_and_hebrew_year()
-        return list(self.evaluation_set.filter(trimester=current_trimester, hebrew_year=current_year))
+        return list(self.evaluation_set.get_evaluations_with_active_students().filter(trimester=current_trimester,
+                                                                                      hebrew_year=current_year))
+
+
+class EvaluationManager(Manager):
+    def get_evaluations_with_active_students(self):
+        evaluations_with_active_students = set()
+
+        for evaluation in self.all():
+            if evaluation.student in evaluation.evaluated_class.students.all():
+                evaluations_with_active_students.add(evaluation.pk)
+
+        return self.all().filter(pk__in=evaluations_with_active_students)
 
 
 class Evaluation(Model):
     student = ForeignKey(Student, on_delete=CASCADE)
     evaluated_class = ForeignKey(Class, on_delete=CASCADE)
+    subjects = ManyToManyField(Subject)
     evaluation_text = TextField(default='', blank=True)
     hebrew_year = IntegerField()
     trimester = IntegerField(choices=Trimester.get_choices())
 
+    objects = EvaluationManager()
+
     class Meta:
         unique_together = ['student', 'evaluated_class', 'trimester']
 
-    def clean(self):
-        if self.student not in self.evaluated_class.students.all():
-            raise StudentNotInClassError("The student of this evaluation doesn't match the class")
+    @property
+    def is_student_in_class(self):
+        return self.student in self.evaluated_class.students.all()

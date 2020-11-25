@@ -8,7 +8,7 @@
 <div class="items_list">
 <ul>
     {% for class in classes %}
-        {% with all_evals_count=class.all_evals_in_current_trimester|length completed_evals_count=class.completed_evals_in_current_trimester|length %}
+        {% with all_evals_count=class.required_evals_in_current_trimester|length completed_evals_count=class.completed_evals_in_current_trimester|length %}
 
       <li><a href="{% url 'write_class_evaluations' class.id %}"><i class="fas fa-pen"></i>{{class.name}}</a><div
               class="item">כתבת {{completed_evals_count}} מתוך {{all_evals_count}} דיווחים</div>

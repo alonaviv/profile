@@ -2,9 +2,9 @@ from django.contrib.auth.decorators import login_required
 from django.forms import inlineformset_factory, Textarea
 from django.http import HttpResponseBadRequest
 from django.shortcuts import render, reverse, redirect
-from utils.school_dates import get_current_trimester_and_hebrew_year
 
-from .models import Evaluation, Class, Student, StudentNotInClassError
+from utils.school_dates import get_current_trimester_and_hebrew_year
+from .models import Evaluation, Class, Student
 
 """
 Every view in the site needs to pass the teacher object in the context, so it can display the name
@@ -20,7 +20,7 @@ def main_evaluations_page(request):
 def populate_evaluations_in_teachers_classes(teacher):
     """
     Make sure that there is an evaluation object in the DB for each student in each class of the given teacher.
-    If there isn't, create an entry with empty text. Delete all evaluations where the student isn't in the class. 
+    If there isn't, create an entry with empty text.
     """
     current_trimester, current_hebrew_year = get_current_trimester_and_hebrew_year()
 
@@ -35,13 +35,6 @@ def populate_evaluations_in_teachers_classes(teacher):
                                         trimester=current_trimester, hebrew_year=current_hebrew_year)
                 evaluation.clean()
                 evaluation.save()
-
-    # TODO: Figure this part out. Is the filter correct?
-    for evaluation in Evaluation.objects.filter(hebrew_year=current_hebrew_year, trimester=current_trimester):
-        try:
-            evaluation.clean()
-        except StudentNotInClassError:
-            evaluation.delete()
 
 
 @login_required
@@ -65,14 +58,16 @@ def write_class_evaluations(request, class_id):
 
     if request.method == 'POST':
         formset = EvaluationFormSet(request.POST, instance=class_to_evaluate,
-                                    queryset=Evaluation.objects.filter(hebrew_year=current_hebrew_year,
-                                                                       trimester=current_trimester))
+                                    queryset=Evaluation.objects.get_evaluations_with_active_students().filter(
+                                        hebrew_year=current_hebrew_year,
+                                        trimester=current_trimester))
         formset.save()
 
     else:
         formset = EvaluationFormSet(instance=class_to_evaluate,
-                                    queryset=Evaluation.objects.filter(hebrew_year=current_hebrew_year,
-                                                                       trimester=current_trimester))
+                                    queryset=Evaluation.objects.get_evaluations_with_active_students().filter(
+                                        hebrew_year=current_hebrew_year,
+                                        trimester=current_trimester))
 
     context = {'formset': formset, 'teacher': teacher}
     return render(request, 'evaluations/write_evaluations.html', context)

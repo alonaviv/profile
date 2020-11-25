@@ -1,6 +1,7 @@
 Marking time:
 Classes:
-Needs to have a year, given automatically when the class is created. Each start of a new year, automatically all classes won't appear anywhere. No need to see them anymore - only the evaluations are important now. 
+Needs to have a year, given automatically when the class is created. Each start of a new year, automatically all classes won't appear anywhere.
+No need to see them anymore - only the evaluations are important now.
 
 Students + teachers - always there. Need to deal with deletion later. 
 
@@ -14,4 +15,22 @@ classes and students as they are created automatically. When populating evaluati
 year, and pass that year to the created evaluation.
 
 When writing and reading evaluations, only the evaluations of the current trimester and year should appear.
+
+
+================
+
+Deletions:
+
+* Removing student from class. I think it makes sense that the evaluation won't matter anymore for this year, yet be
+saved for all previous kinds (the previous evaluation objects).
+On the other hand, what if they bring the student back, or do it by mistake?
+How about we create the evaluations for the current year always, yet only display them if the student is actually in
+the class? On the other hand, we're talking about the current trimester. Though it won't end exactly right after.
+Ok, I think it should always be there - even if the kid left the class. Why not. If a teacher wrote something, it should
+be there. Next trimester the student won't be there anymore, so won't be created.
+So basically, don't delete evaluations where students aren't in the class. See what happens.
+
+Read evaluations - see evaluations from everyone that exist, but mark if student is no longer in class.
+Write evaluations - only for students that are in class. If there are existing non active evaluations, show them in
+a different page
 

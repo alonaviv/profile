@@ -2,7 +2,6 @@
  - Think about the fact that teachers can stop being chonchim next year and other changes that could happen between years.
  - Save evaluations that were actually deleted. Focuse on the automatic deletion of evaluations when student leaves a class/class is deleted. Not sure we ever want to delete an evaluation, we'll see. And if we do, make sure that we don't delete evaluations from previous semesters.
 
-* "Forgot password" mechanism - also, double checking password seems important here.
 
 * Format the forms. In the write review form for a class, show on the top again how many you wrote. 
 Also, have a sign of green or red next to each review, to see if it was submitted successfully. Tricky work with the form formatting. Do the same with adding students to classes.
@@ -31,7 +30,7 @@ Also have a section to show how many students they have in the homeroom, how man
 Stupid things teachers might do and I should validate.
 
 * Not have any classes
-* Not be added at all to the database. Need to check the teacher users against a static list of their names I think. Maybe go back and decide that the teachers should actually be static - only then someone else could somehow take their spot? I actually think that's better - have a new user associated with the teacher, and then only those teachers can register, and we can validate that all teachers have a user defined. 
+* Not registered at all, even though they are listed as teacher.
 * Not add any kids to homerooms - the validation of kids in homeroom will find that.
 * Not add all the kids to their classes - nothing to do about that, but we should make sure that their classes all have at least one kid (or maybe more?)
 * Think about the issue of the fact that evaluations are deleted when a kid is removed from a class. Is this OK?
@@ -45,6 +44,5 @@ Additions later on:
 use javascript to make all of this responsive.
 * Add subjects that teachers in general teach to their user (can be several or none), Use that for default for all their classes when they add in a new class.
 * Pagination everywhere
-* Request email and password twice in register form
 * Use django authentication backend instead of creating a needless username from first+last name
-* For next time - add viewing of previous evalutions - both written by 
+* For next time cycle of evaluations - add viewing of previous evalutions - both written by

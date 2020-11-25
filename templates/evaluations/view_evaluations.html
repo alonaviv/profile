@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-{% with all_student_evals=student.all_evals_in_current_trimester completed_student_evals=student.completed_evals_in_current_trimester %}
+{% with all_student_evals=student.required_evals_in_current_trimester completed_student_evals=student.completed_evals_in_current_trimester %}
     <h1>הדיווחים של {{student}}</h1>
     <div id="view_evaluations">
     <div id="summary">
