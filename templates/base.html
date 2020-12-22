@@ -16,8 +16,8 @@
 <body>
   <header>
     <div id="navbar">
-        <a href="{% url 'index' %}"><h1 class="logo">בית הספר הדמוקרטי</h1></a>
-        <ul class="categories" id="page-links">
+        <a href="{% url 'index' %}" id="logo_a"><h1 class="logo">בית הספר הדמוקרטי</h1></a>
+        <ul class="nav_sections" id="page-links">
           <li
                   {% if 'write' in request.path or 'write' in request.GET.next %} class="active" {% endif %}
           >
@@ -41,7 +41,10 @@
               <a href="{% url 'manage_homeroom' %}">ניהול קבוצת חונכות</a></li>
             {% endif %}
         </ul>
-        <ul class="categories" id="user-space">
+        <ul class="nav_sections" id="day_notification">
+            <li id="next_meeting">הורה-חונך-ילד הקרוב (מספר 2):<br> חודש פברואר</li>
+        </ul>
+        <ul class="nav_sections" id="user-space">
           {% if user.is_authenticated %}
           <li class="logged_in"> {{ teacher }}</li>
           <li>
@@ -61,7 +64,7 @@
       </div>
   </header>
 
-  <main>
+ <main>
 {% block content %} {% endblock %}
  </main>
 </body>
