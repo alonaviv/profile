@@ -102,39 +102,45 @@ class Class(Model):
         else:
             super().delete(*args, **kwargs)
 
-    @property
-    def completed_evals_in_current_trimester(self):
-        current_trimester, current_year = get_current_trimester_and_hebrew_year()
-
-        completed_evals = []
-        for evaluation in self.evaluation_set.filter(trimester=current_trimester, hebrew_year=current_year):
-            if evaluation.evaluation_text:
-                completed_evals.append(evaluation)
-
-        return completed_evals
-
-    @property
-    def required_evals_in_current_trimester(self):
-        current_trimester, current_year = get_current_trimester_and_hebrew_year()
-        return list(self.evaluation_set.get_evaluations_with_active_students().filter(trimester=current_trimester,
-                                                                                      hebrew_year=current_year))
+    # @property
+    # def completed_evals_in_current_trimester(self):
+    #     current_trimester, current_year = get_current_trimester_and_hebrew_year()
+    #
+    #     completed_evals = []
+    #     for evaluation in self.evaluation_set.filter(trimester=current_trimester, hebrew_year=current_year):
+    #         if evaluation.evaluation_text:
+    #             completed_evals.append(evaluation)
+    #
+    #     return completed_evals
+    #
+    # @property
+    # def required_evals_in_current_trimester(self):
+    #     current_trimester, current_year = get_current_trimester_and_hebrew_year()
+    #     return list(self.evaluation_set.get_evaluations_with_active_students().filter(trimester=current_trimester,
+    #                                                                                   hebrew_year=current_year))
 
 
 class EvaluationManager(Manager):
-    def get_evaluations_with_active_students(self):
+    def get_evaluations_current_trimester(self):
         evaluations_with_active_students = set()
 
-        for evaluation in self.all():
+        for evaluation in self.get_completed_evaluations_including_non_active_students_current_trimester():
             if evaluation.student in evaluation.evaluated_class.students.all():
                 evaluations_with_active_students.add(evaluation.pk)
 
         return self.all().filter(pk__in=evaluations_with_active_students)
 
+    def get_completed_evaluations_current_trimester(self):
+        return self.get_evaluations_current_trimester().exclude(evaluation_text='')
+
+    def get_completed_evaluations_including_non_active_students_current_trimester(self):
+        current_trimester, current_year = get_current_trimester_and_hebrew_year()
+        return self.all().filter(trimester=current_trimester, hebrew_year=current_year)
+
 
 class Evaluation(Model):
     student = ForeignKey(Student, on_delete=CASCADE)
     evaluated_class = ForeignKey(Class, on_delete=CASCADE)
-    subjects = ManyToManyField(Subject)
     evaluation_text = TextField(default='', blank=True)
     hebrew_year = IntegerField()
     trimester = IntegerField(choices=Trimester.get_choices())

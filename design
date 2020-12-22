@@ -34,3 +34,18 @@ Read evaluations - see evaluations from everyone that exist, but mark if student
 Write evaluations - only for students that are in class. If there are existing non active evaluations, show them in
 a different page
 
+=======
+Class -  Never delete, so you have reference to past evaluations. Just add a flag of is_deleted.
+Don't create new evaluations for deleted classes, and don't display them anywhere. When asked evaluation if student
+in class, return False if class is deleted.
+Make sure you can't create a new class with same fields in the same year.
+Make foreign keys block all deletion.
+
+Student - Never delete, so you can always access history of student that left the school. Just add a flag of is_deleted.
+Don't show deleted students anywhere, don't create new evaluations for them.
+See if there is a point where they ask for its evaluations - they shouldn't.
+
+House, allow delete if nothing is using it.
+Subject - allow delete if nothing is using it.
+Teacher - allow delete if no user. And user can't be deleted on its own.
+

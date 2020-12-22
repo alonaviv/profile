@@ -58,14 +58,14 @@ def write_class_evaluations(request, class_id):
 
     if request.method == 'POST':
         formset = EvaluationFormSet(request.POST, instance=class_to_evaluate,
-                                    queryset=Evaluation.objects.get_evaluations_with_active_students().filter(
+                                    queryset=Evaluation.objects.get_evaluations_current_trimester().filter(
                                         hebrew_year=current_hebrew_year,
                                         trimester=current_trimester))
         formset.save()
 
     else:
         formset = EvaluationFormSet(instance=class_to_evaluate,
-                                    queryset=Evaluation.objects.get_evaluations_with_active_students().filter(
+                                    queryset=Evaluation.objects.get_evaluations_current_trimester().filter(
                                         hebrew_year=current_hebrew_year,
                                         trimester=current_trimester))
 
@@ -118,22 +118,18 @@ def view_evaluations_main_page(request):
 
 
 @login_required
-def missing_evaluations(request, student_id):
+def view_missing_evaluations(request, student_id):
     teacher = request.user
-    current_trimester, current_year = get_current_trimester_and_hebrew_year()
 
     if not teacher.is_homeroom_teacher:
         return redirect(reverse('not_homeroom_teacher_error'))
 
     student = Student.objects.get(id=student_id)
+    evaluations = student.evaluation_set
+    missing_evaluations = evaluations.get_evaluations_current_trimester().difference(
+        evaluations.get_completed_evaluations_current_trimester())
 
-    missing_classes = []
-
-    for evaluation in student.evaluation_set.filter(trimester=current_trimester, hebrew_year=current_year):
-        if not evaluation.evaluation_text:
-            missing_classes.append(evaluation.evaluated_class)
-
-    context = {'student': student, 'missing_classes': missing_classes, 'teacher': teacher}
+    context = {'student': student, 'missing_evaluations': missing_evaluations, 'teacher': teacher}
     return render(request, 'evaluations/missing_evaluations.html', context)
 
 

@@ -8,6 +8,6 @@ Set when the parent-teacher-kid meeting happen throughout the year ("Trimesters"
 END_OF_YEAR_MONTH = 7  # This is when the year is over
 
 TRIMESTERS_CONFIG = {
-    "second_trimester_start_month": 12,
+    "second_trimester_start_month": 10,
     "third_trimester_start_month": 4,
 }
