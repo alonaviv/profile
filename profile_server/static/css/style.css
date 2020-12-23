@@ -129,7 +129,8 @@ p {
     margin: 30px 10px;
     font-size: 16px;
     padding: 20px;
-    color: black
+    color: black;
+    text-align: center;
 }
 
 #navbar li a {

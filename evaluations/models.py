@@ -5,7 +5,8 @@ from django.db.models import (
 )
 
 from accounts.models import TeacherUser
-from utils.school_dates import Trimester, get_current_trimester_and_hebrew_year
+from utils.school_dates import get_current_trimester_and_hebrew_year
+from utils.date_helpers import Trimester
 
 
 class StudentNotInClassError(ValidationError):
