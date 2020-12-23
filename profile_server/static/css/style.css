@@ -84,13 +84,13 @@ p {
   position: fixed;
   width: 100%;
   top: 0;
-  padding: 5px 20px;
+  padding: 0 20px;
 }
 
 #navbar .nav_sections {
   color: #ee9411;
-  font-family: 'Noot', serif;
-  font-size: 22px;
+  font-size: 26px;
+  font-weight: bold;
 }
 
 
@@ -106,6 +106,7 @@ p {
   display: flex;
   align-items: center;
   width: 100%;
+  text-align: center;
 }
 
 #navbar #page-links{
@@ -119,20 +120,29 @@ p {
     width: 150px;
 }
 
+#navbar #dates{
+    justify-content: space-evenly;
+    margin-right: auto;
+    width: 550px;
+}
+
 #navbar #page-links li {
     flex-basis: 300px;
 }
 
-.nav_sections#day_notification {
-    border: black solid 3px;
-    border-radius: 10px;
+.nav_sections#dates {
     margin: 30px 10px;
     font-size: 16px;
-    padding: 20px;
-    color: black
+    color: black;
+    text-align: center;
 }
 
-#navbar li a {
+.navbar_emphasis { 
+    border: black solid 3px;
+    border-radius: 10px;
+}
+
+#navbar li a, #navbar li p {
     padding-right: 3px;
     padding-left: 3px;
     margin-left: 3px;
@@ -157,8 +167,8 @@ p {
 }
 
 
-#navbar li:not(.logged_in):hover,
-#navbar li.active{
+#navbar li.clickable:hover,
+#navbar li.active.clickable{
   background-color: #0f60d6;
 }
 

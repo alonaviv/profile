@@ -16,47 +16,46 @@
 <body>
   <header>
     <div id="navbar">
-        <a href="{% url 'index' %}" id="logo_a"><h1 class="logo">בית הספר הדמוקרטי</h1></a>
+        <a href="{% url 'index' %}"><h1 class="logo">בית הספר הדמוקרטי</h1></a>
         <ul class="nav_sections" id="page-links">
           <li
-                  {% if 'write' in request.path or 'write' in request.GET.next %} class="active" {% endif %}
+                  {% if 'write' in request.path or 'write' in request.GET.next %} class="active clickable" {% else %} class="clickable" {% endif %}
           >
             <a href="{% url 'write' %}">רישום דיווחים</a></li>
 
             {% if teacher.is_homeroom_teacher %}
             <li
-                    {% if 'view' in request.path or 'view' in request.GET.next %} class="active" {% endif %}
+                    {% if 'view' in request.path or 'view' in request.GET.next %} class="active clickable" {% else %} class="clickable" {% endif %}
             >
               <a href="{% url 'view' %}">צפייה בדיווחים</a></li>
             {% endif %}
             <li
-                    {% if 'manage_students_in_class' in request.path or 'manage_students_in_class' in request.GET.next %} class="active" {% endif %}
+                    {% if 'manage_classes' in request.path or 'manage_classes' in request.GET.next %} class="active clickable" {% else %} class="clickable" {% endif %}
             >
               <a href="{% url 'manage_classes' %}">ניהול שיעורים</a></li>
 
             {% if teacher.is_homeroom_teacher %}
             <li
-                    {% if 'manage_students_in_homeroom' in request.path or 'manage_students_in_homeroom' in request.GET.next %} class="active" {% endif %}
+                    {% if 'manage_homeroom' in request.path or 'manage_homeroom' in request.GET.next %} class="active clickable" {% else %} class="clickable" {% endif %}
             >
               <a href="{% url 'manage_homeroom' %}">ניהול קבוצת חונכות</a></li>
             {% endif %}
         </ul>
-        <ul class="nav_sections" id="day_notification">
-            <li id="next_meeting">הורה-חונך-ילד הקרוב (מספר 2):<br> חודש פברואר</li>
+        <ul class="nav_sections" id="dates">
+            <li id="next_meeting" class="navbar_emphasis"><p>הורה חונך ילד הקרוב: <br>{{trimester.meeting_end_of_trimester_printable}} (פגישה מספר {{trimester.number}} השנה)</p></li>
+            <li id="current_year"><p>{{trimester.hebrew_school_year_printable}}</p></li>
         </ul>
         <ul class="nav_sections" id="user-space">
           {% if user.is_authenticated %}
-          <li class="logged_in"> {{ teacher }}</li>
-          <li>
+          <li class="logged_in"><p>{{ teacher }}</p></li>
+          <li class="clickable">
           <a href="{% url 'logout' %}">התנתקות</a></li>
 
           {% else %}
-          <li
-                  {% if 'teacher_login' in request.path %} class="active" {% endif %}
+          <li {% if 'teacher_login' in request.path %} class="active clickable" {% else %} class="clickable" {% endif %}
           >
             <a href="{% url 'login' %}">כניסה</a></li>
-          <li
-                  {% if 'register' in request.path %} class="active" {% endif %}
+          <li {% if 'register' in request.path %} class="active clickable" {% else %} class="clickable" {% endif %}
           >
             <a href="{% url 'register' %}">הרשמה</a></li>
           {% endif %}

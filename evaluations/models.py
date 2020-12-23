@@ -5,7 +5,8 @@ from django.db.models import (
 )
 
 from accounts.models import TeacherUser
-from utils.school_dates import Trimester, get_current_trimester_and_hebrew_year
+from utils.school_dates import get_current_trimester
+from utils.date_helpers import TrimesterType
 
 
 class StudentNotInClassError(ValidationError):
@@ -65,10 +66,11 @@ class Student(Model):
 
     @property
     def completed_evals_in_current_trimester(self):
-        current_trimester, current_year = get_current_trimester_and_hebrew_year()
+        current_trimester = get_current_trimester()
 
         completed_evals = []
-        for evaluation in self.evaluation_set.filter(trimester=current_trimester, hebrew_year=current_year):
+        for evaluation in self.evaluation_set.filter(trimester=current_trimester.name,
+                                                     hebrew_year=current_trimester.hebrew_school_year):
             if evaluation.evaluation_text:
                 completed_evals.append(evaluation)
 
@@ -76,8 +78,9 @@ class Student(Model):
 
     @property
     def all_evals_in_current_trimester(self):
-        current_trimester, current_year = get_current_trimester_and_hebrew_year()
-        return list(self.evaluation_set.filter(trimester=current_trimester, hebrew_year=current_year))
+        current_trimester = get_current_trimester()
+        return list(self.evaluation_set.filter(trimester=current_trimester.name,
+                                               hebrew_year=current_trimester.hebrew_school_year))
 
 
 class Class(Model):
@@ -103,10 +106,11 @@ class Class(Model):
 
     @property
     def completed_evals_in_current_trimester(self):
-        current_trimester, current_year = get_current_trimester_and_hebrew_year()
+        current_trimester = get_current_trimester()
 
         completed_evals = []
-        for evaluation in self.evaluation_set.filter(trimester=current_trimester, hebrew_year=current_year):
+        for evaluation in self.evaluation_set.filter(trimester=current_trimester.name,
+                                                     hebrew_year=current_trimester.hebrew_school_year):
             if evaluation.evaluation_text:
                 completed_evals.append(evaluation)
 
@@ -114,8 +118,9 @@ class Class(Model):
 
     @property
     def all_evals_in_current_trimester(self):
-        current_trimester, current_year = get_current_trimester_and_hebrew_year()
-        return list(self.evaluation_set.filter(trimester=current_trimester, hebrew_year=current_year))
+        current_trimester = get_current_trimester()
+        return list(self.evaluation_set.filter(trimester=current_trimester.name,
+                                               hebrew_year=current_trimester.hebrew_school_year))
 
 
 class Evaluation(Model):
@@ -123,7 +128,7 @@ class Evaluation(Model):
     evaluated_class = ForeignKey(Class, on_delete=CASCADE)
     evaluation_text = TextField(default='', blank=True)
     hebrew_year = IntegerField()
-    trimester = IntegerField(choices=Trimester.get_choices())
+    trimester = CharField(choices=TrimesterType.get_choices(), max_length=20)
 
     class Meta:
         unique_together = ['student', 'evaluated_class', 'trimester']

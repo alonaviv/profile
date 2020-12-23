@@ -4,6 +4,9 @@
 
 * "Forgot password" mechanism - also, double checking password seems important here.
 
+* When in NULL-SEMESTER, don't allow to fill out any evals, and display in the square that there are no more meetings
+this year.
+
 * Format the forms. In the write review form for a class, show on the top again how many you wrote. 
 Also, have a sign of green or red next to each review, to see if it was submitted successfully. Tricky work with the form formatting. Do the same with adding students to classes.
 
@@ -18,8 +21,6 @@ Also have a section to show how many students they have in the homeroom, how man
 * Think about several teacher teaching same class, sometimes it means a few topics
 
 * Filter students better.
-
-* Add square on top of page with the year/trimester.
 
 ==================================================
 
