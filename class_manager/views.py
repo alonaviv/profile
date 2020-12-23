@@ -5,8 +5,8 @@ from django.shortcuts import render, redirect, reverse, HttpResponse
 
 from class_manager.forms import ClassForm, AddStudentsForm
 from evaluations.models import Class, Student, House
-from utils.school_dates import get_hebrew_year_as_int
 from evaluations.views import populate_evaluations_in_teachers_classes
+from utils.school_dates import get_current_trimester
 
 """
 Every view in the site needs to pass the teacher object in the context, so it can display the name
@@ -20,12 +20,11 @@ of the logged in teacher in the navbar. Get it from the function get_teacher_obj
 def manage_classes(request):
     teacher = request.user
     if teacher:
-        current_hebrew_year = get_hebrew_year_as_int()
-        classes = teacher.class_set.filter(hebrew_year=current_hebrew_year)
+        classes = teacher.class_set.filter(hebrew_year=get_current_trimester().hebrew_school_year)
     else:
         classes = []
 
-    context = {'classes': classes, 'teacher': teacher}
+    context = {'classes': classes, 'teacher': teacher, 'trimester': get_current_trimester()}
     return render(request, 'class_manager/manage_classes.html', context)
 
 
@@ -36,11 +35,11 @@ def manage_students_in_class(request, class_id):
 
     if klass.teacher != teacher:
         return HttpResponseForbidden(f"<h1> לא ניתן לערוך את השיעור {klass} שאינכם מלמדים")
-    if klass.hebrew_year != get_hebrew_year_as_int():
+    if klass.hebrew_year != get_current_trimester().hebrew_school_year:
         return HttpResponseForbidden(f"<h1> לא ניתן לערוך שיעור של שנה {klass.hebrew_year} </h1>")
 
     students = klass.students.all()
-    context = {'class': klass, 'students': students, 'teacher': teacher}
+    context = {'class': klass, 'students': students, 'teacher': teacher, 'trimester': get_current_trimester()}
     return render(request, 'class_manager/manage_students_in_class.html', context)
 
 
@@ -51,7 +50,7 @@ def delete_student_from_class(request, class_id, student_id):
 
     if klass.teacher != teacher:
         return HttpResponseForbidden(f"<h1> לא ניתן לערוך את השיעור {klass} שאינכם מלמדים")
-    if klass.hebrew_year != get_hebrew_year_as_int():
+    if klass.hebrew_year != get_current_trimester().hebrew_school_year:
         return HttpResponseForbidden(f"<h1> לא ניתן לערוך שיעור של שנה {klass.hebrew_year} </h1>")
 
     student = Student.objects.get(id=student_id)
@@ -72,7 +71,7 @@ def delete_class(request, class_id):
 
     if klass.teacher != teacher:
         return HttpResponseForbidden(f"<h1> לא ניתן לערוך את השיעור {klass} שאינכם מלמדים")
-    if klass.hebrew_year != get_hebrew_year_as_int():
+    if klass.hebrew_year != get_current_trimester().hebrew_school_year:
         return HttpResponseForbidden(f"<h1> לא ניתן למחוק שיעור של שנה {klass.hebrew_year} </h1>")
 
     klass.delete()
@@ -92,14 +91,14 @@ def add_new_class(request):
             house = form.cleaned_data['house']
 
             new_class = Class.objects.create(name=name, subject=subject, house=house, teacher=teacher,
-                                             hebrew_year=get_hebrew_year_as_int())
+                                             hebrew_year=get_current_trimester().hebrew_school_year)
             populate_evaluations_in_teachers_classes(teacher)
             return redirect(add_students_to_class, new_class.id)
 
     else:
         form = ClassForm(initial={'house': teacher.house})
 
-    context = {"form": form, "teacher": teacher}
+    context = {"form": form, "teacher": teacher, "trimester": get_current_trimester()}
     return render(request, "class_manager/add_new_class.html", context)
 
 
@@ -110,7 +109,7 @@ def edit_class_data(request, class_id):
 
     if klass.teacher != teacher:
         return HttpResponse(f"<h1> לא ניתן לערוך את השיעור {klass} שאינכם מלמדים")
-    if klass.hebrew_year != get_hebrew_year_as_int():
+    if klass.hebrew_year != get_current_trimester().hebrew_school_year:
         return HttpResponseForbidden(f"<h1> לא ניתן לערוך שיעור של שנה {klass.hebrew_year} </h1>")
 
     if request.method == "POST":
@@ -124,7 +123,7 @@ def edit_class_data(request, class_id):
     else:
         form = ClassForm(instance=klass)
 
-    context = {"form": form, "teacher": teacher, "class": klass}
+    context = {"form": form, "teacher": teacher, "class": klass, "trimester": get_current_trimester()}
     return render(request, "class_manager/edit_class_data.html", context)
 
 
@@ -140,7 +139,7 @@ def add_students_to_class(request, class_id, house_id=None):
 
     if klass.teacher != teacher:
         return HttpResponse(f"<h1> לא ניתן לערוך את השיעור {klass} שאינכם מלמדים")
-    if klass.hebrew_year != get_hebrew_year_as_int():
+    if klass.hebrew_year != get_current_trimester().hebrew_school_year:
         return HttpResponseForbidden(f"<h1> לא ניתן לערוך שיעור של שנה {klass.hebrew_year} </h1>")
 
     students_to_choose_from = Student.objects.filter(house=house)
@@ -159,7 +158,7 @@ def add_students_to_class(request, class_id, house_id=None):
 
     context = {
         "form": form, "teacher": teacher, "class": klass,
-        "current_house": house, "houses": House.objects.all()
+        "current_house": house, "houses": House.objects.all(), "trimester": get_current_trimester()
     }
     return render(request, "class_manager/add_students_to_class.html", context)
 
@@ -172,7 +171,7 @@ def manage_homeroom(request):
     if not teacher.is_homeroom_teacher:
         return redirect(reverse('not_homeroom_teacher_error'))
 
-    context = {'teacher': teacher}
+    context = {'teacher': teacher, "trimester": get_current_trimester()}
     return render(request, 'class_manager/manage_homeroom.html', context)
 
 
@@ -210,7 +209,10 @@ def add_students_to_homeroom(request, house_id=None):
     else:
         form = AddStudentsForm(all_students=students_to_choose_from, current_students=current_students)
 
-    context = {"form": form, "teacher": teacher, "house_of_homeroom": house, "houses": House.objects.all()}
+    context = {
+        "form": form, "teacher": teacher, "house_of_homeroom": house, "houses": House.objects.all(),
+        "trimester": get_current_trimester()
+    }
     return render(request, "class_manager/add_students_to_homeroom.html", context)
 
 
