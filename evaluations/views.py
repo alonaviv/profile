@@ -13,7 +13,7 @@ of the logged in teacher in the navbar. Note that teacher in this context is the
 
 
 def main_evaluations_page(request):
-    context = {'teacher': request.user, "trimester": get_current_trimester()}
+    context = {'teacher': request.user}
     return render(request, 'evaluations/index.html', context)
 
 
@@ -22,29 +22,30 @@ def populate_evaluations_in_teachers_classes(teacher):
     Make sure that there is an evaluation object in the DB for each student in each class of the given teacher.
     If there isn't, create an entry with empty text. Delete all evaluations where the student isn't in the class. 
     """
-    current_trimester = get_current_trimester()
+    if not teacher.is_anonymous:
+        current_trimester = get_current_trimester()
 
-    for evaluated_class in teacher.class_set.filter(hebrew_year=current_trimester.hebrew_school_year):
-        for student in evaluated_class.students.all():
+        for evaluated_class in teacher.class_set.filter(hebrew_year=current_trimester.hebrew_school_year):
+            for student in evaluated_class.students.all():
+                try:
+                    Evaluation.objects.get(student=student, evaluated_class=evaluated_class,
+                                           hebrew_year=current_trimester.hebrew_school_year,
+                                           trimester=current_trimester.name)
+                except Evaluation.DoesNotExist:
+                    current_trimester = get_current_trimester()
+                    evaluation = Evaluation(student=student, evaluated_class=evaluated_class,
+                                            trimester=current_trimester.name,
+                                            hebrew_year=current_trimester.hebrew_school_year)
+                    evaluation.clean()
+                    evaluation.save()
+
+        # TODO: Figure this part out. Is the filter correct?
+        for evaluation in Evaluation.objects.filter(hebrew_year=current_trimester.hebrew_school_year,
+                                                    trimester=current_trimester.name):
             try:
-                Evaluation.objects.get(student=student, evaluated_class=evaluated_class,
-                                       hebrew_year=current_trimester.hebrew_school_year,
-                                       trimester=current_trimester.name)
-            except Evaluation.DoesNotExist:
-                current_trimester = get_current_trimester()
-                evaluation = Evaluation(student=student, evaluated_class=evaluated_class,
-                                        trimester=current_trimester.name,
-                                        hebrew_year=current_trimester.hebrew_school_year)
                 evaluation.clean()
-                evaluation.save()
-
-    # TODO: Figure this part out. Is the filter correct?
-    for evaluation in Evaluation.objects.filter(hebrew_year=current_trimester.hebrew_school_year,
-                                                trimester=current_trimester.name):
-        try:
-            evaluation.clean()
-        except StudentNotInClassError:
-            evaluation.delete()
+            except StudentNotInClassError:
+                evaluation.delete()
 
 
 @login_required
@@ -78,7 +79,7 @@ def write_class_evaluations(request, class_id):
                                     queryset=Evaluation.objects.filter(hebrew_year=current_trimester.hebrew_school_year,
                                                                        trimester=current_trimester.name))
 
-    context = {'formset': formset, 'teacher': teacher, "trimester": get_current_trimester()}
+    context = {'formset': formset, 'teacher': teacher}
     return render(request, 'evaluations/write_evaluations.html', context)
 
 
@@ -94,7 +95,7 @@ def write_evaluations_main_page(request):
     else:
         classes = []
 
-    context = {'classes': classes, 'teacher': teacher, "trimester": get_current_trimester()}
+    context = {'classes': classes, 'teacher': teacher}
     return render(request, 'evaluations/write_evaluations_index.html', context)
 
 
@@ -106,7 +107,7 @@ def view_student_evaluations(request, student_id):
         return redirect(reverse('not_homeroom_teacher_error'))
 
     student = Student.objects.get(id=student_id)
-    context = {'student': student, 'teacher': teacher, "trimester": get_current_trimester()}
+    context = {'student': student, 'teacher': teacher}
     return render(request, 'evaluations/view_evaluations.html', context)
 
 
@@ -122,7 +123,7 @@ def view_evaluations_main_page(request):
     else:
         students = []
 
-    context = {'students': students, 'teacher': teacher, "trimester": get_current_trimester()}
+    context = {'students': students, 'teacher': teacher}
     return render(request, 'evaluations/view_evaluations_index.html', context)
 
 
@@ -144,8 +145,7 @@ def missing_evaluations(request, student_id):
             missing_classes.append(evaluation.evaluated_class)
 
     context = {
-        'student': student, 'missing_classes': missing_classes, 'teacher': teacher, "trimester": get_current_trimester()
-    }
+        'student': student, 'missing_classes': missing_classes, 'teacher': teacher}
     return render(request, 'evaluations/missing_evaluations.html', context)
 
 

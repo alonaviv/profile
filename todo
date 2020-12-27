@@ -1,3 +1,13 @@
+Before Demo:
+
+* If a student has no classes (when reading evals), put a message there, not green 0 out of 0.
+* If for students that don't have classes, mention it in the dashboard.
+
+* In the main manage homeroom class, write how many classes each kid has
+* In the main view evals - write how many evals were received already
+
+
+===========
 * Work on all forms of deletion:
  - Think about the fact that teachers can stop being chonchim next year and other changes that could happen between years.
  - Save evaluations that were actually deleted. Focuse on the automatic deletion of evaluations when student leaves a class/class is deleted. Not sure we ever want to delete an evaluation, we'll see. And if we do, make sure that we don't delete evaluations from previous semesters.
@@ -5,16 +15,18 @@
 * "Forgot password" mechanism - also, double checking password seems important here.
 
 * When in NULL-SEMESTER, don't allow to fill out any evals, and display in the square that there are no more meetings
-this year.
+this year. Also make sure that nothing can get a null semester value.
+
+* Add sex to registration, and then you can write text accordingly.
+
+* If they change existing text to other text, ask if they are sure.
+
+* Bug - seems can't add evaluations of same trimester and different years
 
 * Format the forms. In the write review form for a class, show on the top again how many you wrote. 
 Also, have a sign of green or red next to each review, to see if it was submitted successfully. Tricky work with the form formatting. Do the same with adding students to classes.
 
-* A system to show everyone what is missing - maybe on the home page?
-Show on the home page a status maybe, how many classes you added, with how many kids total.
-How many reviews total you have left to write.
-And on the side of the homeroom teacher, How many are missing, and from how many teachers (showing the number missing from each teacher)
-Also have a section to show how many students they have in the homeroom, how many classes they have, and how many students total do they teach. Link to edit classes/homeroom.
+* Format the message pages, when there is an error (no classes for example), so it looks good as well.
 
 * See if you should pay for backups on digital ocean.
 
@@ -48,4 +60,7 @@ use javascript to make all of this responsive.
 * Pagination everywhere
 * Request email and password twice in register form
 * Use django authentication backend instead of creating a needless username from first+last name
-* For next time - add viewing of previous evalutions - both written by 
+* For next time - add viewing of previous evalutions - both written by
+* Ability to upload files with the evaluations
+* Email them the status every so often
+* Cute encoureging messages as they progress through it.

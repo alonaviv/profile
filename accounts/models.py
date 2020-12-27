@@ -16,3 +16,44 @@ class TeacherUser(AbstractUser):
         return f"{self.first_name} {self.last_name}"
 
     objects = TeacherUserManager()
+
+    @property
+    def completed_evals_in_current_trimester(self):
+        completed_evals = []
+        for klass in self.class_set.all():
+            completed_evals.extend(klass.completed_evals_in_current_trimester)
+
+        return completed_evals
+
+    @property
+    def all_evals_in_current_trimester(self):
+        all_evals = []
+        for klass in self.class_set.all():
+            all_evals.extend(klass.all_evals_in_current_trimester)
+
+        return all_evals
+
+    @property
+    def evals_percentage_completed(self):
+        return 100 * (len(self.completed_evals_in_current_trimester) / len(self.all_evals_in_current_trimester))
+
+    @property
+    def completed_evals_of_homeroom_students_in_current_trimester(self):
+        completed_evals = []
+        for student in self.student_set.all():
+            completed_evals.extend(student.completed_evals_in_current_trimester)
+
+        return completed_evals
+
+    @property
+    def all_evals_of_homeroom_students_in_current_trimester(self):
+        all_evals = []
+        for student in self.student_set.all():
+            all_evals.extend(student.all_evals_in_current_trimester)
+
+        return all_evals
+
+    @property
+    def missing_evals_of_homeroom_students_in_current_trimester(self):
+        return [evaluation for evaluation in self.all_evals_of_homeroom_students_in_current_trimester if
+                evaluation not in self.completed_evals_of_homeroom_students_in_current_trimester]

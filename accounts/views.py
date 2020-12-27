@@ -1,11 +1,10 @@
 from django.contrib import auth, messages
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError
-from django.shortcuts import render, redirect, HttpResponse
+from django.shortcuts import render, redirect, reverse
 
 from accounts.forms import RegisterForm, LoginForm
 from evaluations.models import Teacher
-from evaluations.views import main_evaluations_page
 
 TeacherUser = get_user_model()
 
@@ -41,7 +40,7 @@ def register(request):
                 auth.authenticate(username=username, password=form.cleaned_data['password'])
                 auth.login(request, user)
 
-                return redirect(main_evaluations_page)
+                return redirect(reverse('index'))
 
             except IntegrityError:
                 messages.error(request, f"המשתמש/ת {teacher_object} כבר קיימ/ת במערכת")
@@ -63,7 +62,7 @@ def login(request):
 
             if user is not None:
                 auth.login(request, user)
-                return redirect(main_evaluations_page)
+                return redirect(reverse('index'))
             else:
                 messages.error(request, "Wrong Credentials")
 
@@ -76,6 +75,6 @@ def login(request):
 
 def logout(request):
     auth.logout(request)
-    return redirect(main_evaluations_page)
+    return redirect(reverse('index'))
 
 

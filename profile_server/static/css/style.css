@@ -55,7 +55,7 @@ p {
 
 /* Buttons */
 
-.back_button {
+.back_button, .link_button{
   border: 1px black solid;
   display: block;
   width: 200px;
@@ -69,7 +69,7 @@ p {
 }
 
 
-.back_button.bigger {
+.back_button.bigger, .link_button.bigger{
   width: 350px;
 }
 
@@ -80,7 +80,7 @@ p {
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  height: 70px;
+  height: 75px;
   position: fixed;
   width: 100%;
   top: 0;
@@ -123,7 +123,7 @@ p {
 #navbar #dates{
     justify-content: space-evenly;
     margin-right: auto;
-    width: 550px;
+    width: 700px;
 }
 
 #navbar #page-links li {
@@ -140,6 +140,7 @@ p {
 .navbar_emphasis { 
     border: black solid 3px;
     border-radius: 10px;
+    padding: 10px;
 }
 
 #navbar li a, #navbar li p {

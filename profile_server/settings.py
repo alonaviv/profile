@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'evaluations.apps.EvaluationsConfig',
     'accounts.apps.AccountsConfig',
     'class_manager.apps.ClassManagerConfig',
+    'dashboard.apps.DashboardConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

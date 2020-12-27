@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1> ברוכים הבאים למערכת הדיווחים של הדמוקרטי!</h1>
+
+{% if not user.is_authenticated %}
+<h2>יש להתחבר על מנת להשתמש במערכת</h2>
+<br><br>
+<h2><a href="{% url 'register' %}">להרשמה</a></h2>
+<br>
+<h2><a href="{% url 'login' %}">להתחברות</a></h2>
+
+{% else %}
+
+<div id="meeting_countdown">
+    <p>פגישת הורה/חונך/ילד הקרובה, מספר {{trimester.number}} השנה, תתקיים בתאריך {{trimester.meeting_end_of_trimester_printable}}</p>
+    <p>נשארו עוד <strong>{{trimester.days_left_for_writing}}</strong> ימים להשלמת כל הדיווחים</p>
+</div>
+
+<hr class="section_break">
+
+<div id="professional_teacher_section"></div>
+
+{% if teacher.is_homeroom_teacher %}
+<h2>כובע מורה מקצועי/ת</h2>
+{% endif %}
+
+<div id="manage_class_subsection">
+{% if classes|length == 0 %}
+    <p>עוד לא הוספת שיעורים שאת/ה מלמד/ת השנה</p>
+    <a class="link_button bigger" href="{% url 'manage_classes' %}">
+        להוספת שיעורים
+    </a>
+</div>
+{% else %}
+    <p>את/ה מלמד/ת {{classes|length}} שיעורים השנה, ומשתתפים בהם סה״כ {{class_students|length}} תלמידים</p>
+    <a class="link_button bigger" href="{% url 'manage_classes' %}">
+        להוספת עוד שיעורים 
+    </a>
+</div>
+
+<div id="write_evaluations_subsection">
+    {% if teacher.all_evals_in_current_trimester|length == teacher.completed_evals_in_current_trimester|length %}
+    <p>מדהים! סיימת לכתוב את כל הדיווחים!!</p>
+    {% else %}
+    <p>כתבת {{teacher.completed_evals_in_current_trimester|length}} דיווחים מתוך {{teacher.all_evals_in_current_trimester|length}} (כלומר - השלמת {{teacher.evals_percentage_completed | floatformat}}% עד כה)</p>
+    <a class="link_button bigger" href="{% url 'write' %}">
+        לכתיבת דיווחים
+    </a>
+    {% endif %}
+</div>
+{% endif %}
+
+{% if teacher.is_homeroom_teacher %} 
+<hr class="section_break">
+
+<div id="homeroom_teacher_subsection">
+    <h2>כובע חונכ/ת</h2>
+    <div id="manage_homeroom_subsection"
+{% if homeroom_students|length == 0 %}
+        <p>עוד לא הוספת תלמידים לקבוצת החונכות</p>
+        <a class="link_button bigger" href="{% url 'manage_homeroom' %}">
+            להוספת תלמידים לקבוצת החונכות 
+        </a>
+{% else%}
+        <p>בקבוצת החונכות שלך ישנם {{homeroom_students|length}} תלמידים</p>
+        <a class="link_button bigger" href="{% url 'manage_homeroom' %}">
+            להוספת עוד תלמידים לקבוצת החונכות 
+        </a>
+    </div>
+
+<div id="read_evaluations_subsection">
+    {% if teacher.missing_evals_of_homeroom_students_in_current_trimester|length == 0 %}
+    </p>קיבלת את כל הדיווחים של כל הנחנכים שלך! הכל מוכן להורה-חונך-ילד!</p>
+    <a class="link_button bigger" href="{% url 'view' %}">
+       לצפייה בדיווחים של קבוצת החונכות שלך
+    </a>
+    {% else %}
+    <p>עדיין לא הגיעו כל הדיווחים עבור {{teacher.missing_evals_of_homeroom_students_in_current_trimester|length}} מהנחנכים שלך </p>
+    <a class="link_button bigger" href="{% url 'view' %}">
+        לצפייה בדיווחים שהתקבלו ולמידע על החוסרים
+    </a>
+
+    <div id="lazy_teachers">
+    <h3>אלו המורים שעוד צריכים לכתוב דיווחים לקבוצה שלך:</h3>
+    <ul>
+        {% for teacher, num_missing in teachers_missing_evaluations.items %}
+        <li>{{teacher}} - חסרים {{num_missing}} דיווחים</li>
+        {% endfor %}
+    </ul>
+    </div>
+    {% endif %}
+</div>
+
+{% endif %}
+{% endif %}
+
+</div>
+
+{% endif %}
+
+{% endblock %}
+

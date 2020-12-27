@@ -18,7 +18,8 @@ from django.urls import path, include
 from django.views.generic import RedirectView, TemplateView
 
 urlpatterns = [
-    path('', RedirectView.as_view(url='/evaluations')),
+    path('', RedirectView.as_view(url='/dashboard'), name='index'),
+    path('dashboard', include('dashboard.urls')),
     path('evaluations/', include('evaluations.urls')),
     path('accounts/', include('accounts.urls')),
     path('admin/', admin.site.urls),

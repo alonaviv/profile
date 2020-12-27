@@ -98,7 +98,7 @@ def add_new_class(request):
     else:
         form = ClassForm(initial={'house': teacher.house})
 
-    context = {"form": form, "teacher": teacher, "trimester": get_current_trimester()}
+    context = {"form": form, "teacher": teacher}
     return render(request, "class_manager/add_new_class.html", context)
 
 
@@ -123,7 +123,7 @@ def edit_class_data(request, class_id):
     else:
         form = ClassForm(instance=klass)
 
-    context = {"form": form, "teacher": teacher, "class": klass, "trimester": get_current_trimester()}
+    context = {"form": form, "teacher": teacher, "class": klass}
     return render(request, "class_manager/edit_class_data.html", context)
 
 
@@ -158,8 +158,7 @@ def add_students_to_class(request, class_id, house_id=None):
 
     context = {
         "form": form, "teacher": teacher, "class": klass,
-        "current_house": house, "houses": House.objects.all(), "trimester": get_current_trimester()
-    }
+        "current_house": house, "houses": House.objects.all()}
     return render(request, "class_manager/add_students_to_class.html", context)
 
 
@@ -171,7 +170,7 @@ def manage_homeroom(request):
     if not teacher.is_homeroom_teacher:
         return redirect(reverse('not_homeroom_teacher_error'))
 
-    context = {'teacher': teacher, "trimester": get_current_trimester()}
+    context = {'teacher': teacher}
     return render(request, 'class_manager/manage_homeroom.html', context)
 
 
@@ -210,9 +209,7 @@ def add_students_to_homeroom(request, house_id=None):
         form = AddStudentsForm(all_students=students_to_choose_from, current_students=current_students)
 
     context = {
-        "form": form, "teacher": teacher, "house_of_homeroom": house, "houses": House.objects.all(),
-        "trimester": get_current_trimester()
-    }
+        "form": form, "teacher": teacher, "house_of_homeroom": house, "houses": House.objects.all()}
     return render(request, "class_manager/add_students_to_homeroom.html", context)
 
 
