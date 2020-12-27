@@ -14,6 +14,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         model = getattr(models, options['model_name'])
         dataframe = pandas.read_csv(options['csv_file'])
+        dataframe = dataframe.apply(lambda x: x.str.strip() if x.dtype == "object" else x) # Strip whitespaces
 
         for _, row in dataframe.iterrows():
             if 'house' in row:
