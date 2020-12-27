@@ -24,7 +24,7 @@ def manage_classes(request):
     else:
         classes = []
 
-    context = {'classes': classes, 'teacher': teacher, 'trimester': get_current_trimester()}
+    context = {'classes': classes, 'teacher': teacher}
     return render(request, 'class_manager/manage_classes.html', context)
 
 
@@ -39,7 +39,7 @@ def manage_students_in_class(request, class_id):
         return HttpResponseForbidden(f"<h1> לא ניתן לערוך שיעור של שנה {klass.hebrew_year} </h1>")
 
     students = klass.students.all()
-    context = {'class': klass, 'students': students, 'teacher': teacher, 'trimester': get_current_trimester()}
+    context = {'class': klass, 'students': students, 'teacher': teacher}
     return render(request, 'class_manager/manage_students_in_class.html', context)
 
 
