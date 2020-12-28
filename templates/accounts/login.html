@@ -5,7 +5,7 @@
 
   <h1>התחברות</h1>
 
-<div class="centered_container border form_styling">
+<div class="centered_container column border form_styling">
   <form method="POST">
 {% if messages %}
   {% for message in messages %}
@@ -19,6 +19,8 @@
     {{ form.as_ul }}
     <button type="submit">התחברות</button>
     </ul>
-  </form>   
+  </form>
+  <br><br>
+  <h2><a href="{% url 'password_reset' %}" class="clickable">שכחת את הסיסמא?</a></h2>    
 </div>
 {% endblock %}

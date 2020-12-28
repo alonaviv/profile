@@ -1,11 +1,12 @@
 from django.contrib.auth.models import AbstractUser
-from django.db.models import BooleanField, ForeignKey, OneToOneField, PROTECT
+from django.db.models import BooleanField, ForeignKey, OneToOneField, PROTECT, EmailField
 
 from .managers import TeacherUserManager
 
 
 class TeacherUser(AbstractUser):
     is_homeroom_teacher = BooleanField()
+    email = EmailField(unique=True)
 
     # Allowing NULL in order to make superuser creation easier. Will make sure that when regular user is created,
     # we pass these fields.

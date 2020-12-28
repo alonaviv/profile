@@ -1,7 +1,11 @@
+Questions for teachers:
+- How do I get the information? Teachers and students (students by house). How about the sex of the students? Possible?
+- Talk about two stages
+
+
 ===========
 
 * Have the details in read be bigger.
-
 
 * Work on all forms of deletion:
  - Think about the fact that teachers can stop being chonchim next year and other changes that could happen between years.
@@ -10,29 +14,32 @@
 
 * "Forgot password" mechanism - also, double checking password seems important here.
 
-* When in NULL-SEMESTER, don't allow to fill out any evals, and display in the square that there are no more meetings
-this year. Also make sure that nothing can get a null semester value.
-
 * Add sex to registration, and then you can write text accordingly.
 * See if possible to add sex to students as well, for text
 
-* If they change existing text to other text in evaluation, ask if they are sure.
-
 * Bug - seems can't add evaluations of same trimester and different years
 
+* If they change existing text to other text in evaluation, ask if they are sure.
+
 * Format the forms. In the write review form for a class, show on the top again how many you wrote. 
-Also, have a sign of green or red next to each review, to see if it was submitted successfully. Tricky work with the form formatting. Do the same with adding students to classes.
+* Also, have a sign of green or red next to each review, to see if it was submitted successfully. Tricky work with the
+form formatting.
+
+
+* Bug - seems can't add evaluations of same trimester and different years
 
 * See if you should pay for backups on digital ocean.
 
 * Think about several teacher teaching same class, sometimes it means a few topics
 
-
-==================================================
+* When in NULL-SEMESTER, don't allow to fill out any evals, and display in the square that there are no more meetings
+this year. Also make sure that nothing can get a null semester value.
 
 * Have a running task that all kids have a homeroom teacher. If they don't, maybe send an email to Dalit or me. 
 
-* I think we should maybe define two stages - first all teachers have to create their classes and home rooms. Then I should run verifications on the database. The divuchim adding part can be orthoganal. The main thing to check is that all kids have a homeroom teacher that can track them. 
+* I think we should maybe define two stages - first all teachers have to create their classes and home rooms. Then I should run verifications on the database. The divuchim adding part can be orthoganal. The main thing to check is that all kids have a homeroom teacher that can track them.
+
+* Use vault to store the secret key and email credentials, instead of plaintext files.
 
 ===========
 Stupid things teachers might do and I should validate.
