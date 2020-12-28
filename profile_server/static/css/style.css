@@ -103,7 +103,7 @@ p {
   color: #ffc400;
   font-size: 26px;
   font-weight: bold;
-  font-family: serif;
+  font-family: 'Pfennig', serif;
 }
 
 
@@ -120,6 +120,7 @@ p {
   align-items: center;
   width: 100%;
   text-align: center;
+  margin: 0 5px;
   
 }
 
@@ -153,7 +154,7 @@ p {
 }
 
 .biggest{
-    flex: 9;
+    flex: 8;
 
 }
 
