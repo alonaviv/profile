@@ -32,6 +32,7 @@ def main_dashboard_page(request):
         class_students = []
         homeroom_students = []
         teachers_missing_evaluations = {}
+        homeroom_students_without_classes = []
 
     context = {
         'classes': classes, 'teacher': teacher, 'class_students': class_students,
