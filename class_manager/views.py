@@ -23,6 +23,8 @@ def manage_classes(request):
     else:
         classes = []
 
+    classes = sorted(classes.all(), key=lambda klass: klass.name)
+
     context = {'classes': classes, 'teacher': teacher}
     return render(request, 'class_manager/manage_classes.html', context)
 
@@ -37,7 +39,7 @@ def manage_students_in_class(request, class_id):
     if klass.hebrew_year != get_current_trimester().hebrew_school_year:
         return HttpResponseForbidden(f"<h1> לא ניתן לערוך שיעור של שנה {klass.hebrew_year} </h1>")
 
-    students = klass.students.all()
+    students = sorted(klass.students.all(), key=lambda student: (student.first_name, student.last_name))
     context = {'class': klass, 'students': students, 'teacher': teacher}
     return render(request, 'class_manager/manage_students_in_class.html', context)
 
@@ -142,22 +144,30 @@ def add_students_to_class(request, class_id, house_id=None):
         return HttpResponseForbidden(f"<h1> לא ניתן לערוך שיעור של שנה {klass.hebrew_year} </h1>")
 
     students_to_choose_from = Student.objects.filter(house=house).exclude(classes=klass)
-    current_students = klass.students.all()
 
     if request.method == "POST":
-        form = AddStudentsForm(request.POST, all_students=students_to_choose_from, current_students=current_students)
+        form = AddStudentsForm(request.POST, students=students_to_choose_from)
 
         if form.is_valid():
-            selected_students = form.cleaned_data['students']
+            selected_student_ids = form.cleaned_data['students']
+            selected_students = []
+
+            for student_id in selected_student_ids:
+                student = Student.objects.get(id=student_id)
+                selected_students.append(student)
+
             klass.students.add(*selected_students)
             populate_evaluations_in_teachers_classes(teacher)
 
+            form = AddStudentsForm(students=students_to_choose_from.exclude(id__in=selected_student_ids))
+
     else:
-        form = AddStudentsForm(all_students=students_to_choose_from, current_students=current_students)
+        form = AddStudentsForm(students=students_to_choose_from)
 
     context = {
         "form": form, "teacher": teacher, "class": klass,
-        "current_house": house, "houses": House.objects.all()}
+        "current_house": house, "houses": House.objects.all()
+    }
     return render(request, "class_manager/add_students_to_class.html", context)
 
 
@@ -188,25 +198,29 @@ def add_students_to_homeroom(request, house_id=None):
 
     # Get all students from house that don't already have a homeroom teacher
     students_to_choose_from = Student.objects.filter(homeroom_teacher=None, house=house)
-    current_students = teacher.student_set.all()
 
     if request.method == "POST":
-        form = AddStudentsForm(request.POST, all_students=students_to_choose_from, current_students=current_students)
+        form = AddStudentsForm(request.POST, students=students_to_choose_from)
 
         if form.is_valid():
-            selected_students = form.cleaned_data['students']
-
-            for student in selected_students:
+            selected_students_ids = form.cleaned_data['students']
+            selected_students = []
+            for student_id in selected_students_ids:
+                student = Student.objects.get(id=student_id)
+                selected_students.append(student)
                 if student.homeroom_teacher:
                     raise ValueError(f"Cannot add student {student}, as he/she already has a homeroom")
 
             teacher.student_set.add(*list(selected_students))
 
+            form = AddStudentsForm(students=students_to_choose_from.exclude(id__in=selected_students_ids))
+
     else:
-        form = AddStudentsForm(all_students=students_to_choose_from, current_students=current_students)
+        form = AddStudentsForm(students=students_to_choose_from)
 
     context = {
-        "form": form, "teacher": teacher, "house_of_homeroom": house, "houses": House.objects.all()}
+        "form": form, "teacher": teacher, "house_of_homeroom": house, "houses": House.objects.all()
+    }
     return render(request, "class_manager/add_students_to_homeroom.html", context)
 
 

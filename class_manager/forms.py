@@ -1,4 +1,6 @@
-from django.forms import ModelForm, Form, ModelMultipleChoiceField, CheckboxSelectMultiple, HiddenInput
+from django.forms import (
+    ModelForm, Form, CheckboxSelectMultiple, MultipleChoiceField
+)
 
 from evaluations.models import Class
 
@@ -12,13 +14,14 @@ class ClassForm(ModelForm):
 
 class AddStudentsForm(Form):
     def __init__(self, *args, **kwargs):
-        """
-        Pass the field 'all_students', with all the students to select from.
-        Pass the field 'current_students', with the students that are already selected.
-        """
-        all_students = kwargs.pop('all_students')
-        current_students = kwargs.pop('current_students')
+        # Django isn't able to sort hebrew correxctly - so we have to use raw python instead.
+        students = kwargs.pop('students')
+        students_sorted = sorted(students.all(), key=lambda student: (student.first_name, student.last_name))
+        student_choices = [(student.id, str(student)) for student in students_sorted]
+
         super().__init__(*args, **kwargs)
 
-        self.fields['students'] = ModelMultipleChoiceField(all_students, widget=CheckboxSelectMultiple, label="",
-                                                           initial=current_students)
+        # self.fields['students'] = ModelMultipleChoiceField(all_students_sorted, widget=CheckboxSelectMultiple, label="",
+        #                                                    initial=current_students)
+        self.fields['students'] = MultipleChoiceField(choices=student_choices, widget=CheckboxSelectMultiple)
+        self.fields['students'].label = ""

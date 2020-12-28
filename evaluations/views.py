@@ -95,6 +95,8 @@ def write_evaluations_main_page(request):
     else:
         classes = []
 
+    classes = sorted(classes.all(), key=lambda klass: klass.name)
+
     context = {'classes': classes, 'teacher': teacher}
     return render(request, 'evaluations/write_evaluations_index.html', context)
 
@@ -123,6 +125,7 @@ def view_evaluations_main_page(request):
     else:
         students = []
 
+    students = sorted(students, key=lambda student: (student.first_name, student.last_name))
     context = {'students': students, 'teacher': teacher}
     return render(request, 'evaluations/view_evaluations_index.html', context)
 
