@@ -139,7 +139,7 @@ def missing_evaluations(request, student_id):
 
     missing_classes = []
 
-    for evaluation in student.evaluation_set.filter(trimester=current_trimester.name,
+    for evaluation in student.evaluations.filter(trimester=current_trimester.name,
                                                     hebrew_year=current_trimester.hebrew_school_year):
         if not evaluation.evaluation_text:
             missing_classes.append(evaluation.evaluated_class)

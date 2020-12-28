@@ -6,9 +6,9 @@
 {% if not user.is_authenticated %}
 <h2>יש להתחבר על מנת להשתמש במערכת</h2>
 <br><br>
-<h2><a href="{% url 'register' %}">להרשמה</a></h2>
-<br>
 <h2><a href="{% url 'login' %}">להתחברות</a></h2>
+<br>
+<h2><a href="{% url 'register' %}">להרשמה</a></h2>
 
 {% else %}
 
@@ -35,7 +35,7 @@
 {% else %}
     <p>את/ה מלמד/ת {{classes|length}} שיעורים השנה, ומשתתפים בהם סה״כ {{class_students|length}} תלמידים</p>
     <a class="link_button bigger" href="{% url 'manage_classes' %}">
-        להוספת עוד שיעורים 
+        לניהול השיעורים שלך
     </a>
 </div>
 
@@ -63,9 +63,16 @@
             להוספת תלמידים לקבוצת החונכות 
         </a>
 {% else%}
-        <p>בקבוצת החונכות שלך ישנם {{homeroom_students|length}} תלמידים</p>
+        <p>בקבוצת החונכות שלך ישנם <strong>{{homeroom_students|length}}</strong> תלמידים</p>
+        {% if homeroom_students_without_classes %}
+        <div id="missing_homeroom_classes">
+        <i class="fas fa-exclamation-circle fa-2x"></i><p>{{homeroom_students_without_classes|length}} מהנחנכים שלך עוד לא רשומים לאף שיעור (המורים המקצועים צריכים להוסיף אותם)
+        </p>
+        </div>
+        {% endif %}
+
         <a class="link_button bigger" href="{% url 'manage_homeroom' %}">
-            להוספת עוד תלמידים לקבוצת החונכות 
+            לניהול קבוצת החונכות שלך
         </a>
     </div>
 
@@ -76,7 +83,7 @@
        לצפייה בדיווחים של קבוצת החונכות שלך
     </a>
     {% else %}
-    <p>עדיין לא הגיעו כל הדיווחים עבור {{teacher.missing_evals_of_homeroom_students_in_current_trimester|length}} מהנחנכים שלך </p>
+    <p>חסרים עדיין {{teacher.missing_evals_of_homeroom_students_in_current_trimester|length}} דיווחים בקבוצת החונכות שלך</p>
     <a class="link_button bigger" href="{% url 'view' %}">
         לצפייה בדיווחים שהתקבלו ולמידע על החוסרים
     </a>

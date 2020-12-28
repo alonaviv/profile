@@ -210,6 +210,19 @@ p {
   justify-content: space-between;
 }
 
+.complete {
+    color: green;
+}
+
+.incomplete {
+    color: red;
+}
+
+.missing_classes{
+    color: #800000;
+}
+
+
 
 
 /* Font Awesome change */
@@ -296,4 +309,8 @@ i.fa-times-circle {
   font-size: 30px;
   padding: 15px;
   color: #800000
+}
+
+#missing_homeroom_classes{
+    display: flex
 }

@@ -25,6 +25,8 @@ def main_dashboard_page(request):
             lazy_teacher = missing_evals.evaluated_class.teacher
             teachers_missing_evaluations[str(lazy_teacher)] = teachers_missing_evaluations.get(str(lazy_teacher), 0) + 1
 
+        homeroom_students_without_classes = homeroom_students.filter(classes__isnull=True)
+
     else:
         classes = []
         class_students = []
@@ -33,7 +35,8 @@ def main_dashboard_page(request):
 
     context = {
         'classes': classes, 'teacher': teacher, 'class_students': class_students,
-        'homeroom_students': homeroom_students, 'teachers_missing_evaluations': teachers_missing_evaluations
+        'homeroom_students': homeroom_students, 'teachers_missing_evaluations': teachers_missing_evaluations,
+        'homeroom_students_without_classes': homeroom_students_without_classes
     }
 
     return render(request, 'dashboard/dashboard.html', context)

@@ -52,7 +52,7 @@ class Student(Model):
     @property
     def completed_evals(self):
         completed_evals = 0
-        for evaluation in self.evaluation_set.all():
+        for evaluation in self.evaluations.all():
             if evaluation.evaluation_text:
                 completed_evals += 1
 
@@ -69,7 +69,7 @@ class Student(Model):
         current_trimester = get_current_trimester()
 
         completed_evals = []
-        for evaluation in self.evaluation_set.filter(trimester=current_trimester.name,
+        for evaluation in self.evaluations.filter(trimester=current_trimester.name,
                                                      hebrew_year=current_trimester.hebrew_school_year):
             if evaluation.evaluation_text:
                 completed_evals.append(evaluation)
@@ -79,7 +79,7 @@ class Student(Model):
     @property
     def all_evals_in_current_trimester(self):
         current_trimester = get_current_trimester()
-        return list(self.evaluation_set.filter(trimester=current_trimester.name,
+        return list(self.evaluations.filter(trimester=current_trimester.name,
                                                hebrew_year=current_trimester.hebrew_school_year))
 
 
@@ -124,7 +124,7 @@ class Class(Model):
 
 
 class Evaluation(Model):
-    student = ForeignKey(Student, on_delete=CASCADE)
+    student = ForeignKey(Student, on_delete=CASCADE, related_name='evaluations')
     evaluated_class = ForeignKey(Class, on_delete=CASCADE)
     evaluation_text = TextField(default='', blank=True)
     hebrew_year = IntegerField()

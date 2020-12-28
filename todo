@@ -1,16 +1,8 @@
-Before Demo:
-
-* If a student has no classes (when reading evals), put a message there, not green 0 out of 0.
-* If for students that don't have classes, mention it in the dashboard.
-
-* In the main manage homeroom class, write how many classes each kid has
-* In the main view evals - write how many evals were received already
-
-
 ===========
 * Work on all forms of deletion:
  - Think about the fact that teachers can stop being chonchim next year and other changes that could happen between years.
  - Save evaluations that were actually deleted. Focuse on the automatic deletion of evaluations when student leaves a class/class is deleted. Not sure we ever want to delete an evaluation, we'll see. And if we do, make sure that we don't delete evaluations from previous semesters.
+ - Need to change alert message when deleting student?
 
 * "Forgot password" mechanism - also, double checking password seems important here.
 
@@ -18,8 +10,9 @@ Before Demo:
 this year. Also make sure that nothing can get a null semester value.
 
 * Add sex to registration, and then you can write text accordingly.
+* See if possible to add sex to students as well, for text
 
-* If they change existing text to other text, ask if they are sure.
+* If they change existing text to other text in evaluation, ask if they are sure.
 
 * Bug - seems can't add evaluations of same trimester and different years
 
