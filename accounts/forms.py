@@ -1,5 +1,5 @@
-from django.forms import Form, CharField, EmailField, BooleanField, ModelChoiceField, PasswordInput
-from django.contrib.auth.models import User
+from django.forms import Form, CharField, EmailField, BooleanField, ModelChoiceField, PasswordInput, ValidationError
+from django.core.validators import EmailValidator
 from evaluations.models import House
 
 
@@ -10,6 +10,7 @@ class RegisterForm(Form):
     house = ModelChoiceField(House.objects.all(), label="שכבה")
     email = EmailField(label="אימייל")
     password = CharField(widget=PasswordInput(), label='סיסמא')
+    confirm_password = CharField(widget=PasswordInput(), label='וידוא סיסמא')
 
 
 class LoginForm(Form):
