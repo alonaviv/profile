@@ -14,9 +14,11 @@
     </div>
   {% endfor %}
   {% endif %}
+  <ul>
 	{% csrf_token %}
-	{{ form|crispy }}
-	<button type="submit" class="btn btn-success">הרשמה</button>
+	{{ form.as_ul }}
+    <button type="submit" class="btn btn-success">הרשמה</button>
+  </ul>   
 </form>
 </div>
 

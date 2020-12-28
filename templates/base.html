@@ -10,6 +10,8 @@
   rel='stylesheet' type='text/css'>`
   <link href='http://serve.fontsproject.com/css?family=Pfennig:500'
   rel='stylesheet' type='text/css'>
+  <link href='http://serve.fontsproject.com/css?family=Pfennig:700i' rel ='stylesheet' type='text/css'>
+  <link href='http://serve.fontsproject.com/css?family=Nachlieli+CLM:700' rel ='stylesheet' type='text/css'>
   <script src="https://kit.fontawesome.com/4078bed46b.js" crossorigin="anonymous"></script>
   <title>Profile | בית הספר הדמוקרטי </title>
 </head>
@@ -19,31 +21,31 @@
         <a href="{% url 'index' %}"><h1 class="logo">בית הספר הדמוקרטי</h1></a>
         <ul class="nav_sections" id="page-links">
           <li
-                  {% if 'write' in request.path or 'write' in request.GET.next %} class="active clickable" {% else %} class="clickable" {% endif %}
+                  {% if 'write' in request.path or 'write' in request.GET.next %} class="active clickable regular" {% else %} class="clickable regular" {% endif %}
           >
             <a href="{% url 'write' %}">כתיבת דיווחים</a></li>
 
             {% if teacher.is_homeroom_teacher %}
             <li
-                    {% if 'view' in request.path or 'view' in request.GET.next %} class="active clickable" {% else %} class="clickable" {% endif %}
+                    {% if 'view' in request.path or 'view' in request.GET.next %} class="active clickable regular" {% else %} class="clickable regular" {% endif %}
             >
               <a href="{% url 'view' %}">צפייה בדיווחים</a></li>
             {% endif %}
             <li
-                    {% if 'manage_classes' in request.path or 'manage_classes' in request.GET.next %} class="active clickable" {% else %} class="clickable" {% endif %}
+                    {% if 'manage_classes' in request.path or 'manage_classes' in request.GET.next %} class="active clickable regular" {% else %} class="clickable regular" {% endif %}
             >
               <a href="{% url 'manage_classes' %}">ניהול שיעורים</a></li>
 
             {% if teacher.is_homeroom_teacher %}
             <li
-                    {% if 'manage_homeroom' in request.path or 'manage_homeroom' in request.GET.next %} class="active clickable" {% else %} class="clickable" {% endif %}
+                    {% if 'manage_homeroom' in request.path or 'manage_homeroom' in request.GET.next %} class="active clickable biggest" {% else %} class="clickable biggest" {% endif %}
             >
               <a href="{% url 'manage_homeroom' %}">ניהול קבוצת חונכות</a></li>
             {% endif %}
         </ul>
         <ul class="nav_sections" id="dates">
-            <li id="next_meeting" class="navbar_emphasis"><p>הורה חונך ילד הקרוב: <br>{{trimester.meeting_end_of_trimester_printable}} (פגישה מספר {{trimester.number}} השנה)</p></li>
-            <li id="current_year"><p>{{trimester.hebrew_school_year_printable}}</p></li>
+            <li id="next_meeting" class="navbar_emphasis bigger"><p>הורה חונך ילד הקרוב: <br><strong class="strong_date">{{trimester.meeting_end_of_trimester_printable}}</strong> (פגישה מספר {{trimester.number}} השנה)</p></li>
+            <li id="current_year" class="regular"><p>{{trimester.hebrew_school_year_printable}}</p></li>
         </ul>
         <ul class="nav_sections" id="user-space">
           {% if user.is_authenticated %}

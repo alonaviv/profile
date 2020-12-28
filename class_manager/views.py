@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
 from django.shortcuts import render, redirect, reverse, HttpResponse
@@ -85,16 +86,19 @@ def add_new_class(request):
 
     if request.method == "POST":
         form = ClassForm(request.POST)
-
         if form.is_valid():
             name = form.cleaned_data['name']
             subject = form.cleaned_data['subject']
             house = form.cleaned_data['house']
 
-            new_class = Class.objects.create(name=name, subject=subject, house=house, teacher=teacher,
-                                             hebrew_year=get_current_trimester().hebrew_school_year)
-            populate_evaluations_in_teachers_classes(teacher)
-            return redirect(add_students_to_class, new_class.id)
+            if not Class.objects.filter(name=name, teacher=teacher, hebrew_year=get_current_trimester().hebrew_school_year).exists():
+                new_class = Class.objects.create(name=name, subject=subject, house=house, teacher=teacher,
+                                                 hebrew_year=get_current_trimester().hebrew_school_year)
+                populate_evaluations_in_teachers_classes(teacher)
+                return redirect(add_students_to_class, new_class.id)
+            else:
+                messages.error(request, "השיעור הזה כבר קיים במערכת")
+
 
     else:
         form = ClassForm(initial={'house': teacher.house})
@@ -201,7 +205,6 @@ def add_students_to_homeroom(request, house_id=None):
 
     if request.method == "POST":
         form = AddStudentsForm(request.POST, students=students_to_choose_from)
-
         if form.is_valid():
             selected_students_ids = form.cleaned_data['students']
             selected_students = []

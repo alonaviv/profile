@@ -5,13 +5,15 @@
 <h1>יצירת שיעור חדש</h1>
 <a class="back_button" href="{% url 'manage_classes' %}">חזרה לרשימת השיעורים</a>
 
+<div class="centered_container column border form_styling">
 {% if messages %}
   {% for message in messages %}
-	{{ message }}
+  <div class="error_message">
+    {{ message }}
+    </div>
   {% endfor %}
 {% endif %}
-<div class="centered_container border form_styling">
-  <form method="POST">
+<form method="POST">
     <ul>
     {% csrf_token %}
     {{ form.as_ul }}

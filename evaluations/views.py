@@ -143,12 +143,13 @@ def missing_evaluations(request, student_id):
     missing_classes = []
 
     for evaluation in student.evaluations.filter(trimester=current_trimester.name,
-                                                    hebrew_year=current_trimester.hebrew_school_year):
+                                                 hebrew_year=current_trimester.hebrew_school_year):
         if not evaluation.evaluation_text:
             missing_classes.append(evaluation.evaluated_class)
 
     context = {
-        'student': student, 'missing_classes': missing_classes, 'teacher': teacher}
+        'student': student, 'missing_classes': missing_classes, 'teacher': teacher
+    }
     return render(request, 'evaluations/missing_evaluations.html', context)
 
 

@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1> ברוכים הבאים למערכת הדיווחים של הדמוקרטי!</h1>
+<h1 class="welcome"> ברוכים הבאים למערכת הדיווחים של הדמוקרטי!</h1>
 
 <div class="centered_container column dashboard">
 {% if not user.is_authenticated %}
@@ -28,15 +28,17 @@
 <div class="dashboard_subsection" id="manage_class_subsection">
 {% if classes|length == 0 %}
     <p>עוד לא הוספת שיעורים שאת/ה מלמד/ת השנה</p>
+    <div class="local_centered_container">
     <a class="link_button bigger" href="{% url 'manage_classes' %}">
         להוספת שיעורים
-    </a>
+    </a></div>
 </div>
 {% else %}
     <p>את/ה מלמד/ת {{classes|length}} שיעורים השנה, ומשתתפים בהם סה״כ {{class_students|length}} תלמידים</p>
+    <div class="local_centered_container">
     <a class="link_button bigger" href="{% url 'manage_classes' %}">
         לניהול השיעורים שלך
-    </a>
+    </a></div>
 </div>
 
 <div class="dashboard_subsection" id="write_evaluations_subsection">
@@ -44,9 +46,10 @@
     <p>מדהים! סיימת לכתוב את כל הדיווחים!!</p>
     {% else %}
     <p>כתבת {{teacher.completed_evals_in_current_trimester|length}} דיווחים מתוך {{teacher.all_evals_in_current_trimester|length}} (כלומר - השלמת {{teacher.evals_percentage_completed | floatformat}}% עד כה)</p>
+    <div class="local_centered_container">
     <a class="link_button bigger" href="{% url 'write' %}">
         לכתיבת דיווחים
-    </a>
+    </a></div>
     {% endif %}
 </div>
 {% endif %}
@@ -59,9 +62,10 @@
     <div class="dashboard_subsection" id="manage_homeroom_subsection"
 {% if homeroom_students|length == 0 %}
         <p>עוד לא הוספת תלמידים לקבוצת החונכות</p>
+    <div class="local_centered_container">
         <a class="link_button bigger" href="{% url 'manage_homeroom' %}">
             להוספת תלמידים לקבוצת החונכות 
-        </a>
+        </a></div>
 {% else%}
         <p>בקבוצת החונכות שלך ישנם <strong>{{homeroom_students|length}}</strong> תלמידים</p>
         {% if homeroom_students_without_classes %}
@@ -71,22 +75,25 @@
         </div>
         {% endif %}
 
+    <div class="local_centered_container">
         <a class="link_button bigger" href="{% url 'manage_homeroom' %}">
             לניהול קבוצת החונכות שלך
-        </a>
+        </a></div>
     </div>
 
 <div class="dashboard_subsection" id="read_evaluations_subsection">
     {% if teacher.missing_evals_of_homeroom_students_in_current_trimester|length == 0 %}
     </p>קיבלת את כל הדיווחים של כל הנחנכים שלך! הכל מוכן להורה-חונך-ילד!</p>
+    <div class="local_centered_container">
     <a class="link_button bigger" href="{% url 'view' %}">
        לצפייה בדיווחים של קבוצת החונכות שלך
-    </a>
+    </a></div>
     {% else %}
     <p>חסרים עדיין {{teacher.missing_evals_of_homeroom_students_in_current_trimester|length}} דיווחים בקבוצת החונכות שלך</p>
+    <div class="local_centered_container">
     <a class="link_button bigger" href="{% url 'view' %}">
         לצפייה בדיווחים שהתקבלו ולמידע על החוסרים
-    </a>
+    </a></div>
 
     <div id="lazy_teachers">
     <h3>אלו המורים שעוד צריכים לכתוב דיווחים לקבוצה שלך:</h3>

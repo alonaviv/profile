@@ -22,9 +22,13 @@
     </li>
     {% endfor %}
 {% else %}
-<h3>לא הוספת תלמידים לקבוצת החונכות, לכן לא ניתן לצפות בדיווחים</h3>
-<br>
-<a href="{% url 'manage_homeroom' %}" class="clickable">לניהול קבוצת חונכות</a>
+<div class="centered_container column">
+    <div class=error_message>לא הוספת עדיין תלמידים לקבוצת החונכות, לכן לא ניתן לצפות בדיווחים </div>
+<br><br>
+<h2>
+<a href="{% url 'manage_homeroom' %}" class="clickable">לניהול קבוצת החונכות</a>
+</h2>
+</div>
   {% endif %}
 </ul>
 </div>  

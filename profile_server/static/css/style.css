@@ -9,7 +9,7 @@
 /* Main styling */
 html {
   line-height: 1.7em;
-  background-color: #e6e6ec;
+  background-color: #f6f7ec;
 }
 
 body {
@@ -19,8 +19,18 @@ body {
 
 main h1 {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 15px;
+  margin-top: 30px;
   font-size: 40px;
+}
+
+h1.welcome{
+    color: #9b0ca0;
+    font-family: 'Pfennig', serif;
+    font-size: 50px;
+    font-weight: 1000px;
+    font-style: italic;
+    margin-bottom: 30px;
 }
 
 
@@ -57,13 +67,15 @@ p {
 
 .back_button, .link_button{
   border: 1px black solid;
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 200px;
-  height: 50px;
+  height: 70px;
   background-color: lightblue;
   color: black;
   text-align: center;
-  padding: 10px;
+  padding: 15px;
   margin: 30px;
   border-radius: 10px;
 }
@@ -80,7 +92,7 @@ p {
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  height: 75px;
+  height: 80px;
   position: fixed;
   width: 100%;
   top: 0;
@@ -88,9 +100,10 @@ p {
 }
 
 #navbar .nav_sections {
-  color: #ee9411;
+  color: #ffc400;
   font-size: 26px;
   font-weight: bold;
+  font-family: serif;
 }
 
 
@@ -107,6 +120,7 @@ p {
   align-items: center;
   width: 100%;
   text-align: center;
+  
 }
 
 #navbar #page-links{
@@ -117,17 +131,38 @@ p {
 #navbar #user-space{
     justify-content: space-evenly;
     margin-right: auto;
-    width: 150px;
+    width: 200px;
 }
+
 
 #navbar #dates{
     justify-content: space-evenly;
     margin-right: auto;
     width: 700px;
+    color: white;
 }
 
-#navbar #page-links li {
+/* #navbar #page-links li {
     flex-basis: 300px;
+} */
+
+
+.bigger{
+    flex: 5;
+
+}
+
+.biggest{
+    flex: 9;
+
+}
+
+.regular{
+    flex: 4;
+}
+
+#next_meeting{
+    width: 600px;
 }
 
 .nav_sections#dates {
@@ -135,6 +170,11 @@ p {
     font-size: 16px;
     color: black;
     text-align: center;
+    display: flex;
+}
+
+#current_year{
+    font-size: 30px;
 }
 
 .navbar_emphasis { 
@@ -167,11 +207,22 @@ p {
   font-weight: 500px;
 }
 
+#navbar li{
+    display: flex;
+}
+
+#next_meeting strong{
+    font-weight: 300px;
+    font-size: 20px;
+    text-decoration: underline;
+}
 
 #navbar li.clickable:hover,
 #navbar li.active.clickable{
   background-color: #0f60d6;
 }
+
+
 
 #navbar li.logged_in {
   color: black;
@@ -235,7 +286,7 @@ p {
   color: #a10000;
 }
 
-.fa-tachometer-alt {
+.fa-battery-quarter {
   color: red;
   padding: 15px;
 }
@@ -319,7 +370,12 @@ i.fa-times-circle {
     display: flex;
     font-size: 20px;
     justify-content: center;
-    padding-top: 50px;
+    padding-top: 17px;
+}
+
+.local_centered_container{
+    display: flex;
+    justify-content: center;
 }
 
 .centered_container.border{
@@ -343,8 +399,12 @@ i.fa-times-circle {
     list-style-type: none;
 }
 
-.form_styling li {
+.form_styling li{
     margin: 10px;
+}
+
+.form_styling #div_id_is_homeroom_teacher{
+    margin: 30px 0;
 }
 
 .form_styling button[type=submit], .form_styling input[type=submit] {
