@@ -19,4 +19,4 @@ STUDENT_MEETING_DATES = {
 }
 
 GRACE_PERIOD = 21  # After this number of days after the meeting, the trimester will end and move on to the next.
-EVALUATION_DEADLINE_DAYS = 2  # This number of days before the meeting deadline, all evaluations should be written.
+EVALUATION_DEADLINE_DAYS = 7  # This number of days before the meeting deadline, all evaluations should be written.
