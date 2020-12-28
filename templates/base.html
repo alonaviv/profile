@@ -21,7 +21,7 @@
           <li
                   {% if 'write' in request.path or 'write' in request.GET.next %} class="active clickable" {% else %} class="clickable" {% endif %}
           >
-            <a href="{% url 'write' %}">רישום דיווחים</a></li>
+            <a href="{% url 'write' %}">כתיבת דיווחים</a></li>
 
             {% if teacher.is_homeroom_teacher %}
             <li

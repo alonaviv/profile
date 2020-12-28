@@ -3,6 +3,7 @@
 {% block content %}
 <h1> ברוכים הבאים למערכת הדיווחים של הדמוקרטי!</h1>
 
+<div class="centered_container column dashboard">
 {% if not user.is_authenticated %}
 <h2>יש להתחבר על מנת להשתמש במערכת</h2>
 <br><br>
@@ -12,20 +13,19 @@
 
 {% else %}
 
-<div id="meeting_countdown">
+<div class="dashboard_section" id="meeting_countdown">
     <p>פגישת הורה/חונך/ילד הקרובה, מספר {{trimester.number}} השנה, תתקיים בתאריך {{trimester.meeting_end_of_trimester_printable}}</p>
     <p>נשארו עוד <strong>{{trimester.days_left_for_writing}}</strong> ימים להשלמת כל הדיווחים</p>
 </div>
 
-<hr class="section_break">
 
-<div id="professional_teacher_section"></div>
+<div class="dashboard_section" id="professional_teacher_section">
 
 {% if teacher.is_homeroom_teacher %}
 <h2>כובע מורה מקצועי/ת</h2>
 {% endif %}
 
-<div id="manage_class_subsection">
+<div class="dashboard_subsection" id="manage_class_subsection">
 {% if classes|length == 0 %}
     <p>עוד לא הוספת שיעורים שאת/ה מלמד/ת השנה</p>
     <a class="link_button bigger" href="{% url 'manage_classes' %}">
@@ -39,7 +39,7 @@
     </a>
 </div>
 
-<div id="write_evaluations_subsection">
+<div class="dashboard_subsection" id="write_evaluations_subsection">
     {% if teacher.all_evals_in_current_trimester|length == teacher.completed_evals_in_current_trimester|length %}
     <p>מדהים! סיימת לכתוב את כל הדיווחים!!</p>
     {% else %}
@@ -50,13 +50,13 @@
     {% endif %}
 </div>
 {% endif %}
+</div>
 
 {% if teacher.is_homeroom_teacher %} 
-<hr class="section_break">
 
-<div id="homeroom_teacher_subsection">
+<div class="dashboard_section" id="homeroom_teacher_section">
     <h2>כובע חונכ/ת</h2>
-    <div id="manage_homeroom_subsection"
+    <div class="dashboard_subsection" id="manage_homeroom_subsection"
 {% if homeroom_students|length == 0 %}
         <p>עוד לא הוספת תלמידים לקבוצת החונכות</p>
         <a class="link_button bigger" href="{% url 'manage_homeroom' %}">
@@ -76,7 +76,7 @@
         </a>
     </div>
 
-<div id="read_evaluations_subsection">
+<div class="dashboard_subsection" id="read_evaluations_subsection">
     {% if teacher.missing_evals_of_homeroom_students_in_current_trimester|length == 0 %}
     </p>קיבלת את כל הדיווחים של כל הנחנכים שלך! הכל מוכן להורה-חונך-ילד!</p>
     <a class="link_button bigger" href="{% url 'view' %}">
@@ -105,6 +105,6 @@
 </div>
 
 {% endif %}
-
+</div>
 {% endblock %}
 

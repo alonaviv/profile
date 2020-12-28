@@ -2,18 +2,23 @@
 
 
 {% block content %}
+
   <h1>התחברות</h1>
+
+<div class="centered_container border form_styling">
+  <form method="POST">
 {% if messages %}
   {% for message in messages %}
-	{{ message }}
+  <div class="error_message">
+    {{ message }}
+    </div>
   {% endfor %}
 {% endif %}
-
-  <form method="POST">
     <ul>
     {% csrf_token %}
     {{ form.as_ul }}
     <button type="submit">התחברות</button>
     </ul>
-  </form>
+  </form>   
+</div>
 {% endblock %}

@@ -10,7 +10,7 @@
 	{{ message }}
   {% endfor %}
 {% endif %}
-
+<div class="centered_container border form_styling">
   <form method="POST">
     <ul>
     {% csrf_token %}
@@ -18,5 +18,5 @@
     <button type="submit">הוספת שיעור</button>
     </ul>
   </form>
-
+</div>
 {% endblock %}

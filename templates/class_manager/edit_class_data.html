@@ -12,6 +12,7 @@
   {% endfor %}
 {% endif %}
 
+<div class="centered_container border form_styling">
   <form method="POST">
     <ul>
     {% csrf_token %}
@@ -19,4 +20,5 @@
     <button type="submit">עריכת פרטי השיעור</button>
     </ul>
   </form>
+</div>
 {% endblock %}

@@ -4,9 +4,17 @@
 
 <h1>כתיבת דיווחים לשיעור {{ formset.instance }}</h1>
 
+{% if not formset.forms %}
+<br>
+<div class="centered_container">
+<div class=error_message>לא הוספת תלמידים לשיעור זה</div>
+</div>
+
+{% else %}
 <div class="block-container reverse">
     <a class ="back_button" href="{% url 'write' %}">חזרה לרשימת השיעורים</a>
 </div>
+<div class="centered_container form_styling">
 <form action = "" method="post">
     {% csrf_token %}
     {{ formset.management_form }}
@@ -27,7 +35,9 @@
     <br><br>
         {% endfor %}
 </form>
+</div> 
 
+{% endif %}
 
 {% endblock %}
 

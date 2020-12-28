@@ -45,7 +45,6 @@ def register(request):
             except IntegrityError:
                 messages.error(request, f"המשתמש/ת {teacher_object} כבר קיימ/ת במערכת")
 
-
     else:
         form = RegisterForm()
 
@@ -64,7 +63,7 @@ def login(request):
                 auth.login(request, user)
                 return redirect(reverse('index'))
             else:
-                messages.error(request, "Wrong Credentials")
+                messages.error(request, "פרטי המשתמש אינם נכונים (או שטרם נרשמת במערכת)")
 
     else:
         form = LoginForm()

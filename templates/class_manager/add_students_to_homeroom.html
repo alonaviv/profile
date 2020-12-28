@@ -10,9 +10,10 @@
   {% endfor %}
 {% endif %}
 
+
+<div class="centered_container column">
 <h3>הוספת תלמידים (פנויים) משכבת {{house_of_homeroom}}</h3>
-
-
+<div class="form_styling wrapping">
   <form method="POST">
     <ul>
     {% csrf_token %}
@@ -24,6 +25,7 @@
     {% endif %}
     </ul>
   </form>
+</div>  
 
 {% for house in houses %}
    {% if house != house_of_homeroom and house.id != 5%}
@@ -33,5 +35,6 @@
 {% endif %}
 
 {% endfor %}
+</div>  
 
 {% endblock %}`
