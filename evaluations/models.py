@@ -88,7 +88,7 @@ class Class(Model):
     subject = ForeignKey(Subject, on_delete=PROTECT)
     house = ForeignKey(House, on_delete=PROTECT)
     teacher = ForeignKey(TeacherUser, on_delete=PROTECT)
-    students = ManyToManyField(Student, blank=True)
+    students = ManyToManyField(Student, blank=True, related_name='classes')
     hebrew_year = IntegerField()
 
     class Meta:

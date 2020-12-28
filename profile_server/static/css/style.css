@@ -218,6 +218,10 @@ p {
   padding: 15px;
 }
 
+.fa-exclamation-circle {
+  color: #a10000;
+}
+
 .fa-tachometer-alt {
   color: red;
   padding: 15px;

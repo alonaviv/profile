@@ -1,5 +1,4 @@
 from django.contrib.auth.decorators import login_required
-from django.db.models import Q
 from django.http import HttpResponseForbidden
 from django.shortcuts import render, redirect, reverse, HttpResponse
 
@@ -55,7 +54,7 @@ def delete_student_from_class(request, class_id, student_id):
 
     student = Student.objects.get(id=student_id)
 
-    if klass not in student.class_set.all():
+    if klass not in student.classes.all():
         return HttpResponseForbidden(f"<h1> לא קיים רישום של {student} בשיעור {klass} ולכן לא ניתן להסירו")
 
     klass.students.remove(student)
@@ -142,7 +141,7 @@ def add_students_to_class(request, class_id, house_id=None):
     if klass.hebrew_year != get_current_trimester().hebrew_school_year:
         return HttpResponseForbidden(f"<h1> לא ניתן לערוך שיעור של שנה {klass.hebrew_year} </h1>")
 
-    students_to_choose_from = Student.objects.filter(house=house)
+    students_to_choose_from = Student.objects.filter(house=house).exclude(classes=klass)
     current_students = klass.students.all()
 
     if request.method == "POST":
@@ -188,9 +187,7 @@ def add_students_to_homeroom(request, house_id=None):
         house = teacher.house
 
     # Get all students from house that don't already have a homeroom teacher
-    students_to_choose_from = Student.objects.filter(
-        Q(homeroom_teacher=None) | Q(homeroom_teacher=teacher),
-        house=house)
+    students_to_choose_from = Student.objects.filter(homeroom_teacher=None, house=house)
     current_students = teacher.student_set.all()
 
     if request.method == "POST":
