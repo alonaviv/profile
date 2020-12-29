@@ -70,7 +70,8 @@
         <p>בקבוצת החונכות שלך ישנם <strong>{{homeroom_students|length}}</strong> תלמידים</p>
         {% if homeroom_students_without_classes %}
         <div id="missing_homeroom_classes">
-        <i class="fas fa-exclamation-circle fa-2x"></i><p>{{homeroom_students_without_classes|length}} מהנחנכים שלך עוד לא רשומים לאף שיעור (המורים המקצועים צריכים להוסיף אותם)
+        <div class="flex_container centered"><i class="fas fa-exclamation-circle fa-2x"></i></div>
+        <p>{{homeroom_students_without_classes|length}} מהנחנכים שלך עוד לא רשומים לאף שיעור (המורים המקצועים צריכים להוסיף אותם)
         </p>
         </div>
         {% endif %}
