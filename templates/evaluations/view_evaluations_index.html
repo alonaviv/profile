@@ -8,7 +8,7 @@
 <div class="items_list">
 <ul>
     {% for student in students %}
-      <li class={% if student.classes.all|length == 0 %} missing_classes {% elif student.completed_evals_in_current_trimester == student.all_evals_in_current_trimester %} complete {% else %} incomplete {% endif %}
+      <li class={% if student.classes.all|length == 0 %} missing {% elif student.completed_evals_in_current_trimester == student.all_evals_in_current_trimester %} complete {% else %} incomplete {% endif %}
       >
       
       <a href="{% url 'view_student_evaluations' student.id %}">
