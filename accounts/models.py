@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
-from django.db.models import BooleanField, ForeignKey, OneToOneField, PROTECT, EmailField
+from django.db.models import BooleanField, ForeignKey, OneToOneField, PROTECT, EmailField, CharField
 
+from profile_server.pronouns import PronounOptions
 from .managers import TeacherUserManager
 
 
@@ -12,6 +13,8 @@ class TeacherUser(AbstractUser):
     # we pass these fields.
     house = ForeignKey('evaluations.House', on_delete=PROTECT, null=True)
     teacher_object = OneToOneField('evaluations.Teacher', on_delete=PROTECT, null=True)
+    pronoun_choice = CharField(max_length=30, choices=[(pronoun_option.name, pronoun_option.value)
+                                                       for pronoun_option in PronounOptions], null=True)
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"

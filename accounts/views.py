@@ -57,6 +57,7 @@ def register(request):
                 user = TeacherUser.objects.create_user(username=username,
                                                        email=form.cleaned_data['email'],
                                                        password=form.cleaned_data['password'],
+                                                       pronoun_choice=form.cleaned_data['pronoun_choice'],
                                                        first_name=first_name,
                                                        last_name=last_name,
                                                        house=form.cleaned_data['house'],

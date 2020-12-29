@@ -27,7 +27,7 @@
 
 <div class="dashboard_subsection" id="manage_class_subsection">
 {% if classes|length == 0 %}
-    <p>עוד לא הוספת שיעורים שאת/ה מלמד/ת השנה</p>
+    <p>עוד לא הוספת שיעורים ש{{pronoun_dict.you}} {{pronoun_dict.teach}} השנה</p>
     <div class="local_centered_container">
     <a class="link_button bigger" href="{% url 'manage_classes' %}">
         להוספת שיעורים
