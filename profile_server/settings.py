@@ -24,7 +24,7 @@ with open('../profile-secret-key') as f:
     SECRET_KEY = f.read().strip()
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get("DEBUG", False) == 'True'
 
 ALLOWED_HOSTS = ['192.168.0.111', 'localhost', '127.0.0.1']
 
