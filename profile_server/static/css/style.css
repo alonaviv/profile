@@ -313,22 +313,30 @@ i.fa-times-circle {
 
 #view_evaluations #summary {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
 
 }
 
 #view_evaluations #summary #status {
   border: 3px #b30000 solid;
-  width:  250px;
-  height: 100px;
+  width:  500px;
+  height: 150px;
   padding: auto;
+  margin-left: auto;
+  font-size: 30px;
+
   text-align: center;
   border-radius: 10px;
   display: flex;
   flex-direction: column;
   justify-content: space-evenly;
 }
+
+#view_evaluations #summary .back_button {
+    /* width: 100px; */
+}
+
 
 #view_evaluations #summary #status.completed {
   border: 3px #208000 solid;
@@ -338,6 +346,7 @@ i.fa-times-circle {
 #view_evaluations #summary #status a{
   color: #b30000;
   font-weight: 500;
+  font-size: 35px;
   text-decoration: underline;
 }
 

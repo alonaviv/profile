@@ -39,6 +39,6 @@ pronoun_options_dict = {
     'you': WordOptions('אתה', 'את', 'את.ה'),
     'teach': WordOptions('מלמד', 'מלמדת', 'מלמד.ת'),
     'professional': WordOptions('מקצועי', 'מקצועית', 'מקצועי.ת'),
-    'mentor': WordOptions('חונך', 'חונכת', 'חונכ.ת'),
+        'mentor': WordOptions('חונך', 'חונכת', 'חונכ.ת'),
 }
 
