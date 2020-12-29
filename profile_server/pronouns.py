@@ -3,10 +3,10 @@ import random
 
 
 class PronounOptions(Enum):
-    MALE = 'לשון זכר'
     FEMALE = 'לשון נקבה'
+    MALE = 'לשון זכר'
     NEUTRAL = 'לשון ניטרלית'
-    MIXED = 'לשון מעורבבת'
+    MIXED = 'לשון מעורבת'
 
 
 class WordOptions:
@@ -37,6 +37,8 @@ class PronounWordDictionary:
 # ======== Write in pronoun options here
 pronoun_options_dict = {
     'you': WordOptions('אתה', 'את', 'את.ה'),
-    'teach': WordOptions('מלמד', 'מלמדת', 'מלמד.ת')
+    'teach': WordOptions('מלמד', 'מלמדת', 'מלמד.ת'),
+    'professional': WordOptions('מקצועי', 'מקצועית', 'מקצועי.ת'),
+    'mentor': WordOptions('חונך', 'חונכת', 'חונכ.ת'),
 }
 

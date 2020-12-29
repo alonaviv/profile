@@ -163,7 +163,7 @@ def add_students_to_class(request, class_id, house_id=None):
             klass.students.add(*selected_students)
             populate_evaluations_in_teachers_classes(teacher)
 
-            form = AddStudentsForm(students=students_to_choose_from.exclude(id__in=selected_student_ids))
+            return redirect('manage_students_in_class', class_id)
 
     else:
         form = AddStudentsForm(students=students_to_choose_from)
@@ -216,7 +216,7 @@ def add_students_to_homeroom(request, house_id=None):
 
             teacher.student_set.add(*list(selected_students))
 
-            form = AddStudentsForm(students=students_to_choose_from.exclude(id__in=selected_students_ids))
+            return redirect('manage_homeroom')
 
     else:
         form = AddStudentsForm(students=students_to_choose_from)

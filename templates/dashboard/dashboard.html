@@ -22,7 +22,7 @@
 <div class="dashboard_section" id="professional_teacher_section">
 
 {% if teacher.is_homeroom_teacher %}
-<h2>כובע מורה מקצועי/ת</h2>
+<h2>כובע מורה {{pronoun_dict.professional}}</h2>
 {% endif %}
 
 <div class="dashboard_subsection" id="manage_class_subsection">
@@ -34,7 +34,7 @@
     </a></div>
 </div>
 {% else %}
-    <p>את/ה מלמד/ת {{classes|length}} שיעורים השנה, ומשתתפים בהם סה״כ {{class_students|length}} תלמידים</p>
+    <p>{{pronoun_dict.you}} {{pronoun_dict.teach}} {{classes|length}} שיעורים השנה, ומשתתפים בהם סה״כ {{class_students|length}} תלמידים</p>
     <div class="local_centered_container">
     <a class="link_button bigger" href="{% url 'manage_classes' %}">
         לניהול השיעורים שלך
@@ -58,7 +58,7 @@
 {% if teacher.is_homeroom_teacher %} 
 
 <div class="dashboard_section" id="homeroom_teacher_section">
-    <h2>כובע חונכ/ת</h2>
+    <h2>כובע {{pronoun_dict.mentor}}</h2>
     <div class="dashboard_subsection" id="manage_homeroom_subsection"
 {% if homeroom_students|length == 0 %}
         <p>עוד לא הוספת תלמידים לקבוצת החונכות</p>
