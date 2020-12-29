@@ -15,7 +15,7 @@
 <ul> 
   {% if students %}
     {% for student in students %}
-      <li><div class="item">{{student}}</div>
+      <li><div class="item">{{student}} ({% if student.homeroom_teacher %} {{student.homeroom_teacher.printable_description}} {% else %} עדיין לא צורפ\ה לחונכ/ת {% endif %}) 
         <a href="{% url 'delete_student_from_class' class.id student.id %}" onclick="return confirm('האם להסיר את {{student}} משיעור {{class}}? פעולה זו תמחק את כל הדיווחים הקיימים לתלמיד\/ה בשיעור!')"><i class="fas fa-trash-alt"></i></a>
       </li>
     {% endfor %}

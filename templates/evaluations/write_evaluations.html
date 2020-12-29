@@ -27,7 +27,7 @@
     {% csrf_token %}
     {{ formset.management_form }}
         {% for form in formset %}
-    דיווח על {{ form.instance.student }}:
+    דיווח על {{ form.instance.student }} ({% if form.instance.student.homeroom_teacher %} {{form.instance.student.homeroom_teacher.printable_description}} {% else %} עדיין לא צורפ\ה לחונכ/ת {% endif %})
     <br>
     <!-- Need to have the hidden fields, so you can return them back to the database -->
     {% for field in form.hidden_fields %}

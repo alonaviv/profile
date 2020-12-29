@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db.models import BooleanField, ForeignKey, OneToOneField, PROTECT, EmailField, CharField
 
-from profile_server.pronouns import PronounOptions
+from profile_server.pronouns import PronounOptions, PronounWordDictionary
 from .managers import TeacherUserManager
 
 
@@ -20,6 +20,10 @@ class TeacherUser(AbstractUser):
         return f"{self.first_name} {self.last_name}"
 
     objects = TeacherUserManager()
+
+    @property
+    def pronoun_as_enum(self):
+        return PronounOptions[self.pronoun_choice]
 
     @property
     def completed_evals_in_current_trimester(self):
@@ -61,3 +65,7 @@ class TeacherUser(AbstractUser):
     def missing_evals_of_homeroom_students_in_current_trimester(self):
         return [evaluation for evaluation in self.all_evals_of_homeroom_students_in_current_trimester if
                 evaluation not in self.completed_evals_of_homeroom_students_in_current_trimester]
+
+    @property
+    def printable_description(self):
+        return PronounWordDictionary(self.pronoun_as_enum)['mentor'] + " - " + str(self)

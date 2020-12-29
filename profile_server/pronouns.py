@@ -1,5 +1,5 @@
-from enum import Enum
 import random
+from enum import Enum
 
 
 class PronounOptions(Enum):
@@ -39,6 +39,5 @@ pronoun_options_dict = {
     'you': WordOptions('אתה', 'את', 'את.ה'),
     'teach': WordOptions('מלמד', 'מלמדת', 'מלמד.ת'),
     'professional': WordOptions('מקצועי', 'מקצועית', 'מקצועי.ת'),
-        'mentor': WordOptions('חונך', 'חונכת', 'חונכ.ת'),
+    'mentor': WordOptions('חונך', 'חונכת', 'חונכ.ת'),
 }
-

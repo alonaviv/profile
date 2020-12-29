@@ -25,7 +25,6 @@ def manage_classes(request):
         classes = []
 
     classes = sorted(classes.all(), key=lambda klass: klass.name)
-
     context = {'classes': classes, 'teacher': teacher}
     return render(request, 'class_manager/manage_classes.html', context)
 
@@ -41,6 +40,7 @@ def manage_students_in_class(request, class_id):
         return HttpResponseForbidden(f"<h1> לא ניתן לערוך שיעור של שנה {klass.hebrew_year} </h1>")
 
     students = sorted(klass.students.all(), key=lambda student: (student.first_name, student.last_name))
+
     context = {'class': klass, 'students': students, 'teacher': teacher}
     return render(request, 'class_manager/manage_students_in_class.html', context)
 
@@ -98,7 +98,6 @@ def add_new_class(request):
                 return redirect(add_students_to_class, new_class.id)
             else:
                 messages.error(request, "השיעור הזה כבר קיים במערכת")
-
 
     else:
         form = ClassForm(initial={'house': teacher.house})

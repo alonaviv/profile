@@ -6,8 +6,7 @@ def trimester_context_processor(request):
     teacher = request.user
 
     if not teacher.is_anonymous and not teacher.is_superuser:
-        pronoun_choice_enum = PronounOptions[teacher.pronoun_choice]
-        pronoun_dict = PronounWordDictionary(pronoun_choice_enum)
+        pronoun_dict = PronounWordDictionary(teacher.pronoun_as_enum)
     else:
         pronoun_dict = {}
 
