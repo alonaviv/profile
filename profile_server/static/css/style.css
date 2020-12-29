@@ -454,8 +454,12 @@ i.fa-times-circle {
     color: red
 }
 
-h2 a{
+h2 a, h2.announcment{
     color: darkblue;
+}
+
+h2.announcment_happy{
+    color: #208000;
 }
 
 .dashboard {

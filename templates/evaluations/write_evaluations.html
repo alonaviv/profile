@@ -11,6 +11,14 @@
 </div>
 
 {% else %}
+<div class="centered_container">
+{% if class.completed_evals_in_current_trimester == class.all_evals_in_current_trimester%}
+    <h2 class='announcment_happy'>כתבת את כל {{class.completed_evals_in_current_trimester|length}} הדיווחים לשיעור זה! איזה כיף!</h2>
+{% else %}
+    <h2 class='announcment'>כתבת {{class.completed_evals_in_current_trimester|length}} מתוך {{class.all_evals_in_current_trimester|length}} דיווחים</h2>
+{% endif %}
+</div>
+
 <div class="block-container reverse">
     <a class ="back_button" href="{% url 'write' %}">חזרה לרשימת השיעורים</a>
 </div>

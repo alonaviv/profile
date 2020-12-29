@@ -79,7 +79,7 @@ def write_class_evaluations(request, class_id):
                                     queryset=Evaluation.objects.filter(hebrew_year=current_trimester.hebrew_school_year,
                                                                        trimester=current_trimester.name))
 
-    context = {'formset': formset, 'teacher': teacher}
+    context = {'formset': formset, 'teacher': teacher, 'class': class_to_evaluate}
     return render(request, 'evaluations/write_evaluations.html', context)
 
 
