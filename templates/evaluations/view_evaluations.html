@@ -17,7 +17,7 @@
 
               הגיעו {{completed_student_evals|length}} דיווחים מתוך {{all_student_evals|length}} שיעורים
               {% if all_student_evals|length != completed_student_evals|length %}
-              <a href="{% url 'missing_student_evaluations' student.id %}">לפרטים</a>
+              <a href="{% url 'evaluation_details' student.id %}">לפרטים</a>
               {% else %}
               <i class="fas fa-check-circle fa-2x"></i>
               {% endif %}

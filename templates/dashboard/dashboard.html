@@ -14,8 +14,8 @@
 {% else %}
 
 <div class="dashboard_section" id="meeting_countdown">
-    <p>פגישת הורה/חונך/ילד הקרובה, מספר {{trimester.number}} השנה, תתקיים בתאריך {{trimester.meeting_end_of_trimester_printable}}</p>
-    <p>נשארו עוד <strong>{{trimester.days_left_for_writing}}</strong> ימים להשלמת כל הדיווחים</p>
+    <p>פגישת הורה/חונך/ילד הקרובה, מספר {{trimester.number}} השנה, תתקיים בתאריך <strong>{{trimester.meeting_end_of_trimester_printable}}</strong></p>
+    <p>יש להשלים את כל הדיווחים עד תאריך <strong>{{trimester.evaluation_writing_deadline_printable}}</strong>. יש לך עוד <strong>{{trimester.days_left_for_writing}} ימים!</strong></p>
 </div>
 
 
@@ -45,7 +45,7 @@
     {% if teacher.all_evals_in_current_trimester|length == teacher.completed_evals_in_current_trimester|length %}
     <p>מדהים! סיימת לכתוב את כל הדיווחים!!</p>
     {% else %}
-    <p>כתבת {{teacher.completed_evals_in_current_trimester|length}} דיווחים מתוך {{teacher.all_evals_in_current_trimester|length}} (כלומר - השלמת {{teacher.evals_percentage_completed | floatformat}}% עד כה)</p>
+    <p>כתבת <strong>{{teacher.completed_evals_in_current_trimester|length}}</strong> דיווחים מתוך <strong>{{teacher.all_evals_in_current_trimester|length}}</strong> (כלומר - השלמת {{teacher.evals_percentage_completed | floatformat}}% עד כה)</p>
     <div class="local_centered_container">
     <a class="link_button bigger" href="{% url 'write' %}">
         לכתיבת דיווחים
@@ -89,7 +89,7 @@
        לצפייה בדיווחים של קבוצת החונכות שלך
     </a></div>
     {% else %}
-    <p>חסרים עדיין {{teacher.missing_evals_of_homeroom_students_in_current_trimester|length}} דיווחים בקבוצת החונכות שלך</p>
+    <p>חסרים עדיין <strong>{{teacher.missing_evals_of_homeroom_students_in_current_trimester|length}}</strong> דיווחים בקבוצת החונכות שלך</p>
     <div class="local_centered_container">
     <a class="link_button bigger" href="{% url 'view' %}">
         לצפייה בדיווחים שהתקבלו ולמידע על החוסרים

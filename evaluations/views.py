@@ -1,6 +1,5 @@
 from django.contrib.auth.decorators import login_required
 from django.forms import inlineformset_factory, Textarea
-from django.http import HttpResponseBadRequest
 from django.shortcuts import render, reverse, redirect
 
 from utils.school_dates import get_current_trimester
@@ -57,7 +56,7 @@ def write_class_evaluations(request, class_id):
         class_to_evaluate = Class.objects.get(id=class_id, teacher=teacher,
                                               hebrew_year=current_trimester.hebrew_school_year)
     except Class.DoesNotExist:
-        return HttpResponseBadRequest("<h1> Wrong class selection for teacher </h1>")
+        return redirect(reverse('mismatched_professional_teacher_error'))
 
     EvaluationFormSet = inlineformset_factory(Class,
                                               Evaluation,
@@ -109,6 +108,10 @@ def view_student_evaluations(request, student_id):
         return redirect(reverse('not_homeroom_teacher_error'))
 
     student = Student.objects.get(id=student_id)
+
+    if student.homeroom_teacher != teacher:
+        return redirect(reverse('mismatched_homeroom_teacher_error'))
+
     context = {'student': student, 'teacher': teacher}
     return render(request, 'evaluations/view_evaluations.html', context)
 
@@ -131,7 +134,7 @@ def view_evaluations_main_page(request):
 
 
 @login_required
-def missing_evaluations(request, student_id):
+def evaluations_details(request, student_id):
     teacher = request.user
     current_trimester = get_current_trimester()
 
@@ -141,16 +144,20 @@ def missing_evaluations(request, student_id):
     student = Student.objects.get(id=student_id)
 
     missing_classes = []
+    evaluated_classes = []
 
     for evaluation in student.evaluations.filter(trimester=current_trimester.name,
                                                  hebrew_year=current_trimester.hebrew_school_year):
-        if not evaluation.evaluation_text:
+        if evaluation.evaluation_text:
+            evaluated_classes.append(evaluation.evaluated_class)
+        else:
             missing_classes.append(evaluation.evaluated_class)
 
     context = {
-        'student': student, 'missing_classes': missing_classes, 'teacher': teacher
+        'student': student, 'missing_classes': missing_classes, 'evaluated_classes': evaluated_classes,
+        'teacher': teacher
     }
-    return render(request, 'evaluations/missing_evaluations.html', context)
+    return render(request, 'evaluations/evaluation_details.html', context)
 
 
 def failed_login(request):

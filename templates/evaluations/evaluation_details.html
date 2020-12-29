@@ -2,19 +2,25 @@
 
 {% block content %}
 
-<h1>דיווחים חסרים - {{student}}</h1>
+<h1>פירוט דיווחים - {{student}}</h1>
 
 <a class="back_button" href="{% url 'view_student_evaluations' student.id %}">חזרה לדיווחים של {{student.first_name}}</a>
-{% if missing_classes %}
+
 <div class="items_list">
 <ul>
+    {% for class in evaluated_classes %}
+    <li class="missing_evaluations">
+      <div class="missing_evaluation">{{class.name}} - {{class.teacher}}</div>
+      <i class="fas fa-check-circle fa-2x"></i>
+    </li>
+    {% endfor %}
+
     {% for class in missing_classes %}
     <li class="missing_evaluations">
       <div class="missing_evaluation">{{class.name}} - {{class.teacher}}</div>
       <i class="fas fa-times-circle fa-2x"></i>
     </li>
     {% endfor %}
-  {% endif %}
 </ul>
 </div>  
 

@@ -25,6 +25,12 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('class_manager/', include('class_manager.urls')),
     path('failed_login', TemplateView.as_view(template_name='common/failed_login.html'), name='failed_login'),
-    path('not_homeroom_teacher_error', TemplateView.as_view(template_name='common/not_homeroom_teacher_error.html'), name='not_homeroom_teacher_error')
-
+    path('not_homeroom_teacher_error', TemplateView.as_view(template_name='common/not_homeroom_teacher_error.html'),
+         name='not_homeroom_teacher_error'),
+    path('mismatched_homeroom_teacher_error',
+         TemplateView.as_view(template_name='common/mismatched_homeroom_teacher_error.html'),
+         name='mismatched_homeroom_teacher_error'),
+    path('mismatched_professional_teacher_error',
+         TemplateView.as_view(template_name='common/mismatched_professional_teacher_error.html'),
+         name='mismatched_professional_teacher_error'),
 ]

@@ -39,15 +39,34 @@ a {
   color: inherit;
 }
 
+a.basic_link {
+    color: #2517a7;
+    text-decoration: underline;
+}
+
 p {
   margin: 20px;
 }
 
+.flex_container { 
+    display: flex;
+}
+
+.flex_container.centered {
+    align-items: center;
+    justify-content: center;
+}
+
+.flex_container.space_evenly {
+    justify-content: space-evenly;
+}
 
 .block-container{
   display: flex;
   align-items: center;
+  justify-content: center;
 }
+
 
 .block-container * {
   margin: 15px;
@@ -242,6 +261,24 @@ p {
   align-items: center;
 }
 
+.numbered_item_list ol {
+    list-style: none;
+    counter-reset: my-counter;}
+
+.numbered_item_list li {
+    counter-increment: my-counter;
+    margin: 10px 0;
+}
+
+.numbered_item_list li::marker {
+    content: counter(my-counter) " . ";
+    color: rgb(23, 122, 139);
+    font-weight: bold;
+    margin-left: 10px;
+    font-size: 30px;
+  }
+
+
 .items_list a, .items_list .item{
   font-size: 30px;
   padding: 15px;
@@ -254,6 +291,10 @@ p {
 
 .items_list i {
   padding: 0 30px;
+}
+
+.items_list i.no_padding {
+  padding: 0;
 }
 
 .items_list li {
@@ -285,6 +326,7 @@ p {
 
 .fa-exclamation-circle {
   color: #a10000;
+  padding-left: 10px;
 }
 
 .fa-battery-quarter {
@@ -369,8 +411,21 @@ i.fa-times-circle {
 .missing_evaluation {
   font-size: 30px;
   padding: 15px;
-  color: #800000
+  color: #800000;
 }
+
+.evaluated_class {
+  font-size: 30px;
+  padding: 15px;
+  color: green;
+}
+
+.class_listing {
+  font-size: 30px;
+  padding: 15px;
+  color: #0f2c8b
+}
+
 
 #missing_homeroom_classes{
     display: flex
@@ -451,7 +506,7 @@ i.fa-times-circle {
 
 .error_message {
     font-size: 30px;
-    color: red
+    color: red;
 }
 
 h2 a, h2.announcment{

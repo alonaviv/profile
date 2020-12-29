@@ -10,9 +10,12 @@
 <ul> 
   {% if teacher.student_set %}
     {% for student in teacher.student_set.all %}
-      <li><div class={% if student.classes.all|length == 0%}"item missing_classes" {% else %} "item" {% endif %}>{{student}} - {{student.classes.all|length}} שיעורים</div>
+    <div class="flex_container space_evenly">
+    {% if student.classes.all|length == 0 %} <div class="flex_container centered"><i class="fas fa-exclamation-circle fa-2x no_padding"></i></div> {% endif %}
+      <li><div class={% if student.classes.all|length == 0%}"item missing_classes" {% else %} "item" {% endif %}>{{student}} - <a href="{% url 'view_student_classes' student.id %}" class="basic_link">{{student.classes.all|length}} שיעורים</a></div>
         <a href="{% url 'delete_student_from_homeroom' student.id %}" onclick="return confirm('האם להסיר את {{student}} מקבוצת החונכות שלך?')"><i class="fas fa-trash-alt"></i></a>
       </li>
+    </div>
     {% endfor %}
   {% endif %}
   <li><a href="{% url 'add_students_to_homeroom' %}"><i class="fas fa-plus"></i>

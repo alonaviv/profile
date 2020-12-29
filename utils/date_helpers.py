@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from enum import Enum, auto
+from enum import Enum
 
 from hebrew_numbers import int_to_gematria
 from pyluach import dates
@@ -59,12 +59,16 @@ class Trimester:
     def __init__(self, trimester_type: TrimesterType,
                  meeting_end_of_trimester: datetime = None,
                  grace_period: int = None,
-                 evaluation_deadline_days: int= None):
+                 evaluation_deadline_days: int = None):
         self.number = trimester_type.value
         self.trimester_type = trimester_type
         self.meeting_end_of_trimester = meeting_end_of_trimester
         self.grace_period = grace_period
         self.evaluation_deadline_days = evaluation_deadline_days
+
+    @staticmethod
+    def _get_printable_date(date: datetime):
+        return '{d.day}/{d.month}/{d.year}'.format(d=date)
 
     @property
     def name(self):
@@ -72,7 +76,7 @@ class Trimester:
 
     @property
     def meeting_end_of_trimester_printable(self):
-        return self.meeting_end_of_trimester.strftime("%d/%m/%y")
+        return self._get_printable_date(self.meeting_end_of_trimester)
 
     @property
     def hebrew_school_year_printable(self):
@@ -102,18 +106,31 @@ class Trimester:
         return gregorian_start_of_year_date.to_heb().year
 
     @property
+    def evaluation_writing_deadline(self):
+        """
+        The deadline is self.evaluation_deadline_days days before the next meeting.
+        """
+        return self.meeting_end_of_trimester - timedelta(days=self.evaluation_deadline_days)
+
+    @property
+    def evaluation_writing_deadline_printable(self):
+        """
+        The deadline is self.evaluation_deadline_days days before the next meeting.
+        """
+        return self._get_printable_date(self.evaluation_writing_deadline)
+
+    @property
     def days_left_for_writing(self):
         """
-        Returns the days left until the deadline, including today. The deadline is self.evaluation_deadline_days days
-        before the next meeting.
+        Returns the days left until the deadline, including today.
         """
-        return (self.meeting_end_of_trimester - timedelta(days=self.evaluation_deadline_days) - datetime.now()).days + 1
+        return (self.evaluation_writing_deadline - datetime.utcnow()).days + 1
 
 
 def get_gregorian_school_year(current_date=None):
     """If the school year is 2020-2021, this gives 2020"""
     if not current_date:
-        current_date = datetime.now()
+        current_date = datetime.utcnow()
 
     if current_date >= START_OF_YEAR.as_datetime(current_date.year):
         return current_date.year
@@ -134,7 +151,7 @@ def get_year_of_trimester(meeting_date, current_date=None, year_start_of_school=
 
     if not year_start_of_school:
         if not current_date:
-            current_date = datetime.now()
+            current_date = datetime.utcnow()
 
         year_start_of_school = get_gregorian_school_year(current_date)
 

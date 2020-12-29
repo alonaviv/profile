@@ -131,6 +131,7 @@ def edit_class_data(request, class_id):
     return render(request, "class_manager/edit_class_data.html", context)
 
 
+@login_required
 def add_students_to_class(request, class_id, house_id=None):
     teacher = request.user
     klass = Class.objects.get(id=class_id)
@@ -237,3 +238,16 @@ def delete_student_from_homeroom(request, student_id):
     teacher.student_set.remove(student)
 
     return redirect(manage_homeroom)
+
+
+@login_required
+def view_student_classes(request, student_id):
+    teacher = request.user
+    student = Student.objects.get(id=student_id)
+
+    if student.homeroom_teacher != teacher:
+        return redirect(reverse('mismatched_homeroom_teacher_error'))
+
+    context = {'teacher': teacher, 'student': student}
+    return render(request, 'class_manager/view_student_classes.html', context)
+
