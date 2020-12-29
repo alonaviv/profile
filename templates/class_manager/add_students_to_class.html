@@ -29,7 +29,7 @@
 </div>
 
 {% for house in houses %}
-   {% if house != current_house and house.id != 5%}
+   {% if house != current_house %}
 <a class="back_button bigger" href="{% url 'add_students_to_class' class.id house.id  %}">
   הוספת תלמידים נוספים משכבת {{house}}
 </a>
