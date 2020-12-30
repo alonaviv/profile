@@ -1,10 +1,8 @@
 Important before opening:
 
-
 * Fix css of password recovery + new email address for the service.
 * Fix whole deletion thing
 * Forms: show when done and ask when changing
-
 
 
 - Nice to have:
@@ -34,8 +32,6 @@ form formatting.
 
 
 * Bug - seems can't add evaluations of same trimester and different years
-
-* See if you should pay for backups on digital ocean.
 
 * Think about several teacher teaching same class, sometimes it means a few topics
 

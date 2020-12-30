@@ -40,4 +40,7 @@ pronoun_options_dict = {
     'teach': WordOptions('מלמד', 'מלמדת', 'מלמד.ת'),
     'professional': WordOptions('מקצועי', 'מקצועית', 'מקצועי.ת'),
     'mentor': WordOptions('חונך', 'חונכת', 'חונכ.ת'),
+    'sure': WordOptions('בטוח', 'בטוחה', 'בטוח.ה'),
+    'click': WordOptions('לחץ', 'לחצי', 'לחצ.י'),
+    'send': WordOptions('שלח', 'שלחי', 'שלח.י'),
 }

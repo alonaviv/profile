@@ -21,7 +21,7 @@
     {% endfor %}
   {% else %}
   <li>
-    <a href="{% url 'delete_class' class.id %}" onclick="return confirm('האם למחוק את שיעור {{class}}?')"><i class="fas fa-trash-alt delete-class-icon"></i></a> 
+    <a href="{% url 'delete_class' class.id %}" onclick="return confirm('האם למחוק את שיעור {{class}}?')"><i class="fas fa-trash-alt delete-class-icon"></i></a>
     <div class="item">ביטול שיעור {{class}}</div>
   {% endif %}
   <li class="add_new_class"><a href="{% url 'add_students_to_class' class.id %}"><i class="fas fa-plus"></i>הוספת תלמידים לכיתה</i></a></li>

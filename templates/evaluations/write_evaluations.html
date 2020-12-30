@@ -2,9 +2,15 @@
 
 {% block content %}
 
-<h1>כתיבת דיווחים לשיעור {{ formset.instance }}</h1>
+{% if anchor %}
+<script type='text/javascript'>
+window.location = (""+window.location).replace(/#[A-Za-z0-9_]*$/,'')+"#{{anchor}}";
+</script>
+{% endif %}
 
-{% if not formset.forms %}
+<h1>כתיבת דיווחים לשיעור {{ class }}</h1>
+
+{% if not evaluations %}
 <br>
 <div class="centered_container">
 <div class=error_message>לא הוספת תלמידים לשיעור זה</div>
@@ -22,28 +28,37 @@
 <div class="block-container reverse">
     <a class ="back_button" href="{% url 'write' %}">חזרה לרשימת השיעורים</a>
 </div>
-<div class="centered_container form_styling">
-<form action = "" method="post">
-    {% csrf_token %}
-    {{ formset.management_form }}
-        {% for form in formset %}
-    דיווח על {{ form.instance.student }} ({% if form.instance.student.homeroom_teacher %} {{form.instance.student.homeroom_teacher.printable_description}} {% else %} עדיין לא צורפ\ה לחונכ/ת {% endif %})
-    <br>
-    <!-- Need to have the hidden fields, so you can return them back to the database -->
-    {% for field in form.hidden_fields %}
-        {{ field }}
-    {% endfor %}
-    {% for field in form.visible_fields %}
-        {{ field }}
-    {% endfor %}
-    <br>
 
-    <input type="submit" value="שלח דיווח">
+{% for evaluation in evaluations %}
+
+<div class="centered_container form_styling">
+<form action = "{% url 'write_class_evaluations' class.id %}" method="post" 
+{% if evaluation.is_submitted %} onsubmit="window.confirm_change()" {% endif %}>
+    {% csrf_token %}
+<a id=anchor_{{evaluation.evaluation_id}}>
+    דיווח על {{ evaluation.student }} ({% if evaluation.student.homeroom_teacher %} {{evaluation.student.homeroom_teacher.printable_description}} {% else %} עדיין לא צורפ\ה לחונכ/ת {% endif %})
+</a>
+    <br>
+    <input type="hidden" name="evaluation_id" value="{{evaluation.evaluation_id}}">
+    <textarea name="evaluation_text" cols="60" rows="20">{{evaluation.evaluation_text}}</textarea>
+    <br>
+    <div class="flex_container">
+    <input type="submit" value="{{pronoun_dict.send}} דיווח">
+    {% if evaluation.is_submitted %}
+    <i class="fas fa-check-circle fa-2x"></i>
+    {% endif %}
+    </div>
 
     <br><br>
-        {% endfor %}
 </form>
 </div> 
+{% endfor %}
+
+<script type="text/javascript">
+window.confirm_change = function() { 
+    var isValid = confirm('האם {{pronoun_dict.you}} {{pronoun_dict.sure}} ש{{pronoun_dict.you}} רוצה לשנות את הדיווח?');if (!isValid) { event.preventDefault();  alert("הדיווח הקודם נותר כשהיה. על מנת לשנות את הדיווח לטקסט החדש, {{pronoun_dict.click}} על ״{{pronoun_dict.send}} דיווח״ שוב. ");}}
+    </script>
+
 
 {% endif %}
 

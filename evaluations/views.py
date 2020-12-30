@@ -1,5 +1,6 @@
+from dataclasses import dataclass
+
 from django.contrib.auth.decorators import login_required
-from django.forms import inlineformset_factory, Textarea
 from django.shortcuts import render, reverse, redirect
 
 from utils.school_dates import get_current_trimester
@@ -49,6 +50,13 @@ def populate_evaluations_in_teachers_classes(teacher):
 
 @login_required
 def write_class_evaluations(request, class_id):
+    @dataclass
+    class EvaluationField:
+        evaluation_text: str
+        evaluation_id: int
+        student: Student
+        is_submitted: bool = False  # This is a safeguard, to make sure that the text has been submitted to the DB
+
     current_trimester = get_current_trimester()
 
     teacher = request.user
@@ -58,28 +66,61 @@ def write_class_evaluations(request, class_id):
     except Class.DoesNotExist:
         return redirect(reverse('mismatched_professional_teacher_error'))
 
-    EvaluationFormSet = inlineformset_factory(Class,
-                                              Evaluation,
-                                              fields=['evaluation_text'],
-                                              widgets={
-                                                  'evaluation_text': Textarea(attrs={'rows': 20, 'cols': 60}),
-                                              },
-                                              extra=0,
-                                              can_delete=False)
-
     if request.method == 'POST':
-        formset = EvaluationFormSet(request.POST, instance=class_to_evaluate,
-                                    queryset=Evaluation.objects.filter(hebrew_year=current_trimester.hebrew_school_year,
-                                                                       trimester=current_trimester.name))
-        formset.save()
+        evaluation = Evaluation.objects.get(id=request.POST['evaluation_id'])
+        evaluation.evaluation_text = request.POST['evaluation_text']
+        evaluation.save()
 
-    else:
-        formset = EvaluationFormSet(instance=class_to_evaluate,
-                                    queryset=Evaluation.objects.filter(hebrew_year=current_trimester.hebrew_school_year,
-                                                                       trimester=current_trimester.name))
+    evaluations = Evaluation.objects.filter(evaluated_class=class_to_evaluate).order_by('student')
+    evaluation_fields = []
+    for evaluation in evaluations:
+        evaluation_field = EvaluationField(evaluation_text=evaluation.evaluation_text, evaluation_id=evaluation.id,
+                                           student=evaluation.student)
+        if evaluation.evaluation_text and not evaluation.evaluation_text.isspace():
+            evaluation_field.is_submitted = True
 
-    context = {'formset': formset, 'teacher': teacher, 'class': class_to_evaluate}
+        evaluation_fields.append(evaluation_field)
+
+    context = {
+        'teacher': teacher, 'class': class_to_evaluate, 'evaluations': evaluation_fields,
+        'anchor': f"anchor_{request.POST['evaluation_id']}" if 'evaluation_id' in request.POST else 'top'
+    }
     return render(request, 'evaluations/write_evaluations.html', context)
+
+
+# @login_required
+# def write_class_evaluations(request, class_id):
+#     current_trimester = get_current_trimester()
+#
+#     teacher = request.user
+#     try:
+#         class_to_evaluate = Class.objects.get(id=class_id, teacher=teacher,
+#                                               hebrew_year=current_trimester.hebrew_school_year)
+#     except Class.DoesNotExist:
+#         return redirect(reverse('mismatched_professional_teacher_error'))
+#
+#     EvaluationFormSet = inlineformset_factory(Class,
+#                                               Evaluation,
+#                                               fields=['evaluation_text'],
+#                                               widgets={
+#                                                   'evaluation_text': Textarea(attrs={'rows': 20, 'cols': 60}),
+#                                               },
+#                                               extra=0,
+#                                               can_delete=False)
+#
+#     if request.method == 'POST':
+#         formset = EvaluationFormSet(request.POST, instance=class_to_evaluate,
+#                                     queryset=Evaluation.objects.filter(hebrew_year=current_trimester.hebrew_school_year,
+#                                                                        trimester=current_trimester.name))
+#         formset.save()
+#
+#     else:
+#         formset = EvaluationFormSet(instance=class_to_evaluate,
+#                                     queryset=Evaluation.objects.filter(hebrew_year=current_trimester.hebrew_school_year,
+#                                                                        trimester=current_trimester.name))
+#
+#     context = {'formset': formset, 'teacher': teacher, 'class': class_to_evaluate}
+#     return render(request, 'evaluations/write_evaluations.html', context)
 
 
 @login_required
