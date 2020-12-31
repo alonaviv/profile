@@ -43,4 +43,11 @@ pronoun_options_dict = {
     'sure': WordOptions('בטוח', 'בטוחה', 'בטוח.ה'),
     'click': WordOptions('לחץ', 'לחצי', 'לחצ.י'),
     'send': WordOptions('שלח', 'שלחי', 'שלח.י'),
+    'enter': WordOptions('הכנס', 'הכניסי', 'הכנס.י'),
+    'look': WordOptions('חפש', 'חפשי', 'חפש.י'),
+    'to_you': WordOptions('אליך', 'אלייך', 'אלייך'),
+    'choose': WordOptions('בחר', 'בחרי', 'בחר.י'),
+    'you_can': WordOptions('תוכל', 'תוכלי', 'תוכל.י'),
+    'ignore': WordOptions('התעלם', 'התעלמי', 'התעלמ.י'),
+    'will_want': WordOptions('תרצה', 'תרצי', 'תרצ.י'),
 }

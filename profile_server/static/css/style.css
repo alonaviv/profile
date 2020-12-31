@@ -52,6 +52,10 @@ p {
     display: flex;
 }
 
+.flex_container.column { 
+    flex-direction: column;
+}
+
 .flex_container.centered {
     align-items: center;
     justify-content: center;
@@ -449,6 +453,10 @@ i.fa-times-circle {
     padding: 100px;
 }
 
+.centered_container.border.small_padding{
+    padding: 0;
+}
+
 .centered_container.column{
     flex-direction: column;
     align-items: center;
@@ -504,13 +512,23 @@ i.fa-times-circle {
     font-size: 20px;
 }
 
-.error_message {
-    font-size: 30px;
+.error_message, .errorlist{
+    font-size: 20px;
     color: red;
+}
+
+.info_message {
+    font-size: 25px;
+    color: rgb(47, 194, 137);
 }
 
 h2 a, h2.announcment{
     color: darkblue;
+}
+
+h4 a{
+    color: darkblue;
+    text-decoration: underline;
 }
 
 h2.announcment_happy{

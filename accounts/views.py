@@ -1,21 +1,21 @@
 from django.contrib import auth, messages
 from django.contrib.auth import get_user_model, password_validation
-from django.contrib.auth.forms import PasswordResetForm
-from django.contrib.auth.models import User
+from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
 from django.contrib.auth.tokens import default_token_generator
+from django.contrib.auth.views import PasswordResetConfirmView
 from django.core.mail import send_mail, BadHeaderError
 from django.db import IntegrityError
-from django.db.models.query_utils import Q
 from django.forms import ValidationError
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, reverse
 from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
-from profile_server.settings import EMAIL_HOST_USER
 
-from accounts.forms import RegisterForm, LoginForm
+from accounts.forms import RegisterForm, LoginForm, MySetPasswordForm
 from evaluations.models import Teacher
+from profile_server.pronouns import PronounWordDictionary
+from profile_server.settings import EMAIL_HOST_USER
 
 TeacherUser = get_user_model()
 
@@ -41,11 +41,11 @@ def register(request):
                 password_validation.validate_password(form.cleaned_data['password'])
             except ValidationError:
                 messages.error(request,
-                               "הסיסמא צריכה להכיל אותיות ומספרים, להיות באורך של 8 תווים לפחות, ולא להיות דומה מדי לשם שלך")
+                               "הסיסמא צריכה להכיל אותיות באנגלית ומספרים ביחד, ולהיות באורך של 8 תווים לפחות")
                 return render(request, "accounts/register.html", {'form': form})
 
             if form.cleaned_data['password'] != form.cleaned_data['confirm_password']:
-                messages.error(request, "הסיסמאות אינן תואמות")
+                messages.error(request, "הסיסמאות אינן תואמות זו לזו")
                 return render(request, "accounts/register.html", {'form': form})
 
             if TeacherUser.objects.filter(email=form.cleaned_data['email']).exists():
@@ -117,24 +117,47 @@ def password_reset_request(request):
                 return render(request=request, template_name="accounts/password_reset.html",
                               context={"password_reset_form": password_reset_form})
 
-            subject = "Password Reset Requested"
+            pronoun_dict = PronounWordDictionary(user.pronoun_as_enum)
+
+            subject = "מערכת הדיווחים של הדמוקרטי - בקשה לאיפוס סיסמא"
             email_template_name = "accounts/password_reset_email.txt"
+            email_html_template_name = "accounts/password_reset_html_email.txt"
+            
             context = {
                 "email": user.email,
-                'domain': '127.0.0.1:8000',
+                'domain': request.META['HTTP_HOST'],
                 'site_name': 'Website',
                 "uid": urlsafe_base64_encode(force_bytes(user.pk)),
                 "user": user,
                 'token': default_token_generator.make_token(user),
                 'protocol': 'http',
+                'pronoun_dict': pronoun_dict
             }
             email = render_to_string(email_template_name, context)
+            html_email = render_to_string(email_html_template_name, context)
             try:
-                send_mail(subject, email, EMAIL_HOST_USER, [user.email], fail_silently=False)
+                send_mail(subject, email, EMAIL_HOST_USER, [user.email], fail_silently=False, html_message=html_email)
             except BadHeaderError:
                 return HttpResponse('Invalid header found.')
-            return redirect(reverse('password_reset_done'))
 
-    password_reset_form = PasswordResetForm()
+            messages.info(request,
+                          f"המייל נשלח {pronoun_dict['to_you']}. אם הוא לא נמצא, {pronoun_dict['look']} בתיקיית הספאם. ")
+
+    else:
+        password_reset_form = PasswordResetForm()
+        password_reset_form.fields['email'].label = 'כתובת אימייל'
+
     return render(request=request, template_name="accounts/password_reset.html",
                   context={"password_reset_form": password_reset_form})
+
+
+class MyPasswordResetConfirmView(PasswordResetConfirmView):
+    form_class = MySetPasswordForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
+        context['pronoun_dict'] = PronounWordDictionary(self.user.pronoun_as_enum)
+
+        return context
+
+
