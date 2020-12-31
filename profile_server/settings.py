@@ -66,6 +66,12 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'profile.democrati.ks@gmail.com'
+SERVER_EMAIL = 'profile@democrati.xyz'
+
+ADMINS = (
+  ('alon aviv', 'alonaviv@gmail.com'),
+)
+
 with open('../email-password') as f:
     EMAIL_HOST_PASSWORD = f.read().strip()
 

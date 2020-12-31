@@ -17,6 +17,7 @@ the check that only they can access, along with sending the emails. Later you ca
 4. Email validation before signing in: https://studygyaan.com/django/how-to-signup-user-and-send-confirmation-email-in-django
 5. When doing cronjob, do cron job for running ./manage dbbackup, and delete old ones. Maybe each time you take one you
 delete the latest, only if the backup folder reached a certain number of backups or certain size.
+(Check out django-cronjobs and django-crontab for this)
 
 
 - Nice to have:
