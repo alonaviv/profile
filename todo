@@ -1,14 +1,30 @@
 Important before opening:
+1. Fix whole deletion thing (Think about the issue of the fact that evaluations are deleted when a kid is removed from
+ a class, did I take care of this?)
+2. Sending emails to everyone periodically function - tell then their basic status.
+3. Have a running task about the following things. If they don't, maybe send an
+email to Dalit or me. I think best to have 2 emails, one for information and one for warning when something changes to
+bad. For now, have these as cli tasks that I manually produce (same with emails to everyone)
+Add some managing field to some of the users (not superuser, don't mess with that), and a page with the results of
+the check that only they can access, along with sending the emails. Later you can cron it.
+    List of checks:
+    * All students have homeroom - included in warning if changes.
+    * Teachers that haven't signed up yey - only info
+    * Number of students that don't have classes - only info, and only the numbers I think. Ask if this should be send to
+    them or not.
+    * Classes with only one kid - only info. Ask if I should send this, and what the minimal number of students for this
+    should be
+4. Email validation before signing in: https://studygyaan.com/django/how-to-signup-user-and-send-confirmation-email-in-django
+5. When doing cronjob, do cron job for running ./manage dbbackup, and delete old ones. Maybe each time you take one you
+delete the latest, only if the backup folder reached a certain number of backups or certain size.
 
-* Fix css of password recovery + new email address for the service.
-* Fix whole deletion thing
 
 - Nice to have:
 
-• Sending emails function
+* Emails in RTL on gmail somehow
+* Make nice HTML emails
 • Multiple chonchim/multiple teachers?
 * Downloadable PDF
-
 
 ===========
 
@@ -17,41 +33,19 @@ Important before opening:
  - Save evaluations that were actually deleted. Focuse on the automatic deletion of evaluations when student leaves a class/class is deleted. Not sure we ever want to delete an evaluation, we'll see. And if we do, make sure that we don't delete evaluations from previous semesters.
  - Need to change alert message when deleting student?
 
-* "Forgot password" mechanism - also, double checking password seems important here.
 
 * See if possible to add sex to students as well, for text
 
 * Bug - seems can't add evaluations of same trimester and different years
 
-* If they change existing text to other text in evaluation, ask if they are sure.
 
-* Have a sign of green or red next to each review, to see if it was submitted successfully. Tricky work with the
-form formatting.
-
-
-* Bug - seems can't add evaluations of same trimester and different years
-
-* Think about several teacher teaching same class, sometimes it means a few topics
-
+Important for the future, not the first one:
 * When in NULL-SEMESTER, don't allow to fill out any evals, and display in the square that there are no more meetings
 this year. Also make sure that nothing can get a null semester value.
+* Add viewing of previous evalutions - both written by and previous for that student read (and also for all the years?
+Ask them if that is OK)
 
-* Have a running task that all kids have a homeroom teacher. If they don't, maybe send an email to Dalit or me. 
 
-* I think we should maybe define two stages - first all teachers have to create their classes and home rooms. Then I should run verifications on the database. The divuchim adding part can be orthoganal. The main thing to check is that all kids have a homeroom teacher that can track them.
-
-* Use vault to store the secret key and email credentials, instead of plaintext files.
-
-===========
-Stupid things teachers might do and I should validate.
-
-* Not have any classes
-* Not be added at all to the database. Need to check the teacher users against a static list of their names I think. Maybe go back and decide that the teachers should actually be static - only then someone else could somehow take their spot? I actually think that's better - have a new user associated with the teacher, and then only those teachers can register, and we can validate that all teachers have a user defined. 
-* Not add any kids to homerooms - the validation of kids in homeroom will find that.
-* Not add all the kids to their classes - nothing to do about that, but we should make sure that their classes all have at least one kid (or maybe more?)
-* Think about the issue of the fact that evaluations are deleted when a kid is removed from a class. Is this OK?
-
-I think I should implement all these things as clean methods for the models - and then have something that runs clean on all of them. clean should maybe just return a boolean. Or maybe a different name, so I can use clean for models that should never be created that way. Maybe use validate() 
 
 ======================
 Additions later on:
@@ -60,9 +54,6 @@ Additions later on:
 use javascript to make all of this responsive.
 * Add subjects that teachers in general teach to their user (can be several or none), Use that for default for all their classes when they add in a new class.
 * Pagination everywhere
-* Request email and password twice in register form
 * Use django authentication backend instead of creating a needless username from first+last name
-* For next time - add viewing of previous evalutions - both written by
 * Ability to upload files with the evaluations
-* Email them the status every so often
 * Cute encoureging messages as they progress through it.
