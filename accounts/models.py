@@ -23,6 +23,9 @@ class TeacherUser(AbstractUser):
 
     @property
     def pronoun_as_enum(self):
+        if not self.pronoun_choice:
+            return PronounOptions.FEMALE
+
         return PronounOptions[self.pronoun_choice]
 
     @property
