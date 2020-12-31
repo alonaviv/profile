@@ -1,6 +1,6 @@
 from django.contrib import auth, messages
 from django.contrib.auth import get_user_model, password_validation
-from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
+from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.views import PasswordResetConfirmView
 from django.core.mail import send_mail, BadHeaderError
@@ -107,6 +107,8 @@ def logout(request):
 def password_reset_request(request):
     if request.method == "POST":
         password_reset_form = PasswordResetForm(request.POST)
+        password_reset_form.fields['email'].label = 'כתובת אימייל'
+
         if password_reset_form.is_valid():
             requested_email = password_reset_form.cleaned_data['email']
 
@@ -122,7 +124,7 @@ def password_reset_request(request):
             subject = "מערכת הדיווחים של הדמוקרטי - בקשה לאיפוס סיסמא"
             email_template_name = "accounts/password_reset_email.txt"
             email_html_template_name = "accounts/password_reset_html_email.txt"
-            
+
             context = {
                 "email": user.email,
                 'domain': request.META['HTTP_HOST'],
@@ -136,7 +138,10 @@ def password_reset_request(request):
             email = render_to_string(email_template_name, context)
             html_email = render_to_string(email_html_template_name, context)
             try:
-                send_mail(subject, email, EMAIL_HOST_USER, [user.email], fail_silently=False, html_message=html_email)
+                send_mail(subject, email,
+                          "מערכת הדיווחים - דמוקרטי כפר סבא" + f" <{EMAIL_HOST_USER}>", [user.email],
+                          fail_silently=False,
+                          html_message=html_email)
             except BadHeaderError:
                 return HttpResponse('Invalid header found.')
 
@@ -159,5 +164,3 @@ class MyPasswordResetConfirmView(PasswordResetConfirmView):
         context['pronoun_dict'] = PronounWordDictionary(self.user.pronoun_as_enum)
 
         return context
-
-
