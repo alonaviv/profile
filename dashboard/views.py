@@ -9,6 +9,12 @@ def main_dashboard_page(request):
     teacher = request.user
     populate_evaluations_in_teachers_classes(teacher)
 
+    context = get_dashboard_context(teacher)
+
+    return render(request, 'dashboard/dashboard.html', context)
+
+
+def get_dashboard_context(teacher):
     if teacher and not teacher.is_anonymous:
         classes = teacher.class_set.filter(hebrew_year=get_current_trimester().hebrew_school_year)
         homeroom_students = teacher.student_set.all()
@@ -33,11 +39,9 @@ def main_dashboard_page(request):
         homeroom_students = []
         teachers_missing_evaluations = {}
         homeroom_students_without_classes = []
-
     context = {
         'classes': classes, 'teacher': teacher, 'class_students': class_students,
         'homeroom_students': homeroom_students, 'teachers_missing_evaluations': teachers_missing_evaluations,
         'homeroom_students_without_classes': homeroom_students_without_classes
     }
-
-    return render(request, 'dashboard/dashboard.html', context)
+    return context

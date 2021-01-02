@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1 class="welcome">צפייה באימות נתוני המערכת</h1>
+
+{% if not user.is_staff %}
+<div class="centered_container">
+<h2>רק משתמשים בעלי הרשאת ניהול רשאים לצפות בנתונים אלו</h2>
+<br><br>
+</div>
+{% else %}
+
+<div class="centered_container column general_notes border small_padding">
+
+<div class="general_notes noborder">
+<h2>תוצאות בדיקות נתונים:</h2>
+<br><br>
+  {% if students_without_homerooms.0%}
+  <div class="flex_container vertical_align">
+   <i class="fas fa-check-circle"></i>
+  <h3>כל התלמידים בבית הספר משוייכים לחונכים</h3><br>
+  </div>
+  {% else %}
+  <div class="flex_container vertical_align">
+   <i class="fas fa-exclamation-circle"></i>
+    <h3>{{students_without_homerooms.1|length}} תלמידים אינם משוייכים לחונכ/ת:</h3>
+  </div>
+    <ul>
+        {% for student in students_without_homerooms.1.all%}
+        <li>{{student}}</li>
+        {% endfor %}
+    </ul>
+    <br>
+   {% endif %}
+
+  {% if students_without_valid_homeroom_teachers.0%}
+  <div class="flex_container vertical_align">
+   <i class="fas fa-check-circle"></i>
+  <h3>כל המורים אליהם משוייכים תלמידים בבית הספר רשומים כחונכים</h3><br>
+  </div>
+  {% else %}
+  <div class="flex_container vertical_align">
+   <i class="fas fa-exclamation-circle"></i>
+    <h3>{{students_without_valid_homeroom_teachers.1|length}} תלמידים משוייכים למורה שאינו/שאינה חונכ/ת:</h3>
+  </div>
+    <ul>
+        {% for student in students_without_valid_homeroom_teachers.1.all%}
+        <li>{{student}} - {{student.homeroom_teacher}}</li>
+        {% endfor %}
+    </ul>
+   <br>
+   {% endif %}
+
+  {% if unregistered_teachers.0%}
+  <div class="flex_container vertical_align">
+   <i class="fas fa-check-circle"></i>
+  <h3>כל המורים השמורים במאגר נרשמו בהצלחה למערכת</h3><br>
+  </div>
+  {% else %}
+  <div class="flex_container vertical_align">
+   <i class="fas fa-exclamation-circle"></i>
+    <h3>{{unregistered_teachers.1|length}} מורים טרם נרשמו למערכת:</h3>
+  </div>
+    <ul class="bullets">
+        {% for teacher in unregistered_teachers.1.all%}
+        <li>{{teacher}}</li>
+        {% endfor %}
+    </ul>
+   <br>
+   {% endif %}
+
+  {% if students_without_classes.0%}
+  <div class="flex_container vertical_align">
+   <i class="fas fa-check-circle"></i>
+  <h3>כל התלמידים בבית הספר רשומים לשיעורים</h3><br>
+  </div>
+  {% else %}
+  <div class="flex_container vertical_align">
+   <i class="fas fa-exclamation-circle"></i>
+    <h3>{{students_without_classes.1|length}} תלמידים לא רשומים לאף שיעור</h3>
+  </div>
+    <ul class="bullets">
+        {% for student in students_without_classes.1.all%}
+        <li>{{student}}</li>
+        {% endfor %}
+    </ul>
+   <br>
+   {% endif %}
+
+  {% if students_with_few_num_of_classes.0%}
+  <div class="flex_container vertical_align">
+   <i class="fas fa-check-circle"></i>
+  <h3>כל התלמידים בבית הספר רשומים ללפחות {{students_with_few_num_of_classes.2}} שיעורים</h3><br>
+  </div>
+  {% else %}
+  <div class="flex_container vertical_align">
+   <i class="fas fa-exclamation-circle"></i>
+    <h3>{{students_with_few_num_of_classes.1|length}} תלמידים רשומים לפחות מ-{{students_with_few_num_of_classes.2}} שיעורים</h3>
+  </div>
+    <ul class="bullets">
+        {% for student in students_with_few_num_of_classes.1.all%}
+        <li>{{student}} - {{student.classes.all|length}} שיעורים</li>
+        {% endfor %}
+    </ul>
+   <br>
+   {% endif %}
+
+</div>
+
+{% endif %}
+
+{% endblock %}

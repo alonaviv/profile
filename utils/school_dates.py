@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from trimesters_config import STUDENT_MEETING_DATES, GRACE_PERIOD, EVALUATION_DEADLINE_DAYS
+from profile_config import STUDENT_MEETING_DATES, GRACE_PERIOD, EVALUATION_DEADLINE_DAYS
 from utils.date_helpers import TrimesterType, Trimester
 
 

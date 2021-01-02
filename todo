@@ -1,19 +1,16 @@
 Important before opening:
 1. Fix whole deletion thing (Think about the issue of the fact that evaluations are deleted when a kid is removed from
  a class, did I take care of this?)
-2. Sending emails to everyone periodically function - tell then their basic status.
-3. Have a running task about the following things. If they don't, maybe send an
-email to Dalit or me. I think best to have 2 emails, one for information and one for warning when something changes to
-bad. For now, have these as cli tasks that I manually produce (same with emails to everyone)
-Add some managing field to some of the users (not superuser, don't mess with that), and a page with the results of
-the check that only they can access, along with sending the emails. Later you can cron it.
-    List of checks:
-    * All students have homeroom - included in warning if changes.
-    * Teachers that haven't signed up yey - only info
-    * Number of students that don't have classes - only info, and only the numbers I think. Ask if this should be send to
-    them or not.
-    * Classes with only one kid - only info. Ask if I should send this, and what the minimal number of students for this
-    should be
+
+2. Cli commands:
+* Send email to everyone about how they are doing. Separate email for homeroom teachers and not. Can use the extend
+thing. Don't send if email if only professional teachers, and they finished it all.
+* Send admins all the validations. To be scheduled x time before the deadline.
+* Send admins the important validations. To be run periodically from some point (start of year?) every day. Have
+decorator for these important validations
+
+
+
 4. Email validation before signing in: https://studygyaan.com/django/how-to-signup-user-and-send-confirmation-email-in-django
 5. When doing cronjob, do cron job for running ./manage dbbackup, and delete old ones. Maybe each time you take one you
 delete the latest, only if the backup folder reached a certain number of backups or certain size.
@@ -26,6 +23,7 @@ delete the latest, only if the backup folder reached a certain number of backups
 * Make nice HTML emails
 • Multiple chonchim/multiple teachers?
 * Downloadable PDF
+* OTP?
 
 ===========
 

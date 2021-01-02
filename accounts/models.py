@@ -45,6 +45,10 @@ class TeacherUser(AbstractUser):
         return all_evals
 
     @property
+    def num_incomplete_evals_in_current_trimester(self):
+        return len(self.all_evals_in_current_trimester) - len(self.completed_evals_in_current_trimester)
+
+    @property
     def evals_percentage_completed(self):
         return 100 * (len(self.completed_evals_in_current_trimester) / len(self.all_evals_in_current_trimester))
 

@@ -17,7 +17,7 @@ window.location = (""+window.location).replace(/#[A-Za-z0-9_]*$/,'')+"#{{anchor}
 </div>
 
 {% else %}
-<div class="centered_container">
+<div class="centered_container ">
 {% if class.completed_evals_in_current_trimester == class.all_evals_in_current_trimester%}
     <h2 class='announcment_happy'>כתבת את כל {{class.completed_evals_in_current_trimester|length}} הדיווחים לשיעור זה! איזה כיף!</h2>
 {% else %}

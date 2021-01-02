@@ -2,6 +2,11 @@
 
 {% block content %}
 <h1 class="welcome"> ברוכים הבאים למערכת הדיווחים של הדמוקרטי!</h1>
+{% if user.is_staff %}
+<div class="block-container reverse">
+    <a class ="back_button special" href="{% url 'validations_summary' %}">אימות נתוני המערכת - עבור מנהלים</a>
+</div>
+{% endif %}
 
 <div class="centered_container column dashboard">
 {% if not user.is_authenticated %}

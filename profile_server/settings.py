@@ -27,7 +27,7 @@ SECRET_KEY = '^i34c0ernf6maes&z7d=5uk))vq8i^ot!p!qzk@c5-9rx+i%*@'
 DEBUG = True
 
 ALLOWED_HOSTS = ['192.168.0.111', 'localhost', '127.0.0.1']
-
+DOMAIN = 'http://localhost:8000'
 
 # Application definition
 
@@ -36,6 +36,8 @@ INSTALLED_APPS = [
     'accounts.apps.AccountsConfig',
     'class_manager.apps.ClassManagerConfig',
     'dashboard.apps.DashboardConfig',
+    'validations.apps.ValidationsConfig',
+    'emails.apps.EmailsConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -92,7 +94,9 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'profile_server.custom_context_processors.trimester_context_processor'
+                'profile_server.custom_context_processors.trimester_context_processor',
+                'profile_server.custom_context_processors.pronoun_dict_context_processor',
+
             ],
         },
     },

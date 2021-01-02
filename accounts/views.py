@@ -1,21 +1,15 @@
 from django.contrib import auth, messages
 from django.contrib.auth import get_user_model, password_validation
 from django.contrib.auth.forms import PasswordResetForm
-from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.views import PasswordResetConfirmView
-from django.core.mail import send_mail, BadHeaderError
 from django.db import IntegrityError
 from django.forms import ValidationError
-from django.http import HttpResponse
 from django.shortcuts import render, redirect, reverse
-from django.template.loader import render_to_string
-from django.utils.encoding import force_bytes
-from django.utils.http import urlsafe_base64_encode
 
 from accounts.forms import RegisterForm, LoginForm, MySetPasswordForm
+from emails.emails import send_forgot_password_email
 from evaluations.models import Teacher
 from profile_server.pronouns import PronounWordDictionary
-from profile_server.settings import EMAIL_HOST_USER
 
 TeacherUser = get_user_model()
 
@@ -119,32 +113,9 @@ def password_reset_request(request):
                 return render(request=request, template_name="accounts/password_reset.html",
                               context={"password_reset_form": password_reset_form})
 
+            send_forgot_password_email(user)
+
             pronoun_dict = PronounWordDictionary(user.pronoun_as_enum)
-
-            subject = "מערכת הדיווחים של הדמוקרטי - בקשה לאיפוס סיסמא"
-            email_template_name = "accounts/password_reset_email.txt"
-            email_html_template_name = "accounts/password_reset_html_email.txt"
-
-            context = {
-                "email": user.email,
-                'domain': request.META['HTTP_HOST'],
-                'site_name': 'Website',
-                "uid": urlsafe_base64_encode(force_bytes(user.pk)),
-                "user": user,
-                'token': default_token_generator.make_token(user),
-                'protocol': 'http',
-                'pronoun_dict': pronoun_dict
-            }
-            email = render_to_string(email_template_name, context)
-            html_email = render_to_string(email_html_template_name, context)
-            try:
-                send_mail(subject, email,
-                          "מערכת הדיווחים - דמוקרטי כפר סבא" + f" <{EMAIL_HOST_USER}>", [user.email],
-                          fail_silently=False,
-                          html_message=html_email)
-            except BadHeaderError:
-                return HttpResponse('Invalid header found.')
-
             messages.info(request,
                           f"המייל נשלח {pronoun_dict['to_you']}. אם הוא לא נמצא, {pronoun_dict['look']} בתיקיית הספאם. ")
 

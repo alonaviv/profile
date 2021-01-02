@@ -1,8 +1,8 @@
 from utils.school_dates import get_current_trimester
-from .pronouns import PronounWordDictionary, PronounOptions
+from .pronouns import PronounWordDictionary
 
 
-def trimester_context_processor(request):
+def pronoun_dict_context_processor(request):
     teacher = request.user
 
     if not teacher.is_anonymous and not teacher.is_superuser:
@@ -10,5 +10,8 @@ def trimester_context_processor(request):
     else:
         pronoun_dict = {}
 
-    return {'trimester': get_current_trimester(), 'pronoun_dict': pronoun_dict}
+    return {'pronoun_dict': pronoun_dict}
 
+
+def trimester_context_processor(request):
+    return {'trimester': get_current_trimester()}
