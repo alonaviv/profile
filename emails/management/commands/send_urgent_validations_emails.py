@@ -12,7 +12,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         if options['staff_emails']:
-            teachers = TeacherUser.objects.filter(email__in=options['emails'], is_staff=True)
+            teachers = TeacherUser.objects.filter(email__in=options['staff_emails'], is_staff=True)
         else:
             teachers = TeacherUser.objects.filter(is_staff=True)
 
