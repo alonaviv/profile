@@ -36,7 +36,6 @@ def send_evaluations_status_update(trimester, teacher, classes, homeroom_student
         "homeroom_students_without_classes": homeroom_students_without_classes,
         "teachers_missing_evaluations": teachers_missing_evaluations,
         "pronoun_dict": PronounWordDictionary(teacher.pronoun_as_enum),
-        "domain": DOMAIN
     }
     subject = f"מערכת הדיווחים של הדמוקרטי - תזכורת: יש לך עוד {trimester.days_left_for_writing} ימים להגשת הדיווחים "
     html_template_name = "evaluations_status_update_email.txt"
@@ -64,6 +63,7 @@ def send_urgent_validations_email(teacher, validation_results):
 
 
 def send_email(html_template_name, raw_template_name, subject, recipient, context):
+    context['domain'] = DOMAIN
     html_email = render_to_string(f"emails/{html_template_name}", context)
     raw_email = render_to_string(f"emails/{raw_template_name}", context)
 
