@@ -1,4 +1,6 @@
 Important before opening:
+0. Add to status email info about the class and homeroom management, and links to it. Make it clear that they
+need to take care of that process.
 1. Fix whole deletion thing (Think about the issue of the fact that evaluations are deleted when a kid is removed from
  a class, did I take care of this?)
 

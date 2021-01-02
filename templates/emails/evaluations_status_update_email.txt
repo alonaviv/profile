@@ -7,23 +7,43 @@
  <br><br>
 
 {% if teacher.is_homeroom_teacher %}
-בכובע המורה ה{{pronoun_dict.professional}}:
+<u>בכובע המורה ה{{pronoun_dict.professional}}:</u>
 <br>
 {% endif %}
+{% if classes|length == 0 %}
+טרם הוספת דיווחים למערכת הדיווחים.
+<br>
+<a href="{{ domain }}{% url 'manage_classes' %}">להוספת שיעורים</a>
+{% else %}
+עד כה הוספת {{classes|length}} שיעורים למערכת. האם סיימת להוסיף את כל השיעורים שלך (ואת כל התלמידים שנמצאים בהם)?
+<br>
+<a href="{{ domain }}{% url 'manage_classes' %}">לניהול השיעורים</a>
+<br><br>
 {% if teacher.all_evals_in_current_trimester|length != teacher.completed_evals_in_current_trimester|length %}
-{{pronoun_dict.you}} {{pronoun_dict.teach}} {{classes|length}} שיעורים השנה, ונותרו לך עוד {{teacher.num_incomplete_evals_in_current_trimester}} דיווחים לכתוב (מתוך {{teacher.all_evals_in_current_trimester|length}} סך הכל).
+נותרו לך עוד {{teacher.num_incomplete_evals_in_current_trimester}} דיווחים לכתוב, מתוך {{teacher.all_evals_in_current_trimester|length}} סך הכל.
 <br>
 <a href="{{ domain }}{% url 'write' %}">להמשך כתיבת הדיווחים</a>
 {% else %}
   סיימת לכתוב את כל הדיווחים שלך! וואו!
   <br>
 {% endif %}
+{% endif %}
 <br><br>
 
 {% if teacher.is_homeroom_teacher %}
-בכובע ה{{pronoun_dict.mentor}}:
+<u>בכובע ה{{pronoun_dict.mentor}}:</u>
 <br>
-{%if teacher.missing_evals_of_homeroom_students_in_current_trimester|length == 0 %}
+{% if homeroom_students|length == 0 %}
+טרם הוספת תלמידים לקבוצת החונכות שלך.
+<br>
+<a href="{{ domain }}{% url 'manage_homeroom' %}">להוספת תלמידים לקבוצת החונכות</a>
+<br><br>
+{% else %}
+עד כה הוספת {{homeroom_students|length}} תלמידים לקבוצת החונכות שלך. האם סיימת להוסיף את כולם?
+<br>
+<a href="{{ domain }}{% url 'manage_homeroom' %}">לניהול לקבוצת החונכות</a>
+<br><br>
+{% if teacher.missing_evals_of_homeroom_students_in_current_trimester|length == 0 %}
     קיבלת את כל הדיווחים של כל הנחנכים שלך! הכל מוכן להורה-חונך-ילד!
     <br>
 {% else %}
@@ -49,6 +69,7 @@
         {% endfor %}
  </ul>
  <br>
+{% endif %}
 {% endif %}
 
 
