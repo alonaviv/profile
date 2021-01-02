@@ -116,5 +116,5 @@ def validate_all_students_have_minimal_amount_of_classes():
         failed_objects=students_with_few_num_of_classes,
         success_validation_title=f"כל התלמידים בבית הספר רשומים ללפחות {MIN_AMOUNT_OF_CLASSES} שיעורים",
         failure_validation_title_format=f"{{num_failed_objects}} תלמידים רשומים לפחות מ-{MIN_AMOUNT_OF_CLASSES} שיעורים",
-        failure_validation_item_format="{failed_object} - {failed_object.num_classes}"
+        failure_validation_item_format="{failed_object} - {failed_object.num_classes} שיעורים"
     )
