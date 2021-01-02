@@ -80,7 +80,11 @@ class Student(Model):
     def all_evals_in_current_trimester(self):
         current_trimester = get_current_trimester()
         return list(self.evaluations.filter(trimester=current_trimester.name,
-                                               hebrew_year=current_trimester.hebrew_school_year))
+                                            hebrew_year=current_trimester.hebrew_school_year))
+
+    @property
+    def num_classes(self):
+        return self.classes.count()
 
 
 class Class(Model):

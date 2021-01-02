@@ -2,23 +2,18 @@ Important before opening:
 1. Fix whole deletion thing (Think about the issue of the fact that evaluations are deleted when a kid is removed from
  a class, did I take care of this?)
 
-2. Cli commands:
-* Send email to everyone about how they are doing. Separate email for homeroom teachers and not. Can use the extend
-thing. Don't send if email if only professional teachers, and they finished it all.
-* Send admins all the validations. To be scheduled x time before the deadline.
-* Send admins the important validations. To be run periodically from some point (start of year?) every day. Have
-decorator for these important validations
-
-
-
-4. Email validation before signing in: https://studygyaan.com/django/how-to-signup-user-and-send-confirmation-email-in-django
-5. When doing cronjob, do cron job for running ./manage dbbackup, and delete old ones. Maybe each time you take one you
-delete the latest, only if the backup folder reached a certain number of backups or certain size.
+2. Email validation before signing in: https://studygyaan.com/django/how-to-signup-user-and-send-confirmation-email-in-django
+3. Setup cron jobs:
 (Check out django-cronjobs and django-crontab for this)
+ * Send evaluation status emails
+ * Send all validation emails
+ * Send urgent validation emails
+ * Run ./manage dbbackup, and delete old ones (each time you create one, delete an old one - if you passed either number
+  or space)
+4. Write raw emails as well
 
 
 - Nice to have:
-
 * Emails in RTL on gmail somehow
 * Make nice HTML emails
 • Multiple chonchim/multiple teachers?

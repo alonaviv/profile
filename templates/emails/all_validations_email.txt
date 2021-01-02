@@ -1,0 +1,26 @@
+<html dir="rtl" lang="he">
+
+שלום {{teacher.teacher_object.first_name}},
+<br><br>
+להלן תוצאות אימות הנתונים במערכת הדיווחים של הדמוקרטי:
+<br><br>
+<ol>
+{% for validation_result in validation_results %}
+<li>
+  {% if validation_result.bool_result %}
+  {{ validation_result.success_validation_title }}<br>
+  {% else %}
+    {{ validation_result.failed_validation_title }}
+    <ul>
+        {% for message in validation_result.failed_items_messages%}
+        <li>{{message}}</li>
+        {% endfor %}
+    </ul>
+    <br>
+   {% endif %}
+</li><br>
+{% endfor %}
+</ol>
+<br>
+
+~מערכת הדיווחים של הדמוקרטי

@@ -7,7 +7,7 @@ from django.forms import ValidationError
 from django.shortcuts import render, redirect, reverse
 
 from accounts.forms import RegisterForm, LoginForm, MySetPasswordForm
-from emails.emails import send_forgot_password_email
+from emails.send_emails import send_forgot_password_email
 from evaluations.models import Teacher
 from profile_server.pronouns import PronounWordDictionary
 
