@@ -1,26 +1,24 @@
-Important before opening:
-0. Add to status email info about the class and homeroom management, and links to it. Make it clear that they
-need to take care of that process.
+Important before opening they start signing up:
 1. Fix whole deletion thing (Think about the issue of the fact that evaluations are deleted when a kid is removed from
  a class, did I take care of this?)
+2. Multiple chonchim/multiple teachers?
+3. Email validation before signing in: https://studygyaan.com/django/how-to-signup-user-and-send-confirmation-email-in-django
 
-2. Email validation before signing in: https://studygyaan.com/django/how-to-signup-user-and-send-confirmation-email-in-django
-3. Setup cron jobs:
+Can happing slightly later
+4. Setup cron jobs:
 (Check out django-cronjobs and django-crontab for this)
  * Send evaluation status emails
  * Send all validation emails
  * Send urgent validation emails
  * Run ./manage dbbackup, and delete old ones (each time you create one, delete an old one - if you passed either number
   or space)
-4. Write raw emails as well
-
+5. Write raw emails as well
+6. In validation stuff, both email and site, show all kids by house category.
 
 - Nice to have:
-* Emails in RTL on gmail somehow
-* Make nice HTML emails
-• Multiple chonchim/multiple teachers?
+* Emails in RTL on gmail somehow + Make nice HTML emails (even just some bold could help)
 * Downloadable PDF
-* OTP?
+* OTP login
 
 ===========
 
