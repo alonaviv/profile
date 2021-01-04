@@ -8,17 +8,12 @@
 
 <div class="items_list">
 <ul>
-    {% for class in evaluated_classes %}
+    {% for evaluation in evaluations %}
     <li class="missing_evaluations">
-      <div class="missing_evaluation">{{class.name}} - {{class.teacher}}</div>
-      <i class="fas fa-check-circle fa-2x"></i>
-    </li>
-    {% endfor %}
-
-    {% for class in missing_classes %}
-    <li class="missing_evaluations">
-      <div class="missing_evaluation">{{class.name}} - {{class.teacher}}</div>
-      <i class="fas fa-times-circle fa-2x"></i>
+      <div class="missing_evaluation">{{evaluation.evaluated_class.name}} - {{evaluation.evaluated_class.teacher}}
+      {% if not evaluation.is_student_in_class %} ({{evaluation.student.first_name}} עזב/ה את השיעור) {% endif %}</div>
+      {% if evaluation.is_submitted %}<i class="fas fa-check-circle fa-2x"></i> {% else %} <i
+            class="fas fa-times-circle fa-2x"></i> {% endif %}
     </li>
     {% endfor %}
 </ul>

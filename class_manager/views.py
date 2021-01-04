@@ -1,7 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseForbidden
-from django.shortcuts import render, redirect, reverse, HttpResponse
+from django.shortcuts import render, redirect, reverse
 
 from class_manager.forms import ClassForm, AddStudentsForm
 from evaluations.models import Class, Student, House
@@ -20,7 +19,7 @@ of the logged in teacher in the navbar. Get it from the function get_teacher_obj
 def manage_classes(request):
     teacher = request.user
     if teacher:
-        classes = teacher.class_set.filter(hebrew_year=get_current_trimester().hebrew_school_year)
+        classes = teacher.class_set.filter(hebrew_year=get_current_trimester().hebrew_school_year, is_deleted=False)
     else:
         classes = []
 
@@ -35,9 +34,11 @@ def manage_students_in_class(request, class_id):
     klass = Class.objects.get(id=class_id)
 
     if klass.teacher != teacher:
-        return HttpResponseForbidden(f"<h1> לא ניתן לערוך את השיעור {klass} שאינכם מלמדים")
+        return render(request, 'common/general_error_page.html',
+                      {'error_message': f" לא ניתן לערוך את השיעור {klass} שאינכם מלמדים"})
     if klass.hebrew_year != get_current_trimester().hebrew_school_year:
-        return HttpResponseForbidden(f"<h1> לא ניתן לערוך שיעור של שנה {klass.hebrew_year} </h1>")
+        return render(request, 'common/general_error_page.html',
+                      {'error_message': f"לא ניתן לערוך שיעור של שנה {klass.hebrew_year}"})
 
     students = sorted(klass.students.all(), key=lambda student: (student.first_name, student.last_name))
 
@@ -49,16 +50,18 @@ def manage_students_in_class(request, class_id):
 def delete_student_from_class(request, class_id, student_id):
     teacher = request.user
     klass = Class.objects.get(id=class_id)
-
     if klass.teacher != teacher:
-        return HttpResponseForbidden(f"<h1> לא ניתן לערוך את השיעור {klass} שאינכם מלמדים")
+        return render(request, 'common/general_error_page.html',
+                      {'error_message': f" לא ניתן לערוך את השיעור {klass} שאינכם מלמדים"})
     if klass.hebrew_year != get_current_trimester().hebrew_school_year:
-        return HttpResponseForbidden(f"<h1> לא ניתן לערוך שיעור של שנה {klass.hebrew_year} </h1>")
+        return render(request, 'common/general_error_page.html',
+                      {'error_message': f"לא ניתן לערוך שיעור של שנה {klass.hebrew_year}"})
 
     student = Student.objects.get(id=student_id)
 
-    if klass not in student.classes.all():
-        return HttpResponseForbidden(f"<h1> לא קיים רישום של {student} בשיעור {klass} ולכן לא ניתן להסירו")
+    if klass not in student.classes.filter(is_deleted=False):
+        return render(request, 'common/general_error_page.html',
+                      {'error_message': f"לא קיים רישום של שיעור {student} בשיעור {klass} ולכן לא ניתן להסירו"})
 
     klass.students.remove(student)
     populate_evaluations_in_teachers_classes(teacher)
@@ -72,11 +75,18 @@ def delete_class(request, class_id):
     klass = Class.objects.get(id=class_id)
 
     if klass.teacher != teacher:
-        return HttpResponseForbidden(f"<h1> לא ניתן לערוך את השיעור {klass} שאינכם מלמדים")
+        return render(request, 'common/general_error_page.html',
+                      {'error_message': f" לא ניתן לערוך את השיעור {klass} שאינכם מלמדים"})
     if klass.hebrew_year != get_current_trimester().hebrew_school_year:
-        return HttpResponseForbidden(f"<h1> לא ניתן למחוק שיעור של שנה {klass.hebrew_year} </h1>")
+        return render(request, 'common/general_error_page.html',
+                      {'error_message': f"לא ניתן לערוך שיעור של שנה {klass.hebrew_year}"})
 
-    klass.delete()
+    if klass.students.count() > 0:
+        return render(request, 'common/general_error_page.html',
+                      {'error_message': f"בשיעור {klass} יש תלמידים - לא ניתן למחוק אותו"})
+
+    klass.is_deleted = True
+    klass.save()
     return redirect(manage_classes)
 
 
@@ -91,7 +101,9 @@ def add_new_class(request):
             subject = form.cleaned_data['subject']
             house = form.cleaned_data['house']
 
-            if not Class.objects.filter(name=name, teacher=teacher, hebrew_year=get_current_trimester().hebrew_school_year).exists():
+            if not Class.objects.filter(name=name, teacher=teacher,
+                                        hebrew_year=get_current_trimester().hebrew_school_year,
+                                        is_deleted=False).exists():
                 new_class = Class.objects.create(name=name, subject=subject, house=house, teacher=teacher,
                                                  hebrew_year=get_current_trimester().hebrew_school_year)
                 populate_evaluations_in_teachers_classes(teacher)
@@ -112,9 +124,11 @@ def edit_class_data(request, class_id):
     klass = Class.objects.get(id=class_id)
 
     if klass.teacher != teacher:
-        return HttpResponse(f"<h1> לא ניתן לערוך את השיעור {klass} שאינכם מלמדים")
+        return render(request, 'common/general_error_page.html',
+                      {'error_message': f" לא ניתן לערוך את השיעור {klass} שאינכם מלמדים"})
     if klass.hebrew_year != get_current_trimester().hebrew_school_year:
-        return HttpResponseForbidden(f"<h1> לא ניתן לערוך שיעור של שנה {klass.hebrew_year} </h1>")
+        return render(request, 'common/general_error_page.html',
+                      {'error_message': f"לא ניתן לערוך שיעור של שנה {klass.hebrew_year}"})
 
     if request.method == "POST":
         form = ClassForm(request.POST, instance=klass)
@@ -143,11 +157,13 @@ def add_students_to_class(request, class_id, house_id=None):
         house = klass.house
 
     if klass.teacher != teacher:
-        return HttpResponse(f"<h1> לא ניתן לערוך את השיעור {klass} שאינכם מלמדים")
+        return render(request, 'common/general_error_page.html',
+                      {'error_message': f" לא ניתן לערוך את השיעור {klass} שאינכם מלמדים"})
     if klass.hebrew_year != get_current_trimester().hebrew_school_year:
-        return HttpResponseForbidden(f"<h1> לא ניתן לערוך שיעור של שנה {klass.hebrew_year} </h1>")
+        return render(request, 'common/general_error_page.html',
+                      {'error_message': f"לא ניתן לערוך שיעור של שנה {klass.hebrew_year}"})
 
-    students_to_choose_from = Student.objects.filter(house=house).exclude(classes=klass)
+    students_to_choose_from = Student.objects.filter(house=house, is_deleted=False).exclude(classes=klass)
 
     if request.method == "POST":
         form = AddStudentsForm(request.POST, students=students_to_choose_from)
@@ -201,7 +217,7 @@ def add_students_to_homeroom(request, house_id=None):
         house = teacher.house
 
     # Get all students from house that don't already have a homeroom teacher
-    students_to_choose_from = Student.objects.filter(homeroom_teacher=None, house=house)
+    students_to_choose_from = Student.objects.filter(homeroom_teacher=None, house=house, is_deleted=False)
 
     if request.method == "POST":
         form = AddStudentsForm(request.POST, students=students_to_choose_from)
@@ -250,4 +266,3 @@ def view_student_classes(request, student_id):
 
     context = {'teacher': teacher, 'student': student}
     return render(request, 'class_manager/view_student_classes.html', context)
-

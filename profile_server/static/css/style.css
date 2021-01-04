@@ -48,8 +48,18 @@ p {
   margin: 20px;
 }
 
+.underline {
+    text-decoration: underline;
+}
+
+
+
 .flex_container { 
     display: flex;
+}
+
+.flex_container.no_p_margin p { 
+    margin: 0;
 }
 
 .flex_container.column { 
@@ -267,6 +277,31 @@ p {
 }
 
 
+/* Font Awesome change */
+.fa-check-circle {
+  color: #3a9f5a;
+  padding: 15px;
+}
+
+.fa-exclamation-circle {
+  color: #a10000;
+  padding: 15px;
+}
+
+.fa-battery-quarter {
+  color: red;
+  padding: 15px;
+}
+
+i.fa-times-circle {
+  color: red;
+  padding: 15px;
+}
+
+.delete-class-icon {
+  color: red;
+}
+
 
 /* List of items*/
 
@@ -333,31 +368,6 @@ p {
 
 
 
-
-/* Font Awesome change */
-.fa-check-circle {
-  color: #3a9f5a;
-  padding: 15px;
-}
-
-.fa-exclamation-circle {
-  color: #a10000;
-  padding: 15px;
-}
-
-.fa-battery-quarter {
-  color: red;
-  padding: 15px;
-}
-
-i.fa-times-circle {
-  color: red;
-  padding: 15px;
-}
-
-.delete-class-icon {
-  color: red;
-}
 
 
 

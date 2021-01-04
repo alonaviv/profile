@@ -1,10 +1,9 @@
-from dataclasses import dataclass
-
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, reverse, redirect
 
 from utils.school_dates import get_current_trimester
-from .models import Evaluation, Class, Student, StudentNotInClassError
+from .models import Evaluation, Class, Student
 
 """
 Every view in the site needs to pass the teacher object in the context, so it can display the name
@@ -20,13 +19,14 @@ def main_evaluations_page(request):
 def populate_evaluations_in_teachers_classes(teacher):
     """
     Make sure that there is an evaluation object in the DB for each student in each class of the given teacher.
-    If there isn't, create an entry with empty text. Delete all evaluations where the student isn't in the class. 
+    If there isn't, create an entry with empty text.
     """
     if not teacher.is_anonymous:
         current_trimester = get_current_trimester()
 
-        for evaluated_class in teacher.class_set.filter(hebrew_year=current_trimester.hebrew_school_year):
-            for student in evaluated_class.students.all():
+        for evaluated_class in teacher.class_set.filter(hebrew_year=current_trimester.hebrew_school_year,
+                                                        is_deleted=False):
+            for student in evaluated_class.students.filter(is_deleted=False):
                 try:
                     Evaluation.objects.get(student=student, evaluated_class=evaluated_class,
                                            hebrew_year=current_trimester.hebrew_school_year,
@@ -39,30 +39,16 @@ def populate_evaluations_in_teachers_classes(teacher):
                     evaluation.clean()
                     evaluation.save()
 
-        # TODO: Figure this part out. Is the filter correct?
-        for evaluation in Evaluation.objects.filter(hebrew_year=current_trimester.hebrew_school_year,
-                                                    trimester=current_trimester.name):
-            try:
-                evaluation.clean()
-            except StudentNotInClassError:
-                evaluation.delete()
-
 
 @login_required
-def write_class_evaluations(request, class_id):
-    @dataclass
-    class EvaluationField:
-        evaluation_text: str
-        evaluation_id: int
-        student: Student
-        is_submitted: bool = False  # This is a safeguard, to make sure that the text has been submitted to the DB
-
+def write_class_evaluations(request, class_id, anchor=None):
     current_trimester = get_current_trimester()
 
     teacher = request.user
     try:
         class_to_evaluate = Class.objects.get(id=class_id, teacher=teacher,
-                                              hebrew_year=current_trimester.hebrew_school_year)
+                                              hebrew_year=current_trimester.hebrew_school_year,
+                                              is_deleted=False)
     except Class.DoesNotExist:
         return redirect(reverse('mismatched_professional_teacher_error'))
 
@@ -72,55 +58,40 @@ def write_class_evaluations(request, class_id):
         evaluation.save()
 
     evaluations = Evaluation.objects.filter(evaluated_class=class_to_evaluate).order_by('student')
-    evaluation_fields = []
-    for evaluation in evaluations:
-        evaluation_field = EvaluationField(evaluation_text=evaluation.evaluation_text, evaluation_id=evaluation.id,
-                                           student=evaluation.student)
-        if evaluation.evaluation_text and not evaluation.evaluation_text.isspace():
-            evaluation_field.is_submitted = True
 
-        evaluation_fields.append(evaluation_field)
+    if not anchor:
+        anchor = f"anchor_{request.POST['evaluation_id']}" if 'evaluation_id' in request.POST else 'top'
 
     context = {
-        'teacher': teacher, 'class': class_to_evaluate, 'evaluations': evaluation_fields,
-        'anchor': f"anchor_{request.POST['evaluation_id']}" if 'evaluation_id' in request.POST else 'top'
+        'teacher': teacher, 'class': class_to_evaluate, 'evaluations': evaluations,
+        'anchor': anchor
     }
     return render(request, 'evaluations/write_evaluations.html', context)
 
 
-# @login_required
-# def write_class_evaluations(request, class_id):
-#     current_trimester = get_current_trimester()
-#
-#     teacher = request.user
-#     try:
-#         class_to_evaluate = Class.objects.get(id=class_id, teacher=teacher,
-#                                               hebrew_year=current_trimester.hebrew_school_year)
-#     except Class.DoesNotExist:
-#         return redirect(reverse('mismatched_professional_teacher_error'))
-#
-#     EvaluationFormSet = inlineformset_factory(Class,
-#                                               Evaluation,
-#                                               fields=['evaluation_text'],
-#                                               widgets={
-#                                                   'evaluation_text': Textarea(attrs={'rows': 20, 'cols': 60}),
-#                                               },
-#                                               extra=0,
-#                                               can_delete=False)
-#
-#     if request.method == 'POST':
-#         formset = EvaluationFormSet(request.POST, instance=class_to_evaluate,
-#                                     queryset=Evaluation.objects.filter(hebrew_year=current_trimester.hebrew_school_year,
-#                                                                        trimester=current_trimester.name))
-#         formset.save()
-#
-#     else:
-#         formset = EvaluationFormSet(instance=class_to_evaluate,
-#                                     queryset=Evaluation.objects.filter(hebrew_year=current_trimester.hebrew_school_year,
-#                                                                        trimester=current_trimester.name))
-#
-#     context = {'formset': formset, 'teacher': teacher, 'class': class_to_evaluate}
-#     return render(request, 'evaluations/write_evaluations.html', context)
+@login_required
+def remove_evaluation(request, evaluation_id):
+    teacher = request.user
+    evaluation = Evaluation.objects.get(id=evaluation_id)
+
+    if evaluation.is_submitted:
+        messages.error(request,
+                       'לא ניתן לבטל דיווח פעיל. יש למחוק את הטקסט הקיים וללחוץ על ״שלח דיווח״.')
+        return redirect(
+            reverse('write_class_evaluations_with_anchor',
+                    args=(evaluation.evaluated_class.id, f"anchor_{evaluation_id}")))
+
+    if teacher != evaluation.evaluated_class.teacher:
+        return render(request, 'common/general_error_page.html',
+                      {'error_message': 'רק המורה של השיעור רשאי/ת להסיר דיווחים של השיעור'})
+    if evaluation.is_student_in_class:
+        return render(request, 'common/general_error_page.html',
+                      {'error_message': 'לא ניתן להסיר דיווח של תלמיד/ה שעדיין נמצא/ת בשיעור'})
+
+    evaluation.delete()
+
+    return redirect(
+        reverse('write_class_evaluations_with_anchor', args=(evaluation.evaluated_class.id, f"anchor_{evaluation_id}")))
 
 
 @login_required
@@ -131,7 +102,7 @@ def write_evaluations_main_page(request):
     populate_evaluations_in_teachers_classes(teacher)
 
     if teacher:
-        classes = teacher.class_set.filter(hebrew_year=current_trimester.hebrew_school_year)
+        classes = teacher.class_set.filter(hebrew_year=current_trimester.hebrew_school_year, is_deleted=False)
     else:
         classes = []
 
@@ -148,7 +119,7 @@ def view_student_evaluations(request, student_id):
     if not teacher.is_homeroom_teacher:
         return redirect(reverse('not_homeroom_teacher_error'))
 
-    student = Student.objects.get(id=student_id)
+    student = Student.objects.get(id=student_id, is_deleted=False)
 
     if student.homeroom_teacher != teacher:
         return redirect(reverse('mismatched_homeroom_teacher_error'))
@@ -165,7 +136,7 @@ def view_evaluations_main_page(request):
         return redirect(reverse('not_homeroom_teacher_error'))
 
     if teacher:
-        students = teacher.student_set.all()
+        students = teacher.student_set.filter(is_deleted=False)
     else:
         students = []
 
@@ -184,20 +155,10 @@ def evaluations_details(request, student_id):
 
     student = Student.objects.get(id=student_id)
 
-    missing_classes = []
-    evaluated_classes = []
-
-    for evaluation in student.evaluations.filter(trimester=current_trimester.name,
-                                                 hebrew_year=current_trimester.hebrew_school_year):
-        if evaluation.evaluation_text:
-            evaluated_classes.append(evaluation.evaluated_class)
-        else:
-            missing_classes.append(evaluation.evaluated_class)
-
+    evaluations = student.evaluations.filter(trimester=current_trimester.name,
+                                             hebrew_year=current_trimester.hebrew_school_year).order_by('evaluation_text')
     context = {
-        'student': student, 'missing_classes': missing_classes, 'evaluated_classes': evaluated_classes,
-        'teacher': teacher
-    }
+        'student': student, 'evaluations': evaluations, 'teacher': teacher}
     return render(request, 'evaluations/evaluation_details.html', context)
 
 

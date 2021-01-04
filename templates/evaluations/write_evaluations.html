@@ -35,11 +35,27 @@ window.location = (""+window.location).replace(/#[A-Za-z0-9_]*$/,'')+"#{{anchor}
 <form action = "{% url 'write_class_evaluations' class.id %}" method="post" 
 {% if evaluation.is_submitted %} onsubmit="window.confirm_change()" {% endif %}>
     {% csrf_token %}
-<a id=anchor_{{evaluation.evaluation_id}}>
+<a id=anchor_{{evaluation.id}} class="underline">
     דיווח על {{ evaluation.student }} ({% if evaluation.student.homeroom_teacher %} {{evaluation.student.homeroom_teacher.printable_description}} {% else %} עדיין לא צורפ\ה לחונכ/ת {% endif %})
 </a>
     <br>
-    <input type="hidden" name="evaluation_id" value="{{evaluation.evaluation_id}}">
+    {% if not evaluation.is_student_in_class %}
+    <br>
+    <div class="flex_container no_p_margin column"><p class="error_message">השתתפ/ה בשיעור זה במהלך הסמסטר, אך עזב/ה.</p>
+    <a href="{% url 'remove_evaluation' evaluation.id %}" class="clickable basic_link" onclick="return confirm('האם {{pronoun_dict.you}} {{pronoun_dict.sure}} ש{{pronoun_dict.you}} לא רוצה לדווח על {{evaluation.student.first_name}} בסמסטר זה, אף שהשתתפ/ה בשיעור?')">איני {{pronoun_dict.interested}}
+        לדווח על
+        {{evaluation.student.first_name}}
+        בסמסטר זה</a>
+        {% if messages and evaluation.is_submitted %}
+        {% for message in messages %}
+        <div class="error_message">
+            {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
+    </div>
+    {% endif %}
+    <input type="hidden" name="evaluation_id" value="{{evaluation.id}}">
     <textarea name="evaluation_text" cols="60" rows="20">{{evaluation.evaluation_text}}</textarea>
     <br>
     <div class="flex_container">

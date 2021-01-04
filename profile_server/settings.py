@@ -96,6 +96,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'profile_server.custom_context_processors.trimester_context_processor',
                 'profile_server.custom_context_processors.pronoun_dict_context_processor',
+                'profile_server.custom_context_processors.teacher_context_processor',
 
             ],
         },

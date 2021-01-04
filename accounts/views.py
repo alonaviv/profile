@@ -42,7 +42,7 @@ def register(request):
                 messages.error(request, "הסיסמאות אינן תואמות זו לזו")
                 return render(request, "accounts/register.html", {'form': form})
 
-            if TeacherUser.objects.filter(email=form.cleaned_data['email']).exists():
+            if TeacherUser.objects.filter(email=form.cleaned_data['email'], is_deleted=False).exists():
                 messages.error(request, "קיים כבר משתמש עם כתובת המייל הזו")
                 return render(request, "accounts/register.html", {'form': form})
 

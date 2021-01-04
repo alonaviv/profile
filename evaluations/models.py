@@ -1,7 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.db.models import (
     CharField, ForeignKey, ManyToManyField, Model, TextField, PROTECT,
-    CASCADE, SET_NULL, IntegerField
+    SET_NULL, IntegerField, BooleanField
 )
 
 from accounts.models import TeacherUser
@@ -48,6 +48,7 @@ class Student(Model):
     house = ForeignKey(House, on_delete=PROTECT)
     # To be later added when the homeroom teachers add their kids
     homeroom_teacher = ForeignKey(TeacherUser, on_delete=SET_NULL, blank=True, null=True)
+    is_deleted = BooleanField(default=False)
 
     @property
     def completed_evals(self):
@@ -94,6 +95,7 @@ class Class(Model):
     teacher = ForeignKey(TeacherUser, on_delete=PROTECT)
     students = ManyToManyField(Student, blank=True, related_name='classes')
     hebrew_year = IntegerField()
+    is_deleted = BooleanField(default=False)
 
     class Meta:
         verbose_name_plural = "Classes"
@@ -101,12 +103,6 @@ class Class(Model):
 
     def __str__(self):
         return self.name
-
-    def delete(self, *args, **kwargs):
-        if self.students.count() > 0:
-            raise ValueError("Cannot delete class that has students")
-        else:
-            super().delete(*args, **kwargs)
 
     @property
     def completed_evals_in_current_trimester(self):
@@ -128,8 +124,10 @@ class Class(Model):
 
 
 class Evaluation(Model):
-    student = ForeignKey(Student, on_delete=CASCADE, related_name='evaluations')
-    evaluated_class = ForeignKey(Class, on_delete=CASCADE)
+    # Students, Classes, Teachers and Evaluations should never be deleted. Only marked as is_deleted.
+    # We don't ever want to lose information about an evaluation, and what student/class/teacher it was related to.
+    student = ForeignKey(Student, on_delete=PROTECT, related_name='evaluations')
+    evaluated_class = ForeignKey(Class, on_delete=PROTECT)
     evaluation_text = TextField(default='', blank=True)
     hebrew_year = IntegerField()
     trimester = CharField(choices=TrimesterType.get_choices(), max_length=20)
@@ -137,6 +135,10 @@ class Evaluation(Model):
     class Meta:
         unique_together = ['student', 'evaluated_class', 'trimester']
 
-    def clean(self):
-        if self.student not in self.evaluated_class.students.all():
-            raise StudentNotInClassError("The student of this evaluation doesn't match the class")
+    @property
+    def is_student_in_class(self):
+        return self.student in self.evaluated_class.students.filter(is_deleted=False)
+
+    @property
+    def is_submitted(self):
+        return self.evaluation_text and not self.evaluation_text.isspace()

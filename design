@@ -15,3 +15,46 @@ year, and pass that year to the created evaluation.
 
 When writing and reading evaluations, only the evaluations of the current trimester and year should appear.
 
+================
+
+Deletions:
+
+* Removing student from class. I think it makes sense that the evaluation won't matter anymore for this year, yet be
+saved for all previous kinds (the previous evaluation objects).
+On the other hand, what if they bring the student back, or do it by mistake?
+How about we create the evaluations for the current year always, yet only display them if the student is actually in
+the class? On the other hand, we're talking about the current trimester. Though it won't end exactly right after.
+Ok, I think it should always be there - even if the kid left the class. Why not. If a teacher wrote something, it should
+be there. Next trimester the student won't be there anymore, so won't be created.
+So basically, don't delete evaluations where students aren't in the class. See what happens.
+
+Read evaluations - see evaluations from everyone that exist, but mark if student is no longer in class.
+Write evaluations - only for students that are in class. If there are existing non active evaluations, show them in
+a different page
+
+=======
+Class -  Never delete, so you have reference to past evaluations. Just add a flag of is_deleted.
+Don't create new evaluations for deleted classes, and don't display them anywhere. When asked evaluation if student
+in class, return False if class is deleted.
+Make sure you can't create a new class with same fields in the same year.
+Make foreign keys block all deletion.
+
+Student - Never delete, so you can always access history of student that left the school. Just add a flag of is_deleted.
+Don't show deleted students anywhere, don't create new evaluations for them.
+See if there is a point where they ask for its evaluations - they shouldn't.
+
+House, allow delete if nothing is using it.
+Subject - allow delete if nothing is using it.
+Teacher - allow delete if no user. And user can't be deleted on its own.
+
+========
+
+Deletion bottom line:
+I basically protected everything, as I'm not expected anything to actually be deleted.
+So if I want to delete something, I need to start with the evaluation. The evaluation protects the rest.
+If you delete the evaluation, then you will be able to delete the class and so forth.
+
+
+
+
+

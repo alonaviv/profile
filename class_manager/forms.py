@@ -8,7 +8,7 @@ from evaluations.models import Class
 class ClassForm(ModelForm):
     class Meta:
         model = Class
-        exclude = ['students', 'teacher', 'hebrew_year']
+        exclude = ['students', 'teacher', 'hebrew_year', 'is_deleted']
         labels = {'name': 'שם השיעור', 'subject': "מקצוע", 'house': "שכבה"}
 
 

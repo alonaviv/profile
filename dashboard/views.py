@@ -16,13 +16,13 @@ def main_dashboard_page(request):
 
 def get_dashboard_context(teacher):
     if teacher and not teacher.is_anonymous:
-        classes = teacher.class_set.filter(hebrew_year=get_current_trimester().hebrew_school_year)
-        homeroom_students = teacher.student_set.all()
+        classes = teacher.class_set.filter(hebrew_year=get_current_trimester().hebrew_school_year, is_deleted=False)
+        homeroom_students = teacher.student_set.filter(is_deleted=False)
 
         # Get's all the students that the teacher teaches, without duplicates
         class_students = Student.objects.none()
         for klass in classes:
-            class_students |= klass.students.all()
+            class_students |= klass.students.filter(is_deleted=False)
 
         class_students = class_students.distinct()
 

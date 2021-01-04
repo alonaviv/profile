@@ -15,6 +15,7 @@ class TeacherUser(AbstractUser):
     teacher_object = OneToOneField('evaluations.Teacher', on_delete=PROTECT, null=True)
     pronoun_choice = CharField(max_length=30, choices=[(pronoun_option.name, pronoun_option.value)
                                                        for pronoun_option in PronounOptions], null=True)
+    is_deleted = BooleanField(default=False)
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
@@ -31,7 +32,7 @@ class TeacherUser(AbstractUser):
     @property
     def completed_evals_in_current_trimester(self):
         completed_evals = []
-        for klass in self.class_set.all():
+        for klass in self.class_set.filter(is_deleted=False):
             completed_evals.extend(klass.completed_evals_in_current_trimester)
 
         return completed_evals
@@ -39,7 +40,7 @@ class TeacherUser(AbstractUser):
     @property
     def all_evals_in_current_trimester(self):
         all_evals = []
-        for klass in self.class_set.all():
+        for klass in self.class_set.filter(is_deleted=False):
             all_evals.extend(klass.all_evals_in_current_trimester)
 
         return all_evals
@@ -55,7 +56,7 @@ class TeacherUser(AbstractUser):
     @property
     def completed_evals_of_homeroom_students_in_current_trimester(self):
         completed_evals = []
-        for student in self.student_set.all():
+        for student in self.student_set.filter(is_deleted=False):
             completed_evals.extend(student.completed_evals_in_current_trimester)
 
         return completed_evals
@@ -63,7 +64,7 @@ class TeacherUser(AbstractUser):
     @property
     def all_evals_of_homeroom_students_in_current_trimester(self):
         all_evals = []
-        for student in self.student_set.all():
+        for student in self.student_set.filter(is_deleted=False):
             all_evals.extend(student.all_evals_in_current_trimester)
 
         return all_evals

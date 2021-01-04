@@ -5,7 +5,7 @@ from .pronouns import PronounWordDictionary
 def pronoun_dict_context_processor(request):
     teacher = request.user
 
-    if not teacher.is_anonymous and not teacher.is_superuser:
+    if not teacher.is_anonymous:
         pronoun_dict = PronounWordDictionary(teacher.pronoun_as_enum)
     else:
         pronoun_dict = {}
@@ -15,3 +15,8 @@ def pronoun_dict_context_processor(request):
 
 def trimester_context_processor(request):
     return {'trimester': get_current_trimester()}
+
+
+def teacher_context_processor(request):
+    teacher = request.user
+    return {'teacher': teacher}
