@@ -5,9 +5,7 @@ from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 
 from profile_server.pronouns import PronounWordDictionary
-from profile_server.settings import EMAIL_HOST_USER, DOMAIN
-
-FROM_EMAIL = "מערכת הדיווחים - דמוקרטי כפר סבא" + f" <{EMAIL_HOST_USER}>"
+from profile_server.settings import DOMAIN, DEFAULT_FROM_EMAIL
 
 
 def send_forgot_password_email(teacher):
@@ -21,8 +19,8 @@ def send_forgot_password_email(teacher):
     }
 
     subject = "מערכת הדיווחים של הדמוקרטי - בקשה לאיפוס סיסמא"
-    raw_template_name = "password_reset_email.txt"
-    html_template_name = "password_reset_html_email.txt"
+    raw_template_name = "password_reset_email_raw.txt"
+    html_template_name = "password_reset_email.html"
     send_email(html_template_name, raw_template_name, subject, teacher.email, context)
 
 
@@ -38,7 +36,7 @@ def send_evaluations_status_update(trimester, teacher, classes, homeroom_student
         "pronoun_dict": PronounWordDictionary(teacher.pronoun_as_enum),
     }
     subject = f"מערכת הדיווחים של הדמוקרטי - תזכורת: יש לך עוד {trimester.days_left_for_writing} ימים להגשת הדיווחים "
-    html_template_name = "evaluations_status_update_email.txt"
+    html_template_name = "evaluations_status_update_email.html"
     raw_template_name = html_template_name
 
     send_email(html_template_name, raw_template_name, subject, teacher.email, context)
@@ -47,7 +45,7 @@ def send_evaluations_status_update(trimester, teacher, classes, homeroom_student
 def send_all_validations_email(teacher, validation_results):
     context = {"teacher": teacher, "validation_results": validation_results}
     subject = "מערכת הדיווחים של הדמוקרטי - תוצאות אימות נתונים"
-    html_template_name = "all_validations_email.txt"
+    html_template_name = "all_validations_email.html"
     raw_template_name = html_template_name
 
     send_email(html_template_name, raw_template_name, subject, teacher.email, context)
@@ -56,7 +54,7 @@ def send_all_validations_email(teacher, validation_results):
 def send_urgent_validations_email(teacher, validation_results):
     context = {"teacher": teacher, "validation_results": validation_results}
     subject = "מערכת הדיווחים של הדמוקרטי - התגלו אי סדרים בנתונים"
-    html_template_name = "urgent_validations_email.txt"
+    html_template_name = "urgent_validations_email.html"
     raw_template_name = html_template_name
 
     send_email(html_template_name, raw_template_name, subject, teacher.email, context)
@@ -68,5 +66,4 @@ def send_email(html_template_name, raw_template_name, subject, recipient, contex
     raw_email = render_to_string(f"emails/{raw_template_name}", context)
 
     print(f"* Sending email to {recipient}")
-    send_mail(subject, raw_email, FROM_EMAIL, [recipient],
-              fail_silently=False, html_message=html_email)
+    send_mail(subject, raw_email, None, [recipient], fail_silently=False, html_message=html_email)

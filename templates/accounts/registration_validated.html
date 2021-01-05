@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+
+<h1>סיום הרשמה</h1>
+
+<div class="centered_container column border small_padding">
+    <div class="info_message">
+        {% if success %}
+        <p>ההרשמה הסתיימה בהצלחה!</p>
+        <br>
+        <p>כעת ניתן <a href="{% url 'login' %}" class="basic_link clickable">להתחבר</a> למערכת באמצעות הסיסמא שבחרת.</p>
+
+        {% else %}
+        <p>לינק אישור ההרשמה אינו תקין</p>
+        <br>
+        <p>אנא נסו <a href="{% url 'register' %}" class="basic_link clickable">להרשם</a> למערכת שוב.</p>
+
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

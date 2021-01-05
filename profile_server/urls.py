@@ -16,6 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import RedirectView, TemplateView
+from django_email_verification import urls as email_verification_urls
 
 urlpatterns = [
     path('', RedirectView.as_view(url='/dashboard'), name='index'),
@@ -25,6 +26,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('class_manager/', include('class_manager.urls')),
     path('validations/', include('validations.urls')),
+    path('registration_verification/', include(email_verification_urls)),
     path('failed_login', TemplateView.as_view(template_name='common/failed_login.html'), name='failed_login'),
     path('not_homeroom_teacher_error', TemplateView.as_view(template_name='common/not_homeroom_teacher_error.html'),
          name='not_homeroom_teacher_error'),

@@ -36,7 +36,7 @@ h1.welcome{
 
 a {
   text-decoration: none;
-  color: inherit;
+  color: inherit
 }
 
 a.basic_link {
@@ -542,6 +542,11 @@ i.fa-times-circle {
 .info_message {
     font-size: 25px;
     color: rgb(47, 194, 137);
+}
+
+.info_message strong{
+    color: black;
+    font-weight: bold;
 }
 
 h2 a, h2.announcment{

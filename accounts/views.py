@@ -5,6 +5,7 @@ from django.contrib.auth.views import PasswordResetConfirmView
 from django.db import IntegrityError
 from django.forms import ValidationError
 from django.shortcuts import render, redirect, reverse
+from django_email_verification import sendConfirm
 
 from accounts.forms import RegisterForm, LoginForm, MySetPasswordForm
 from emails.send_emails import send_forgot_password_email
@@ -12,6 +13,17 @@ from evaluations.models import Teacher
 from profile_server.pronouns import PronounWordDictionary
 
 TeacherUser = get_user_model()
+
+
+def resend_confirmation_email(request, user_id):
+    try:
+        user = TeacherUser.objects.get(id=user_id)
+    except TeacherUser.DoesNotExist:
+        return render(request, 'common/general_error_page.html',
+                      {'error_message': 'לא ניתן לשלוח מייל אישור הרשמה - המשתמש המבוקש אינו נמצא במערכת'})
+
+    sendConfirm(user)
+    return render(request, 'accounts/sent_verification_email.html', context={'new_user': user})
 
 
 def get_username(first_name, last_name):
@@ -42,11 +54,31 @@ def register(request):
                 messages.error(request, "הסיסמאות אינן תואמות זו לזו")
                 return render(request, "accounts/register.html", {'form': form})
 
-            if TeacherUser.objects.filter(email=form.cleaned_data['email'], is_deleted=False).exists():
+            username = get_username(first_name, last_name)
+
+            # If a user isn't verified yet (didn't click the email link), we give them a chance to register
+            # again, with a different email for instance.
+            try:
+                non_verified_user = TeacherUser.objects.get(username=username, is_active=False)
+            except TeacherUser.DoesNotExist:
+                class EmptyUser:
+                    @property
+                    def email(self):
+                        return ''
+
+                    def __bool__(self):
+                        return False
+
+                non_verified_user = EmptyUser()
+
+            if TeacherUser.objects.filter(email=form.cleaned_data['email'], is_deleted=False).exclude(
+                    email=non_verified_user.email).exists():
                 messages.error(request, "קיים כבר משתמש עם כתובת המייל הזו")
                 return render(request, "accounts/register.html", {'form': form})
 
-            username = get_username(first_name, last_name)
+            if non_verified_user:
+                non_verified_user.delete()
+
             try:
                 user = TeacherUser.objects.create_user(username=username,
                                                        email=form.cleaned_data['email'],
@@ -58,10 +90,8 @@ def register(request):
                                                        is_homeroom_teacher=form.cleaned_data['is_homeroom_teacher'],
                                                        teacher_object=teacher_object)
 
-                auth.authenticate(username=username, password=form.cleaned_data['password'])
-                auth.login(request, user)
-
-                return redirect(reverse('index'))
+                sendConfirm(user)
+                return render(request, 'accounts/sent_verification_email.html', context={'new_user': user})
 
             except IntegrityError as e:
                 messages.error(request, f"המשתמש/ת {teacher_object} כבר קיימ/ת במערכת")
@@ -84,7 +114,15 @@ def login(request):
                 auth.login(request, user)
                 return redirect(reverse('index'))
             else:
-                messages.error(request, "פרטי הכניסה אינם נכונים (או שטרם נרשמת במערכת)")
+                try:
+                    user = TeacherUser.objects.get(username=username)
+                    if user.is_active:
+                        messages.error(request, "הסיסמא אינה נכונה")
+                    else:
+                        messages.error(request, "טרם אישרת את הרישום (באמצעות הלינק במייל)")
+
+                except TeacherUser.DoesNotExist:
+                    messages.error(request, "טרם נרשמת במערכת")
 
     else:
         form = LoginForm()

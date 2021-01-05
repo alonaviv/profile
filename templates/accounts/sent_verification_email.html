@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+
+  <h1>התחברות</h1>
+
+<div class="centered_container column border small_padding">
+  <div class="info_message">
+    <p>תודה על ההרשמה! מייל אישור נשלח לכתובת <strong>{{new_user.email}}</strong></p>
+    <p>על מנת לסיים את תהליך ההרשמה, יש ללחוץ על הלינק המופיע במייל.</p>
+    <p>אם הוא לא נמצא, אולי הוא הגיע לתיקיית הספאם. ייתכן גם שתיבת המייל שלכם תבקש מכם לאשר שהמייל הזה בטוח על מנת שתוכלו ללחוץ על הלינק.</p>
+    <br>
+    <p>המייל לא הגיע? <a href="{% url 'resend_confirmation_email' new_user.id %}" class="basic_link clickable">שלח לי שוב</a> </p>
+      <br><br>
+    <p>במידה וכתובת המייל אינה נכונה, ניתן להרשם שנית עם כתובת אחרת.</p>
+    </div>
+
+
+</div>
+{% endblock %}

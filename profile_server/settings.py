@@ -45,7 +45,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'crispy_forms',
-    'dbbackup'
+    'dbbackup',
+    'django_email_verification'
 ]
 
 DBBACKUP_STORAGE = 'django.core.files.storage.FileSystemStorage'
@@ -70,6 +71,19 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = 'profile.democrati.ks@gmail.com'
 SERVER_EMAIL = 'profile@democrati.xyz'
 
+DEFAULT_FROM_EMAIL = "מערכת הדיווחים - דמוקרטי כפר סבא" + f" <{EMAIL_HOST_USER}>"
+
+# Fields required by django_email_verification
+EMAIL_ACTIVE_FIELD = 'is_active'
+EMAIL_SERVER = EMAIL_HOST
+EMAIL_ADDRESS = EMAIL_HOST_USER
+EMAIL_FROM_ADDRESS = DEFAULT_FROM_EMAIL
+EMAIL_PAGE_DOMAIN = DOMAIN
+EMAIL_PAGE_TEMPLATE = 'accounts/registration_validated.html'
+EMAIL_MAIL_SUBJECT = 'מערכת הדיווחים של הדמוקרטי - אישור הרשמה'
+EMAIL_MAIL_HTML = 'emails/registration_verification_email.html'
+
+
 ADMINS = (
   ('alon aviv', 'alonaviv@gmail.com'),
 )
@@ -77,6 +91,7 @@ ADMINS = (
 with open('../email-password') as f:
     EMAIL_HOST_PASSWORD = f.read().strip()
 
+EMAIL_PASSWORD = EMAIL_HOST_PASSWORD
 
 try:
     HOSTNAME = socket.gethostname()
@@ -184,4 +199,3 @@ try:
     from .local_settings import *
 except ImportError:
     pass
-
