@@ -24,9 +24,8 @@ def populate_evaluations_in_teachers_classes(teacher):
     if not teacher.is_anonymous:
         current_trimester = get_current_trimester()
 
-        for evaluated_class in teacher.class_set.filter(hebrew_year=current_trimester.hebrew_school_year,
-                                                        is_deleted=False):
-            for student in evaluated_class.students.filter(is_deleted=False):
+        for evaluated_class in teacher.class_set.filter(hebrew_year=current_trimester.hebrew_school_year):
+            for student in evaluated_class.students.all():
                 try:
                     Evaluation.objects.get(student=student, evaluated_class=evaluated_class,
                                            hebrew_year=current_trimester.hebrew_school_year,
@@ -46,18 +45,22 @@ def write_class_evaluations(request, class_id, anchor=None):
 
     teacher = request.user
     try:
-        class_to_evaluate = Class.objects.get(id=class_id, teacher=teacher,
-                                              hebrew_year=current_trimester.hebrew_school_year,
-                                              is_deleted=False)
+        class_to_evaluate = Class.objects.get(id=class_id, hebrew_year=current_trimester.hebrew_school_year)
     except Class.DoesNotExist:
-        return redirect(reverse('mismatched_professional_teacher_error'))
+        return render(request, 'common/general_error_page.html',
+                      {'error_message': 'השיעור המבוקש אינו קיים במערכת'})
+
+    if class_to_evaluate.teacher != teacher:
+        return render(request, 'common/general_error_page.html',
+                      {'error_message': 'רק המורה של השיעור רשאי/ת לכתוב דיווחים'})
 
     if request.method == 'POST':
         evaluation = Evaluation.objects.get(id=request.POST['evaluation_id'])
         evaluation.evaluation_text = request.POST['evaluation_text']
         evaluation.save()
 
-    evaluations = Evaluation.objects.filter(evaluated_class=class_to_evaluate).order_by('student')
+    evaluations = Evaluation.objects.filter(evaluated_class=class_to_evaluate,
+                                            trimester=current_trimester.name).order_by('student')
 
     if not anchor:
         anchor = f"anchor_{request.POST['evaluation_id']}" if 'evaluation_id' in request.POST else 'top'
@@ -102,7 +105,7 @@ def write_evaluations_main_page(request):
     populate_evaluations_in_teachers_classes(teacher)
 
     if teacher:
-        classes = teacher.class_set.filter(hebrew_year=current_trimester.hebrew_school_year, is_deleted=False)
+        classes = teacher.class_set.filter(hebrew_year=current_trimester.hebrew_school_year)
     else:
         classes = []
 
@@ -119,7 +122,11 @@ def view_student_evaluations(request, student_id):
     if not teacher.is_homeroom_teacher:
         return redirect(reverse('not_homeroom_teacher_error'))
 
-    student = Student.objects.get(id=student_id, is_deleted=False)
+    try:
+        student = Student.objects.get(id=student_id)
+    except Student.DoesNotExist:
+        return render(request, 'common/general_error_page.html',
+                      {'error_message': 'תלמיד/ה זה/זו לא נמצא/ת בבית הספר'})
 
     if student.homeroom_teacher != teacher:
         return redirect(reverse('mismatched_homeroom_teacher_error'))
@@ -136,7 +143,7 @@ def view_evaluations_main_page(request):
         return redirect(reverse('not_homeroom_teacher_error'))
 
     if teacher:
-        students = teacher.student_set.filter(is_deleted=False)
+        students = teacher.student_set.all()
     else:
         students = []
 
@@ -156,9 +163,11 @@ def evaluations_details(request, student_id):
     student = Student.objects.get(id=student_id)
 
     evaluations = student.evaluations.filter(trimester=current_trimester.name,
-                                             hebrew_year=current_trimester.hebrew_school_year).order_by('evaluation_text')
+                                             hebrew_year=current_trimester.hebrew_school_year).order_by(
+        'evaluation_text')
     context = {
-        'student': student, 'evaluations': evaluations, 'teacher': teacher}
+        'student': student, 'evaluations': evaluations, 'teacher': teacher
+    }
     return render(request, 'evaluations/evaluation_details.html', context)
 
 

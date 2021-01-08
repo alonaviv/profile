@@ -9,6 +9,13 @@
 </div>
 
 <a class="back_button" href="{% url 'manage_classes' %}">חזרה לרשימת השיעורים</a>
+<div class="centered_container column">
+  {% for message in messages %}
+  <div class="error_message">
+      {{ message }}
+  </div>
+  {% endfor %}
+</div>
 
 <div class="items_list">
   <!-- If you want to add numbers here, you need to use a counter - ol doesn't work within flexbox -->

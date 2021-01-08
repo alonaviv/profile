@@ -35,8 +35,8 @@ window.location = (""+window.location).replace(/#[A-Za-z0-9_]*$/,'')+"#{{anchor}
 <form action = "{% url 'write_class_evaluations' class.id %}" method="post" 
 {% if evaluation.is_submitted %} onsubmit="window.confirm_change()" {% endif %}>
     {% csrf_token %}
-<a id=anchor_{{evaluation.id}} class="underline">
-    דיווח על {{ evaluation.student }} ({% if evaluation.student.homeroom_teacher %} {{evaluation.student.homeroom_teacher.printable_description}} {% else %} עדיין לא צורפ\ה לחונכ/ת {% endif %})
+<a id=anchor_{{evaluation.id}} class="bold">
+    דיווח על {{ evaluation.student }} ({% if evaluation.student.homeroom_teacher %}{{evaluation.student.homeroom_teacher.printable_description}}{% else %} עדיין לא צורפ\ה לחונכ/ת {% endif %})
 </a>
     <br>
     {% if not evaluation.is_student_in_class %}

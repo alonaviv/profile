@@ -71,7 +71,7 @@ def register(request):
 
                 non_verified_user = EmptyUser()
 
-            if TeacherUser.objects.filter(email=form.cleaned_data['email'], is_deleted=False).exclude(
+            if TeacherUser.objects.filter(email=form.cleaned_data['email']).exclude(
                     email=non_verified_user.email).exists():
                 messages.error(request, "קיים כבר משתמש עם כתובת המייל הזו")
                 return render(request, "accounts/register.html", {'form': form})

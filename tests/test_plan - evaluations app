@@ -1,0 +1,111 @@
+Testing evaluations app:
+
+Things that can be deleted: Class, Student, TeacherUser, removing student from class, removing student from homeroom
+
+Rules I'd like to enforce. Enforce later - now test using this as a given:
+* TeacherUser can't be deleted if he is teaching active classes or has kids in homeroom. When you delete a teacheruser,
+you also add is_deleted to its teacher object.
+* Need to have a process at the start of the year that removes all homerooms (can do so later - also, do we want to
+save a record of the homerooms between years?).
+* Class can't be deleted if it has students in it. Classes of a year that passed don't get deleted,
+it just has a previous year. The only reason that a class can get deleted is if a teacher changes his mind in the middle
+of that year. But the evaluations will still stay there.
+* Student can get deleted at any time. He won't show up anywhere. But his evaluations will stay.
+
+General situations I need to test regarding deletion:
+============
+Deleting Student:
+* Have student get evaluation while in class and homeroom, then delete student -> Can still access evaluation and
+doesn't appear in homeroom or in class and can't read or write his evaluation.
+class anymore.
+* Have student get evaluation, then leave class, then delete student -> Can still access evaluation - doesn't appear
+in homeroom and can't read his evaluation.
+* Have student in class along with another. Delete student. Move to next trimester -> No evaluation object for student
+that trimester, but other student does have.
+* Have a few deleted students that were previously in class (no written evals) and homeroom. See that they don't show up
+ in:
+- View evaluations to write for class
+- View homeroom
+- View students in class
+- Add students to new class
+- Add students to homeroom
+- Write evals of class
+- Dashboard - number of evals to write
+- Dashboard - number of students you teach
+- Dashboard - number of students in homeroom
+- Status email - Number of stuff left to write, number of students in homeroom
+
+Bad Urls:
+* Go to page of view student evals of deleted student - See helpful error
+* Go to page of delete student from class - student is in class, but deleted
+
+=================
+
+Removing student from class:
+* Remove from class > Can still write evaluation.
+* Write evaluation, remove from class, return to class -> Can see evaluation as usual in read and write.
+* Remove from class, write evaluation, decide to delete evaluation -> Can't do it. Can still see it in read and write.
+* Remove from class, decide to delete evaluation -> Can't see it in read and write.
+* Remove from class, write evaluation, move to next trimester -> Can access old evaluation, can't read or write for current trimester
+* Remove from class, decide to delete evaluation, return to class -> Can see in read and write that needs to write evaluation.
+
+===============
+
+Deleting Class:
+( I changed this - you now can't delete a class that has written evals for this trimester. Need to change test plan)
+* Have class. Write a few evals and leave some empty. Remove those students, delete class. Send status email. -> see
+that you can still view evals in this trimester, Class doesn't appear in list of classes to write evals for,
+Class doesn't appear in list of classes to manage, Class doesn't appear in class list for student, evals don't appear in
+ dashboard. Evals don't appear in email.
+* Try to remove class with students through url -> fail
+* Have class, write a few evals and leave some empty. Remove students and delete class. Move to next trimester, but same
+ year -> See that class doesn't appear in class for teacher. No evals created. Can access old evals.
+* Have class with some evals and leave some empty. Move to next year -> Class doesn't appear anywhere. Can access old
+evals.
+* Have class with a few evals and leave some empty. Delete class, try to add a new class with the same name -> Should
+let you to do so (in order to allow teachers to delete and then recreate), but the evaluations stay, under a deleted
+class with a different id.
+* Have class with completed and incompleted evals. Delete class. Read UserTeacher.completed_evals_in_current_trimester
+and UserTeacher.all_evals_in_current_trimester. These numbers should include the evals that were already written,
+but not the evals that were empty when the class was deleted.
+
+
+Bad urls:
+* Go to write class evaluations of deleted class
+* Go to delete student from class of deleted class
+* Go to add students to class of deleted class
+
+======
+Deleting TeacherUser:
+* Add class with students to teacher, and have homeroom. Write some evals, leave others empty. Remove students
+from class and delete class. Remove students from homeroom. Delete user+teacher. -> See that can access evals. See
+that his students don't have homeroom teacher and that he is not required to create a new user.
+* Delete TeacherUser, try to register new user with that name and email. -> I think shouldn't work
+* Delete TeacherUser, try to register new user with that name and different email -> I think shouldn't work
+* Delete TeacherUser, try to register new user with different name and same email -> should work
+
+
+DB deletion settings validations:
+* Delete teacher object when user exists - Fail
+* Delete user object when teacher exists - Succeed
+* Delete user that has student -> fail
+* Delete user that has class -> fail
+* Delete student that has a class -> fail
+
+* Delete house that has student -> fail
+* Delete house that has a teacher -> fail
+* Delete house that has a class -> fail
+* Delete Class that has students -> I think will succeed, protected by view.
+* Delete student that has eval -> fail
+* Delete class that has eval -> fail
+* Delete evaluation with class and student -> Succeed
+* Delete class without students -> Succeed
+* Delete student with house and homeroom teacher but no classes -> succeed
+* Delete subject without a class -> Succeed
+* Delete teacher object that doesn't have a user -> succeed
+* Delete house that doesn't have a teacher or a class or a student -> succeed
+
+========
+
+I added the ability to create several classes of the same name, if each class has a different teacher.
+And then if a teacher deletes a class and then recreates it, they will receive the same class object.

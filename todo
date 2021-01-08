@@ -2,9 +2,9 @@ Important before opening they start signing up:
 1. QA the whole deletion business. Work with moving up to next semester. See that kids removed don't have an evaluation
 in the same class but the next semester. QA a ton with deleting stuff. I think I need a test plan.
 2. Multiple chonchim/multiple teachers?
-3. Email validation before signing in: https://studygyaan.com/django/how-to-signup-user-and-send-confirmation-email-in-django
+3. Add sex to students as well, for text.
 
-Can happen slightly later
+Can happen slightly later but during this trimester:
 4. Setup cron jobs:
 (Check out django-cronjobs and django-crontab for this)
  * Send evaluation status emails
@@ -15,40 +15,67 @@ Can happen slightly later
 5. Write raw emails as well, don't forgot raw validation email. Need to add the template
 in settings: EMAIL_MAIL_PLAIN
 6. In validation stuff, both email and site, show all kids by house category.
+7. Change student sex display
+8. Improve security (https/TLS)
+
 
 - Nice to have:
 * Emails in RTL on gmail somehow + Make nice HTML emails (even just some bold could help)
 * Downloadable PDF
 * OTP login
-
-===========
-
-* Work on all forms of deletion:
- - Think about the fact that teachers can stop being chonchim next year and other changes that could happen between years.
- - Save evaluations that were actually deleted. Focuse on the automatic deletion of evaluations when student leaves a class/class is deleted. Not sure we ever want to delete an evaluation, we'll see. And if we do, make sure that we don't delete evaluations from previous semesters.
- - Need to change alert message when deleting student?
+* Ability to upload files with the evaluations
+* Don't need to go into the edit of an empty class to delete it. The trash icon will appear in the general list of
+classes.
 
 
-* See if possible to add sex to students as well, for text
+- Must for next semesters:
+* Add viewing of previous evaluations - both written by and previous for that student, when being read by
+the homeroom teaher (So homeroom teacher can see all evals from all years of his students this year.
+(Ask them if they wany that). Pay attention to evals written by a class that was then deleted. Looking up eval objects
+doesn't return them. You need to find some solution for this.
+* Comprehensive automation, maybe even selenium?
+* Implement a way to delete students and teachers: See below all rules about that.
+* Implement a safe way to restore deleted students and teachers.
+* When working on deletion, add more safeguards such as preventing batch deletion. Also maybe have a better
+relationship between models when soft deleting them.
+Read this post again: https://blog.usebutton.com/cascading-soft-deletion-in-django
+* Currently I manually check if all evals of a class are empty before deleting. Once I have tests and am comfortable
+making changes, change it to use Evaluation.is_submitted instead - by implementing a custom QuerySet:
+https://stackoverflow.com/questions/50401922/include-a-django-model-object-property-using-annotate
 
+- Must for next year:
+* Test that moving to next year works well - I didn't really do that.
+* Need to have a process at the start of the year that removes all homerooms (do we want to
+save a record of the homerooms between years?)
 * Bug - seems can't add evaluations of same trimester and different years
-
-
-Important for the future, not the first one:
+* Think about the fact that teachers can stop being chonchim next year and other changes that could happen between years
 * When in NULL-SEMESTER, don't allow to fill out any evals, and display in the square that there are no more meetings
 this year. Also make sure that nothing can get a null semester value.
-* Add viewing of previous evalutions - both written by and previous for that student read (and also for all the years?
-Ask them if that is OK)
+
+
+====================
+Rules to enforce when deleting teachers and students and classes (of course by delete I mean soft delete - add
+is_deleted):
+* TeacherUser can't be deleted if he is teaching active classes or has kids in homeroom. When you delete a teacheruser,
+you also soft delete its teacher object.
+* Class can't be deleted if it has students in it. Classes of a year that passed don't get deleted,
+it just has a previous year. The only reason that a class can get deleted is if a teacher changes his mind in the middle
+of that year. But the evaluations will still stay there. Currently this is enforced by frontend. Can't delete classes
+with students.
+* (Student can get deleted at any time. He won't show up anywhere. But his evaluations will stay.)
 
 
 
 ======================
-Additions later on:
+Posssible, not very imporrtant, additions for later on:
 * Filter forms by letters maybe?
 * Search for a kid's name, don't just select all from a form.
 use javascript to make all of this responsive.
 * Add subjects that teachers in general teach to their user (can be several or none), Use that for default for all their classes when they add in a new class.
 * Pagination everywhere
 * Use django authentication backend instead of creating a needless username from first+last name
-* Ability to upload files with the evaluations
-* Cute encoureging messages as they progress through it.
+* Cute encouraging messages as they progress through it.
+* Deal with teachers and students with same name, together in school and after one is deleted.
+Right now it's a big problem - see in the design doc, under teacher deletion
+* Consider encrypting the evaluations
+* I think pronoun is the wrong name here

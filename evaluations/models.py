@@ -1,16 +1,52 @@
 from django.core.exceptions import ValidationError
 from django.db.models import (
     CharField, ForeignKey, ManyToManyField, Model, TextField, PROTECT,
-    SET_NULL, IntegerField, BooleanField
+    IntegerField, BooleanField, Manager
 )
 
 from accounts.models import TeacherUser
-from utils.school_dates import get_current_trimester
+from profile_server.pronouns import PronounOptions
 from utils.date_helpers import TrimesterType
+from utils.school_dates import get_current_trimester
 
 
 class StudentNotInClassError(ValidationError):
     pass
+
+
+class SoftDeleteManager(Manager):
+    def __init__(self, *args, **kwargs):
+        self.with_deleted = kwargs.pop('with_deleted', False)
+        super().__init__(*args, **kwargs)
+
+    def get_queryset(self):
+        all_objects = super().get_queryset().all()
+
+        if self.with_deleted:
+            return all_objects
+
+        return all_objects.filter(is_deleted=False)
+
+
+class SoftDeleteModel(Model):
+    class Meta:
+        abstract = True
+
+    objects = SoftDeleteManager()
+    objects_with_deleted = SoftDeleteManager(with_deleted=True)
+
+    is_deleted = BooleanField(null=False, default=False)
+
+    def delete(self, using=None, keep_parents=False):
+        self.is_deleted = True
+        self.save()
+
+    def restore(self):
+        self.is_deleted = False
+        self.save()
+
+    def hard_delete(self):
+        super(SoftDeleteModel, self).delete()
 
 
 class House(Model):
@@ -20,7 +56,7 @@ class House(Model):
         return self.house_name
 
 
-class Teacher(Model):
+class Teacher(SoftDeleteModel):
     """
     This model is only used to verify that the TeacherUser is created based on an existing teacher in school.
     We'll populate all the school teachers with this model before allowing them to create users.
@@ -42,13 +78,14 @@ class Subject(Model):
         return self.subject_name
 
 
-class Student(Model):
+class Student(SoftDeleteModel):
     first_name = CharField(max_length=30)
     last_name = CharField(max_length=30)
     house = ForeignKey(House, on_delete=PROTECT)
+    pronoun_choice = CharField(max_length=30, choices=[(pronoun_option.name, pronoun_option.value)
+                                                       for pronoun_option in PronounOptions], null=True)
     # To be later added when the homeroom teachers add their kids
-    homeroom_teacher = ForeignKey(TeacherUser, on_delete=SET_NULL, blank=True, null=True)
-    is_deleted = BooleanField(default=False)
+    homeroom_teacher = ForeignKey(TeacherUser, on_delete=PROTECT, blank=True, null=True)
 
     @property
     def completed_evals(self):
@@ -60,7 +97,7 @@ class Student(Model):
         return completed_evals
 
     class Meta:
-        unique_together = ['first_name', 'last_name', 'house']
+        unique_together = ['first_name', 'last_name']
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
@@ -71,7 +108,7 @@ class Student(Model):
 
         completed_evals = []
         for evaluation in self.evaluations.filter(trimester=current_trimester.name,
-                                                     hebrew_year=current_trimester.hebrew_school_year):
+                                                  hebrew_year=current_trimester.hebrew_school_year):
             if evaluation.evaluation_text:
                 completed_evals.append(evaluation)
 
@@ -88,18 +125,17 @@ class Student(Model):
         return self.classes.count()
 
 
-class Class(Model):
+class Class(SoftDeleteModel):
     name = CharField(max_length=100)
     subject = ForeignKey(Subject, on_delete=PROTECT)
     house = ForeignKey(House, on_delete=PROTECT)
     teacher = ForeignKey(TeacherUser, on_delete=PROTECT)
     students = ManyToManyField(Student, blank=True, related_name='classes')
     hebrew_year = IntegerField()
-    is_deleted = BooleanField(default=False)
 
     class Meta:
         verbose_name_plural = "Classes"
-        unique_together = ('name', 'hebrew_year')
+        unique_together = ('name', 'hebrew_year', 'teacher')
 
     def __str__(self):
         return self.name
@@ -137,7 +173,7 @@ class Evaluation(Model):
 
     @property
     def is_student_in_class(self):
-        return self.student in self.evaluated_class.students.filter(is_deleted=False)
+        return self.student in self.evaluated_class.students.all()
 
     @property
     def is_submitted(self):

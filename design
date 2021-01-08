@@ -38,6 +38,7 @@ Don't create new evaluations for deleted classes, and don't display them anywher
 in class, return False if class is deleted.
 Make sure you can't create a new class with same fields in the same year.
 Make foreign keys block all deletion.
+Not make it that you're not allowed to cancel a class that has active evals for the current semester.
 
 Student - Never delete, so you can always access history of student that left the school. Just add a flag of is_deleted.
 Don't show deleted students anywhere, don't create new evaluations for them.
@@ -53,6 +54,16 @@ Deletion bottom line:
 I basically protected everything, as I'm not expected anything to actually be deleted.
 So if I want to delete something, I need to start with the evaluation. The evaluation protects the rest.
 If you delete the evaluation, then you will be able to delete the class and so forth.
+
+======
+Teacher deletion -
+There will be no teacher deletion. If a teacher leaves the school, you just set the TeacherUser to
+be is_active=False. That's it. They can't connect anymore, and everything else of theirs is saved.
+If you make a user not active, and then try to reregister, it will fail.
+This is because the register system assumes the user didn't validate their email (for which is_active
+is also used) and will try to delete the user object. But that object is connected to the Teacher object
+So it won't be deleted. Basically, big problem if a teacher leaves the school and then a new teacher with
+the same name joins the school. I'll assume for now that that's not possible.
 
 
 

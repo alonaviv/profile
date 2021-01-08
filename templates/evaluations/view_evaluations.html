@@ -23,13 +23,14 @@
               {% endif %}
             </div>
         {% endif %}
-    <a class="back_button" href="{% url 'view' %}">חזרה לכל הדיווחים</a>
+        <a class="back_button" href="{% url 'view' %}">חזרה לכל הדיווחים</a>
     </div>
     <section class="evaluations">
 
         {% for evaluation in completed_student_evals %}
             <article class="evaluation_output">
-              <h4 class="evaluation_title">{{evaluation.evaluated_class.name}} ({{evaluation.evaluated_class.teacher}}) </h4>
+              <h4 class="evaluation_title">{{evaluation.evaluated_class.name}}
+                  - {{evaluation.evaluated_class.teacher}} {% if not evaluation.is_student_in_class %} ({{evaluation.student.first_name}} עזב/ה את השיעור) {% endif %} </h4>
              <p class="evaluation_text"> {{evaluation.evaluation_text|linebreaks}}</p>
             </article>
         {% endfor %}

@@ -19,7 +19,7 @@ of the logged in teacher in the navbar. Get it from the function get_teacher_obj
 def manage_classes(request):
     teacher = request.user
     if teacher:
-        classes = teacher.class_set.filter(hebrew_year=get_current_trimester().hebrew_school_year, is_deleted=False)
+        classes = teacher.class_set.filter(hebrew_year=get_current_trimester().hebrew_school_year)
     else:
         classes = []
 
@@ -31,7 +31,13 @@ def manage_classes(request):
 @login_required
 def manage_students_in_class(request, class_id):
     teacher = request.user
-    klass = Class.objects.get(id=class_id)
+
+    try:
+        klass = Class.objects.get(id=class_id)
+
+    except Class.DoesNotExist:
+        return render(request, 'common/general_error_page.html',
+                      {'error_message': f"השיעור המבוקש אינו קיים במערכת"})
 
     if klass.teacher != teacher:
         return render(request, 'common/general_error_page.html',
@@ -49,7 +55,12 @@ def manage_students_in_class(request, class_id):
 @login_required
 def delete_student_from_class(request, class_id, student_id):
     teacher = request.user
-    klass = Class.objects.get(id=class_id)
+    try:
+        klass = Class.objects.get(id=class_id)
+    except Class.DoesNotExist:
+        return render(request, 'common/general_error_page.html',
+                      {'error_message': f"השיעור המבוקש אינו קיים במערכת"})
+
     if klass.teacher != teacher:
         return render(request, 'common/general_error_page.html',
                       {'error_message': f" לא ניתן לערוך את השיעור {klass} שאינכם מלמדים"})
@@ -57,9 +68,13 @@ def delete_student_from_class(request, class_id, student_id):
         return render(request, 'common/general_error_page.html',
                       {'error_message': f"לא ניתן לערוך שיעור של שנה {klass.hebrew_year}"})
 
-    student = Student.objects.get(id=student_id)
+    try:
+        student = Student.objects.get(id=student_id)
+    except Student.DoesNotExist:
+        return render(request, 'common/general_error_page.html',
+                      {'error_message': 'תלמיד/ה זה/זו לא נמצא/ת בבית הספר'})
 
-    if klass not in student.classes.filter(is_deleted=False):
+    if klass not in student.classes.all():
         return render(request, 'common/general_error_page.html',
                       {'error_message': f"לא קיים רישום של שיעור {student} בשיעור {klass} ולכן לא ניתן להסירו"})
 
@@ -72,7 +87,12 @@ def delete_student_from_class(request, class_id, student_id):
 @login_required
 def delete_class(request, class_id):
     teacher = request.user
-    klass = Class.objects.get(id=class_id)
+
+    try:
+        klass = Class.objects.get(id=class_id)
+    except Class.DoesNotExist:
+        return render(request, 'common/general_error_page.html',
+                      {'error_message': f"השיעור המבוקש אינו קיים במערכת"})
 
     if klass.teacher != teacher:
         return render(request, 'common/general_error_page.html',
@@ -85,14 +105,20 @@ def delete_class(request, class_id):
         return render(request, 'common/general_error_page.html',
                       {'error_message': f"בשיעור {klass} יש תלמידים - לא ניתן למחוק אותו"})
 
-    klass.is_deleted = True
-    klass.save()
+    if klass.evaluation_set.all().exclude(evaluation_text='').exists():
+        messages.error(request,
+                       "לא ניתן למחוק שיעור שקיימים בו דיווחים פעילים בסמסטר זה. אם ברצונך למחוק את השיעור, יש למחוק את הדיווחים הקיימים.")
+        return redirect(manage_students_in_class, class_id)
+
+    klass.delete()
+
     return redirect(manage_classes)
 
 
 @login_required
 def add_new_class(request):
     teacher = request.user
+    current_hebrew_year = get_current_trimester().hebrew_school_year
 
     if request.method == "POST":
         form = ClassForm(request.POST)
@@ -101,11 +127,19 @@ def add_new_class(request):
             subject = form.cleaned_data['subject']
             house = form.cleaned_data['house']
 
-            if not Class.objects.filter(name=name, teacher=teacher,
+            if not Class.objects.filter(name=name,
                                         hebrew_year=get_current_trimester().hebrew_school_year,
-                                        is_deleted=False).exists():
-                new_class = Class.objects.create(name=name, subject=subject, house=house, teacher=teacher,
-                                                 hebrew_year=get_current_trimester().hebrew_school_year)
+                                        teacher=teacher).exists():
+                new_class, _ = Class.objects_with_deleted.update_or_create(name=name, teacher=teacher,
+                                                                           hebrew_year=current_hebrew_year,
+                                                                           defaults={
+                                                                               'name': name,
+                                                                               'subject': subject,
+                                                                               'house': house,
+                                                                               'teacher': teacher,
+                                                                               'hebrew_year': current_hebrew_year,
+                                                                               'is_deleted': False
+                                                                           })
                 populate_evaluations_in_teachers_classes(teacher)
                 return redirect(add_students_to_class, new_class.id)
             else:
@@ -121,7 +155,12 @@ def add_new_class(request):
 @login_required
 def edit_class_data(request, class_id):
     teacher = request.user
-    klass = Class.objects.get(id=class_id)
+
+    try:
+        klass = Class.objects.get(id=class_id)
+    except Class.DoesNotExist:
+        return render(request, 'common/general_error_page.html',
+                      {'error_message': f"השיעור המבוקש אינו קיים במערכת"})
 
     if klass.teacher != teacher:
         return render(request, 'common/general_error_page.html',
@@ -148,7 +187,12 @@ def edit_class_data(request, class_id):
 @login_required
 def add_students_to_class(request, class_id, house_id=None):
     teacher = request.user
-    klass = Class.objects.get(id=class_id)
+
+    try:
+        klass = Class.objects.get(id=class_id)
+    except Class.DoesNotExist:
+        return render(request, 'common/general_error_page.html',
+                      {'error_message': f"השיעור המבוקש אינו קיים במערכת"})
 
     # The default behavior is to display students from the house that matches the class
     if house_id:
@@ -163,7 +207,7 @@ def add_students_to_class(request, class_id, house_id=None):
         return render(request, 'common/general_error_page.html',
                       {'error_message': f"לא ניתן לערוך שיעור של שנה {klass.hebrew_year}"})
 
-    students_to_choose_from = Student.objects.filter(house=house, is_deleted=False).exclude(classes=klass)
+    students_to_choose_from = Student.objects.filter(house=house).exclude(classes=klass)
 
     if request.method == "POST":
         form = AddStudentsForm(request.POST, students=students_to_choose_from)
@@ -217,7 +261,7 @@ def add_students_to_homeroom(request, house_id=None):
         house = teacher.house
 
     # Get all students from house that don't already have a homeroom teacher
-    students_to_choose_from = Student.objects.filter(homeroom_teacher=None, house=house, is_deleted=False)
+    students_to_choose_from = Student.objects.filter(homeroom_teacher=None, house=house)
 
     if request.method == "POST":
         form = AddStudentsForm(request.POST, students=students_to_choose_from)
