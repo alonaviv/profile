@@ -50,5 +50,6 @@ pronoun_options_dict = {
     'you_can': WordOptions('תוכל', 'תוכלי', 'תוכל.י'),
     'ignore': WordOptions('התעלם', 'התעלמי', 'התעלמ.י'),
     'will_want': WordOptions('תרצה', 'תרצי', 'תרצ.י'),
-    'interested': WordOptions('מעוניין', 'מעוניינת', 'מעוניינ.ת')
+    'interested': WordOptions('מעוניין', 'מעוניינת', 'מעוניינ.ת'),
+    'add': WordOptions('הוסף', 'הוסיפי', 'הוספ.י')
 }

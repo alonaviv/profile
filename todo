@@ -1,4 +1,5 @@
 Can happen slightly later but during this trimester:
+3. Add to the validation checks - are there teachers without any class, or teachers with empty classes.
 4. Setup cron jobs:
 (Check out django-cronjobs and django-crontab for this)
  * Send evaluation status emails
