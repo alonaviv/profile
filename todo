@@ -1,9 +1,3 @@
-Important before opening they start signing up:
-1. QA the whole deletion business. Work with moving up to next semester. See that kids removed don't have an evaluation
-in the same class but the next semester. QA a ton with deleting stuff. I think I need a test plan.
-2. Multiple chonchim/multiple teachers?
-3. Add sex to students as well, for text.
-
 Can happen slightly later but during this trimester:
 4. Setup cron jobs:
 (Check out django-cronjobs and django-crontab for this)
@@ -17,6 +11,7 @@ in settings: EMAIL_MAIL_PLAIN
 6. In validation stuff, both email and site, show all kids by house category.
 7. Change student sex display
 8. Improve security (https/TLS)
+9. Move digital ocean account to dedicated user with password - not my gmail
 
 
 - Nice to have:
