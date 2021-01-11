@@ -35,7 +35,7 @@ def populate_evaluations_in_teachers_classes(teacher):
                     evaluation = Evaluation(student=student, evaluated_class=evaluated_class,
                                             trimester=current_trimester.name,
                                             hebrew_year=current_trimester.hebrew_school_year)
-                    evaluation.clean()
+                    evaluation.full_clean()
                     evaluation.save()
 
 
@@ -56,8 +56,32 @@ def write_class_evaluations(request, class_id, anchor=None):
 
     if request.method == 'POST':
         evaluation = Evaluation.objects.get(id=request.POST['evaluation_id'])
-        evaluation.evaluation_text = request.POST['evaluation_text']
-        evaluation.save()
+        if 'evaluation_text' in request.POST:
+            evaluation.evaluation_text = request.POST['evaluation_text']
+        error_encountered = False
+
+        if 'save_draft' in request.POST:  # Saves new text, while remaining unsubmitted
+            if evaluation.is_submitted:
+                return render(request, 'common/general_error_page.html',
+                              {'error_message': 'לא ניתן לשמור טיוטא של דיווח שכבר נשלח'})
+
+        elif 'submit' in request.POST:
+            evaluation.is_submitted = True
+
+            if evaluation.is_empty:
+                messages.error(request, "לא ניתן להגיש דיווח ריק.", extra_tags=str(evaluation.id))
+                error_encountered = True
+
+        elif 'withdraw' in request.POST:
+            evaluation.is_submitted = False
+
+        else:
+            return render(request, 'common/general_error_page.html',
+                          {'error_message': 'תקלה בשליחת הדיווח'})
+
+        if not error_encountered:
+            evaluation.full_clean()
+            evaluation.save()
 
     evaluations = Evaluation.objects.filter(evaluated_class=class_to_evaluate,
                                             trimester=current_trimester.name).order_by('student')
@@ -78,8 +102,17 @@ def remove_evaluation(request, evaluation_id):
     evaluation = Evaluation.objects.get(id=evaluation_id)
 
     if evaluation.is_submitted:
+        messages.error(request, "לא ניתן לבטל דיווח שכבר נשלח לחונכ/ת", extra_tags=str(evaluation.id))
+
+        return redirect(
+            reverse('write_class_evaluations_with_anchor',
+                    args=(evaluation.evaluated_class.id, f"anchor_{evaluation_id}")))
+
+    if not evaluation.is_empty:
         messages.error(request,
-                       'לא ניתן לבטל דיווח פעיל. יש למחוק את הטקסט הקיים וללחוץ על ״שלח דיווח״.')
+                       "לא ניתן לבטל דיווח כאשר קיימת טיוטא. אם ברצונך לבטל את הדיווח בכל זאת, יש לשמור טיוטא ריקה.",
+                       extra_tags=str(evaluation.id))
+
         return redirect(
             reverse('write_class_evaluations_with_anchor',
                     args=(evaluation.evaluated_class.id, f"anchor_{evaluation_id}")))

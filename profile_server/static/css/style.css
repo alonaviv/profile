@@ -287,6 +287,11 @@ p {
   padding: 15px;
 }
 
+.fa-save {
+  color: #0d6eaf;
+  padding: 15px;
+}
+
 .fa-exclamation-circle {
   color: #a10000;
   padding: 15px;
