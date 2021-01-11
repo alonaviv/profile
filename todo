@@ -1,3 +1,7 @@
+After conversation with Dalit:
+* Remove the validation of kids with x classes.
+* Only urgent emails should be sent, maybe once a day.
+
 Can happen slightly later but during this trimester:
 3. Add to the validation checks - are there teachers without any class, or teachers with empty classes.
 4. Setup cron jobs:
@@ -8,11 +12,12 @@ Can happen slightly later but during this trimester:
  * Run ./manage dbbackup, and delete old ones (each time you create one, delete an old one - if you passed either number
   or space)
 5. Write raw emails as well, don't forgot raw validation email. Need to add the template
-in settings: EMAIL_MAIL_PLAIN
-6. In validation stuff, both email and site, show all kids by house category.
-7. Change student sex display
+in settings: EMAIL_MAIL_PLAIN. See how to get raw emails to have the link.
+7. Change student gender display
 8. Improve security (https/TLS)
 9. Move digital ocean account to dedicated user with password - not my gmail
+10. Small bug - error is in english and not nice when trying to add students to class/homeroom without selecting them.
+11. Add logging, especially when sending emails.
 
 
 - Nice to have:
@@ -22,6 +27,8 @@ in settings: EMAIL_MAIL_PLAIN
 * Ability to upload files with the evaluations
 * Don't need to go into the edit of an empty class to delete it. The trash icon will appear in the general list of
 classes.
+* When adding students form, have the form line them up so it's easy to see what box belongs to who
+* Make list of classes with bullets and not look like a link. Also, link to read evaluations there.
 
 
 - Must for next semesters:
@@ -36,7 +43,7 @@ doesn't return them. You need to find some solution for this.
 relationship between models when soft deleting them.
 Read this post again: https://blog.usebutton.com/cascading-soft-deletion-in-django
 * Currently I manually check if all evals of a class are empty before deleting. Once I have tests and am comfortable
-making changes, change it to use Evaluation.is_submitted instead - by implementing a custom QuerySet:
+making changes, change it to use Evaluation.is_empty instead - by implementing a custom QuerySet:
 https://stackoverflow.com/questions/50401922/include-a-django-model-object-property-using-annotate
 
 - Must for next year:

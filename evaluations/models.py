@@ -39,10 +39,12 @@ class SoftDeleteModel(Model):
 
     def delete(self, using=None, keep_parents=False):
         self.is_deleted = True
+        self.full_clean()
         self.save()
 
     def restore(self):
         self.is_deleted = False
+        self.full_clean()
         self.save()
 
     def hard_delete(self):
@@ -90,7 +92,7 @@ class Student(SoftDeleteModel):
     @property
     def completed_evals(self):
         completed_evals = 0
-        for evaluation in self.evaluations.all():
+        for evaluation in self.evaluations.filter(is_submitted=True):
             if evaluation.evaluation_text:
                 completed_evals += 1
 
@@ -108,7 +110,8 @@ class Student(SoftDeleteModel):
 
         completed_evals = []
         for evaluation in self.evaluations.filter(trimester=current_trimester.name,
-                                                  hebrew_year=current_trimester.hebrew_school_year):
+                                                  hebrew_year=current_trimester.hebrew_school_year,
+                                                  is_submitted=True):
             if evaluation.evaluation_text:
                 completed_evals.append(evaluation)
 
@@ -146,7 +149,8 @@ class Class(SoftDeleteModel):
 
         completed_evals = []
         for evaluation in self.evaluation_set.filter(trimester=current_trimester.name,
-                                                     hebrew_year=current_trimester.hebrew_school_year):
+                                                     hebrew_year=current_trimester.hebrew_school_year,
+                                                     is_submitted=True):
             if evaluation.evaluation_text:
                 completed_evals.append(evaluation)
 
@@ -167,14 +171,19 @@ class Evaluation(Model):
     evaluation_text = TextField(default='', blank=True)
     hebrew_year = IntegerField()
     trimester = CharField(choices=TrimesterType.get_choices(), max_length=20)
+    is_submitted = BooleanField(default=False)  # An evaluation that isn't submitted is considered a draft
 
     class Meta:
         unique_together = ['student', 'evaluated_class', 'trimester']
+
+    def clean(self):
+        if self.is_submitted and self.is_empty:
+            raise ValidationError("Empty evaluation can not be submitted")
 
     @property
     def is_student_in_class(self):
         return self.student in self.evaluated_class.students.all()
 
     @property
-    def is_submitted(self):
-        return self.evaluation_text and not self.evaluation_text.isspace()
+    def is_empty(self):
+        return not self.evaluation_text or self.evaluation_text.isspace()

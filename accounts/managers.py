@@ -10,6 +10,7 @@ class TeacherUserManager(BaseUserManager):
         username = self.model.normalize_username(username)
         user = self.model(username=username, email=email, **extra_fields)
         user.set_password(password)
+        user.full_clean()
         user.save()
         return user
 

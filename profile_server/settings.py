@@ -25,6 +25,7 @@ SECRET_KEY = '^i34c0ernf6maes&z7d=5uk))vq8i^ot!p!qzk@c5-9rx+i%*@'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = ['192.168.0.111', 'localhost', '127.0.0.1']
 DOMAIN = 'http://localhost:8000'
@@ -46,7 +47,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'crispy_forms',
     'dbbackup',
-    'django_email_verification'
+    'django_email_verification',
+    'template_debug'
 ]
 
 DBBACKUP_STORAGE = 'django.core.files.storage.FileSystemStorage'

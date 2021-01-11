@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 
+{% load debug_tags %}
+
 {% block content %}
 
 {% if anchor %}
@@ -32,8 +34,7 @@ window.location = (""+window.location).replace(/#[A-Za-z0-9_]*$/,'')+"#{{anchor}
 {% for evaluation in evaluations %}
 
 <div class="centered_container form_styling">
-<form action = "{% url 'write_class_evaluations' class.id %}" method="post" 
-{% if evaluation.is_submitted %} onsubmit="window.confirm_change()" {% endif %}>
+<form action = "{% url 'write_class_evaluations' class.id %}" method="post">
     {% csrf_token %}
 <a id=anchor_{{evaluation.id}} class="bold">
     דיווח על {{ evaluation.student }} ({% if evaluation.student.homeroom_teacher %}{{evaluation.student.homeroom_teacher.printable_description}}{% else %} עדיין לא צורפ\ה לחונכ/ת {% endif %})
@@ -42,26 +43,38 @@ window.location = (""+window.location).replace(/#[A-Za-z0-9_]*$/,'')+"#{{anchor}
     {% if not evaluation.is_student_in_class %}
     <br>
     <div class="flex_container no_p_margin column"><p class="error_message">השתתפ/ה בשיעור זה במהלך הסמסטר, אך עזב/ה.</p>
-    <a href="{% url 'remove_evaluation' evaluation.id %}" class="clickable basic_link" onclick="return confirm('האם {{pronoun_dict.you}} {{pronoun_dict.sure}} ש{{pronoun_dict.you}} לא רוצה לדווח על {{evaluation.student.first_name}} בסמסטר זה, אף שהשתתפ/ה בשיעור?')">איני {{pronoun_dict.interested}}
+    <a href="{% url 'remove_evaluation' evaluation.id %}" class="clickable basic_link" {% if not evaluation.is_submitted and evaluation.is_empty %} onclick="return confirm('האם {{pronoun_dict.you}} {{pronoun_dict.sure}} ש{{pronoun_dict.you}} לא רוצה לדווח על {{evaluation.student.first_name}} בסמסטר זה, אף שהשתתפ/ה בשיעור?') {% endif %}">איני {{pronoun_dict.interested}}
         לדווח על
         {{evaluation.student.first_name}}
         בסמסטר זה</a>
-        {% if messages and evaluation.is_submitted %}
-        {% for message in messages %}
-        <div class="error_message">
-            {{ message }}
-        </div>
-        {% endfor %}
-        {% endif %}
     </div>
     {% endif %}
+    {% if messages %}
+        {% for message in messages %}
+        {% if evaluation.id|stringformat:"i" == message.extra_tags %}
+        <div class="error_message bold">
+            <br>
+            {{ message }}
+        </div>
+        {% endif %}
+        {% endfor %}
+    {% endif %}
     <input type="hidden" name="evaluation_id" value="{{evaluation.id}}">
-    <textarea name="evaluation_text" cols="60" rows="20">{{evaluation.evaluation_text}}</textarea>
+    <textarea {% if evaluation.is_submitted %} disabled {% endif %}name="evaluation_text" cols="60" rows="20" >{{evaluation.evaluation_text}}</textarea>
     <br>
     <div class="flex_container">
-    <input type="submit" value="{{pronoun_dict.send}} דיווח">
+    {% if not evaluation.is_submitted %}
+    <input type="submit" name="save_draft" value="שמירה כטיוטא" {% if not evaluation.is_empty %} onclick="window.confirm_draft()" {% endif %}>
+    <!-- TODO: Change to gender of student's teacher  -->
+    <input type="submit" name="submit" value="שליחה לחונכ/ת">
+    {% else %}
+    <input type="submit" name="withdraw" value="ביטול שליחת הדיווח לחונכ/ת">
+    {% endif %}
+
     {% if evaluation.is_submitted %}
-    <i class="fas fa-check-circle fa-2x"></i>
+    <i class="fas fa-check-circle"> נשלח לחונכ/ת</i>
+    {% elif not evaluation.is_empty %}
+    <i class="fas fa-save"> נשמר כטיוטא</i>
     {% endif %}
     </div>
 
@@ -70,11 +83,11 @@ window.location = (""+window.location).replace(/#[A-Za-z0-9_]*$/,'')+"#{{anchor}
 </div> 
 {% endfor %}
 
+<!-- TODO: Change to gender of student's teacher  -->
 <script type="text/javascript">
-window.confirm_change = function() { 
-    var isValid = confirm('האם {{pronoun_dict.you}} {{pronoun_dict.sure}} ש{{pronoun_dict.you}} רוצה לשנות את הדיווח?');if (!isValid) { event.preventDefault();  alert("הדיווח הקודם נותר כשהיה. על מנת לשנות את הדיווח לטקסט החדש, {{pronoun_dict.click}} על ״{{pronoun_dict.send}} דיווח״ שוב. ");}}
-    </script>
-
+window.confirm_draft = function() { 
+    var isValid = confirm('האם {{pronoun_dict.you}} {{pronoun_dict.sure}} ש{{pronoun_dict.you}} רוצה לשנות את הטיוטא השמורה?');if (!isValid) { event.preventDefault();  alert("הטיוטא נותרה כשהייתה. על מנת לשנות את הטיוטא לטקסט החדש, {{pronoun_dict.click}} על ״שמירה כטיוטא״ שוב");}}
+</script>
 
 {% endif %}
 

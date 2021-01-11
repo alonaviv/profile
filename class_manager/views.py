@@ -173,6 +173,7 @@ def edit_class_data(request, class_id):
         form = ClassForm(request.POST, instance=klass)
 
         if form.is_valid():
+            form.full_clean()
             form.save()
             populate_evaluations_in_teachers_classes(teacher)
             return redirect(manage_students_in_class, klass.id)
