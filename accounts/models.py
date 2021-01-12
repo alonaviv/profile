@@ -15,6 +15,7 @@ class TeacherUser(AbstractUser):
     teacher_object = OneToOneField('evaluations.Teacher', on_delete=PROTECT, null=True)
     pronoun_choice = CharField(max_length=30, choices=[(pronoun_option.name, pronoun_option.value)
                                                        for pronoun_option in PronounOptions], null=True)
+    reminders_subscription = BooleanField(default=True)
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"

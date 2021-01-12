@@ -113,12 +113,34 @@
     {% endif %}
 </div>
 
+
 {% endif %}
 {% endif %}
 
 </div>
 
 {% endif %}
+
+<div class="dashboard_section" id="meeting_countdown">
+<h3>{{pronoun_dict.you}} 
+    {% if teacher.reminders_subscription %}<strong class='positive_strong'>
+    {{pronoun_dict.subscribed}}
+    </strong>
+    {% else %}
+    <strong class='negative_strong'>
+    לא {{pronoun_dict.subscribed}}
+    </strong>
+    {% endif %}
+    להודעות התזכורת במייל של המערכת
+ </h3>
+    {% if teacher.reminders_subscription %}
+        <a class="link_button negative_button" href="{% url 'cancel_subscription' %}">לביטול ההרשמה</a>
+    {% else %}
+        <a class="link_button positive_button" href="{% url 'restore_subscription' %}">להרשמה להודעות במייל</a>
+    {% endif %}
+    </div>
+</div>
+
 </div>
 {% endblock %}
 

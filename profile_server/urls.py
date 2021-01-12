@@ -24,6 +24,7 @@ urlpatterns = [
     path('evaluations/', include('evaluations.urls')),
     path('accounts/', include('accounts.urls')),
     path('admin/', admin.site.urls),
+    path('email/', include('emails.urls')),
     path('class_manager/', include('class_manager.urls')),
     path('validations/', include('validations.urls')),
     path('registration_verification/', include(email_verification_urls)),

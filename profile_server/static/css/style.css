@@ -594,3 +594,19 @@ h2.announcment_happy{
 .dashboard .dashboard_section ul{
     list-style-type: none;
 }
+
+strong.positive_strong{
+    color: green;
+}
+
+strong.negative_strong{
+    color: red;
+}
+
+.negative_button {
+    background-color: #ff0000ce;
+}
+
+.positive_button {
+    background-color: #3cc53c;
+}

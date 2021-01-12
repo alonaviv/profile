@@ -5,7 +5,6 @@ Cron (Check out django-cronjobs and django-crontab for this):
   or space). Every day.
 
 
-
 Can happen slightly later but during this trimester:
 * Add to the regular validation checks - are there teachers without any class, or teachers with empty classes.
 * Write raw emails as well, don't forgot raw validation email. Need to add the template
@@ -37,6 +36,7 @@ doesn't return them. You need to find some solution for this.
 * Comprehensive automation, maybe even selenium?
 * Implement a way to delete students and teachers: See below all rules about that.
 * Implement a safe way to restore deleted students and teachers.
+* After a semester changes, automatically set all teachers to reminders_subscription=True.
 * When working on deletion, add more safeguards such as preventing batch deletion. Also maybe have a better
 relationship between models when soft deleting them.
 Read this post again: https://blog.usebutton.com/cascading-soft-deletion-in-django
