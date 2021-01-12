@@ -52,5 +52,5 @@ pronoun_options_dict = {
     'will_want': WordOptions('תרצה', 'תרצי', 'תרצ.י'),
     'interested': WordOptions('מעוניין', 'מעוניינת', 'מעוניינ.ת'),
     'add': WordOptions('הוסף', 'הוסיפי', 'הוספ.י'),
-    'subscribed': WordOptions('רשום', 'רשומ/ה', 'רשומ.ה')
+    'subscribed': WordOptions('רשום', 'רשומה', 'רשומ.ה')
 }
