@@ -27,7 +27,8 @@ def resend_confirmation_email(request, user_id):
 
 
 def get_username(first_name, last_name):
-    return f"{first_name}_{last_name}"
+    username_with_spaces = first_name + ' ' + last_name
+    return username_with_spaces.replace(' ', '_')
 
 
 def register(request):
