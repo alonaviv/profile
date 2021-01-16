@@ -18,7 +18,9 @@ from django.urls import path, include
 from django.views.generic import RedirectView, TemplateView
 from django_email_verification import urls as email_verification_urls
 
+from dashboard.views import ssl
 urlpatterns = [
+    path('.well-known/pki-validation/7433A6D5F501B1147F258DCD5990FE61.txt', ssl),
     path('', RedirectView.as_view(url='/dashboard'), name='index'),
     path('dashboard', include('dashboard.urls')),
     path('evaluations/', include('evaluations.urls')),

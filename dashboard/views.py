@@ -5,6 +5,13 @@ from evaluations.views import populate_evaluations_in_teachers_classes
 from utils.school_dates import get_current_trimester
 
 
+def ssl(request):
+    from django.http import HttpResponse
+    text = "DCBAB19E72D56A4368CE6355380BCE6FA3508DF993D3DBB452D1CA643C7093C4 comodoca.com 6002a68a39573"
+
+    return HttpResponse(text, content_type='text/plain')
+
+
 def main_dashboard_page(request):
     teacher = request.user
     populate_evaluations_in_teachers_classes(teacher)
