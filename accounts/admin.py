@@ -1,6 +1,7 @@
 from django.contrib import admin
-from .models import TeacherUser
 from django.contrib.auth.admin import UserAdmin
+
+from .models import TeacherUser
 
 
 class CustomUserAdmin(UserAdmin):
@@ -15,7 +16,8 @@ class CustomUserAdmin(UserAdmin):
             'fields': ('is_homeroom_teacher', 'house', 'teacher_object', 'reminders_subscription'),
         }),
     )
-    list_display = ('username', 'first_name', 'last_name', 'is_homeroom_teacher', 'house', 'teacher_object', 'email')
+    list_display = (
+    'username', 'first_name', 'last_name', 'is_homeroom_teacher', 'house', 'teacher_object', 'email', 'last_login')
 
 
 admin.site.register(TeacherUser, CustomUserAdmin)
