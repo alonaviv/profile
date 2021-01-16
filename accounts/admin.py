@@ -15,7 +15,7 @@ class CustomUserAdmin(UserAdmin):
             'fields': ('is_homeroom_teacher', 'house', 'teacher_object', 'reminders_subscription'),
         }),
     )
-    list_display = ('username', 'first_name', 'last_name', 'is_homeroom_teacher', 'house', 'teacher_object')
+    list_display = ('username', 'first_name', 'last_name', 'is_homeroom_teacher', 'house', 'teacher_object', 'email')
 
 
 admin.site.register(TeacherUser, CustomUserAdmin)

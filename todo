@@ -79,4 +79,12 @@ use javascript to make all of this responsive.
 * Deal with teachers and students with same name, together in school and after one is deleted.
 Right now it's a big problem - see in the design doc, under teacher deletion
 * Consider encrypting the evaluations
-* I think pronoun is the wrong name here
+* I think pronoun is the wrong name herea
+
+
+==========
+Requests from the teachers:
+* Several teachers teaching a class. Have them be able to share evals before sending. They usually split them up.
+Have it built in that a class can have several teachers.
+* Several teachers in a homeroom, see how to deal with that.
+* Several subjects for a class.
