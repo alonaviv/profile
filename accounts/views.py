@@ -97,7 +97,7 @@ def register(request):
                 sendConfirm(user)
                 return render(request, 'accounts/sent_verification_email.html', context={'new_user': user})
 
-            except IntegrityError as e:
+            except (IntegrityError, ValidationError):
                 messages.error(request, f"המשתמש/ת {teacher_object} כבר קיימ/ת במערכת")
 
     else:
