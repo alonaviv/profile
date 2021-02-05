@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% with all_student_evals=student.all_evals_in_current_trimester completed_student_evals=student.completed_evals_in_current_trimester %}
+    <h1>הדיווחים של {{student}}</h1>
+    <div id="view_evaluations">
+    <div id="summary">
+        {% if all_student_evals|length == 0 %}
+            <div id="status">
+                המורים המקצועיים טרם הוסיפו את {{student.first_name}} לשיעורים שלהם
+                <i class="fas fa-exclamation-circle fa-2x"></i>
+            </div>
+        {% else %}
+            <div id="status" {% if all_student_evals|length == completed_student_evals|length %}
+                 class="completed"
+                 {% endif %}>
+
+              הגיעו {{completed_student_evals|length}} דיווחים מתוך {{all_student_evals|length}} שיעורים
+              {% if all_student_evals|length != completed_student_evals|length %}
+              <a href="{% url 'evaluation_details' student.id %}">לפרטים</a>
+              {% else %}
+              <i class="fas fa-check-circle fa-2x"></i>
+              {% endif %}
+            </div>
+        {% endif %}
+        <a class="back_button" href="{% url 'view' %}">חזרה לכל הדיווחים</a>
+    </div>
+    <section class="evaluations">
+
+        {% for evaluation in completed_student_evals %}
+            <article class="evaluation_output">
+              <h4 class="evaluation_title">{{evaluation.evaluated_class.name}}
+                  - {{evaluation.evaluated_class.teacher}} {% if not evaluation.is_student_in_class %} ({{evaluation.student.first_name}} עזב/ה את השיעור) {% endif %} </h4>
+             <p class="evaluation_text"> {{evaluation.evaluation_text|linebreaks}}</p>
+            </article>
+        {% endfor %}
+    </section>
+    </div>
+{% endwith %}
+
+
+{% endblock %}
