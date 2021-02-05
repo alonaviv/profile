@@ -55,6 +55,12 @@ class SchoolDay:
         return self.as_datetime(1492) <= other.as_datetime(1492)
 
 
+def get_printable_date(date: datetime = None):
+    if date is None:
+        date = datetime.now()
+    return '{d.day}/{d.month}/{d.year}'.format(d=date)
+
+
 class Trimester:
     def __init__(self, trimester_type: TrimesterType,
                  meeting_end_of_trimester: datetime = None,
@@ -66,17 +72,13 @@ class Trimester:
         self.grace_period = grace_period
         self.evaluation_deadline_days = evaluation_deadline_days
 
-    @staticmethod
-    def _get_printable_date(date: datetime):
-        return '{d.day}/{d.month}/{d.year}'.format(d=date)
-
     @property
     def name(self):
         return self.trimester_type.name
 
     @property
     def meeting_end_of_trimester_printable(self):
-        return self._get_printable_date(self.meeting_end_of_trimester)
+        return get_printable_date(self.meeting_end_of_trimester)
 
     @property
     def hebrew_school_year_printable(self):
@@ -117,7 +119,7 @@ class Trimester:
         """
         The deadline is self.evaluation_deadline_days days before the next meeting.
         """
-        return self._get_printable_date(self.evaluation_writing_deadline)
+        return get_printable_date(self.evaluation_writing_deadline)
 
     @property
     def days_left_for_writing(self):

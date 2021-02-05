@@ -62,6 +62,10 @@ p {
     display: flex;
 }
 
+.flex_container.reverse_row { 
+    flex-direction: row-reverse;
+}
+
 .flex_container.no_p_margin p { 
     margin: 0;
 }
@@ -609,4 +613,29 @@ strong.negative_strong{
 
 .positive_button {
     background-color: #3cc53c;
+}
+
+#download_pdf {
+    display: flex;
+    flex-direction: row-reverse;
+    font-weight: bold;
+    font-size: 25px;
+    height: auto;
+    margin-left: 40px;
+}
+
+#download_pdf a{
+    text-align: center;
+    vertical-align: middle;
+}
+
+
+.fa-file-download {
+    color:#5f0fa0;
+    margin-right: 10px;
+}
+
+.fa-file-download:hover {
+    color: #6984a5;
+    margin-right: 10px;
 }

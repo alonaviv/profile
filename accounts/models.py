@@ -77,3 +77,7 @@ class TeacherUser(AbstractUser):
     @property
     def printable_description(self):
         return PronounWordDictionary(self.pronoun_as_enum)['mentor'] + " - " + str(self)
+
+    @property
+    def pronoun_dict(self):
+        return PronounWordDictionary(self.pronoun_as_enum)

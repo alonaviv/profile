@@ -1,7 +1,13 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
 from django.shortcuts import render, reverse, redirect
+from django.template.loader import render_to_string
+from weasyprint import HTML, CSS
+from unidecode import unidecode
 
+from profile_server.pronouns import PronounWordDictionary
+from utils.date_helpers import get_printable_date
 from utils.school_dates import get_current_trimester
 from .models import Evaluation, Class, Student
 
@@ -148,8 +154,7 @@ def write_evaluations_main_page(request):
     return render(request, 'evaluations/write_evaluations_index.html', context)
 
 
-@login_required
-def view_student_evaluations(request, student_id):
+def _get_student_evaluation_context(request, student_id):
     teacher = request.user
 
     if not teacher.is_homeroom_teacher:
@@ -164,8 +169,41 @@ def view_student_evaluations(request, student_id):
     if student.homeroom_teacher != teacher:
         return redirect(reverse('mismatched_homeroom_teacher_error'))
 
-    context = {'student': student, 'teacher': teacher}
+    pronoun_dict = PronounWordDictionary(teacher.pronoun_as_enum)
+
+    return {'student': student, 'teacher': teacher, 'pronoun_dict': pronoun_dict,
+            'trimester': get_current_trimester(), 'printable_date': get_printable_date()}
+
+
+@login_required
+def view_student_evaluations(request, student_id):
+    context = _get_student_evaluation_context(request, student_id)
+
+    if isinstance(context, HttpResponse):
+        return context
+
     return render(request, 'evaluations/view_evaluations.html', context)
+
+
+@login_required
+def download_student_evaluations(request, student_id):
+    context = _get_student_evaluation_context(request, student_id)
+
+    if isinstance(context, HttpResponse):
+        return context
+
+    response = HttpResponse(content_type="application/pdf")
+
+    trimester_name = context['trimester'].name.lower().replace("_"," ")
+    trimester_year = context['trimester'].meeting_end_of_trimester.year
+    filename = f"School reports for {unidecode(str(context['student']))} - {trimester_name} {trimester_year} "
+    response['Content-Disposition'] = f"attachment; filename={filename}"
+    html_string = render_to_string("evaluations/evaluations_as_pdf.html", context)
+    with open('profile_server/static/css/style_for_pdf.css') as f:
+        css_string = f.read()
+
+    HTML(string=html_string).write_pdf(response, stylesheets=[CSS(string=css_string)])
+    return response
 
 
 @login_required

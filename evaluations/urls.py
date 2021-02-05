@@ -9,6 +9,8 @@ urlpatterns = [
          name='write_class_evaluations_with_anchor'),
     path('view_evaluations', views.view_evaluations_main_page, name='view'),
     path('view_evaluations/<int:student_id>', views.view_student_evaluations, name='view_student_evaluations'),
+    path('view_evaluations/<int:student_id>/download', views.download_student_evaluations,
+         name='download_student_evaluations'),
     path('evaluation_details/<int:student_id>', views.evaluations_details, name='evaluation_details'),
     path('remove_evaluation/<int:evaluation_id>', views.remove_evaluation, name='remove_evaluation')
 ]

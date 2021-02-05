@@ -4,6 +4,9 @@ Cron (Check out django-cronjobs and django-crontab for this):
  * Run ./manage dbbackup, and delete old ones (each time you create one, delete an old one - if you passed either number
   or space). Every day.
 
+* Bug - Shouldn't allow deleting a class that still has evaluations. It'll appear in the list of evals that need to
+be written (for the other teachers).  Decide where the block should happen. Probably in the view.
+
 
 Can happen slightly later but during this trimester:
 * Add to the regular validation checks - are there teachers without any class, or teachers with empty classes.
@@ -50,6 +53,7 @@ https://stackoverflow.com/questions/50401922/include-a-django-model-object-prope
 save a record of the homerooms between years?)
 * Bug - seems can't add evaluations of same trimester and different years
 * Think about the fact that teachers can stop being chonchim next year and other changes that could happen between years
+ (change the house that they are in as well).
 * When in NULL-SEMESTER, don't allow to fill out any evals, and display in the square that there are no more meetings
 this year. Also make sure that nothing can get a null semester value.
 

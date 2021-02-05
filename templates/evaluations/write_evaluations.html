@@ -64,13 +64,13 @@ window.location = (""+window.location).replace(/#[A-Za-z0-9_]*$/,'')+"#{{anchor}
     {% if not evaluation.is_submitted %}
     <input type="submit" name="save_draft" value="שמירה כטיוטא" {% if not evaluation.is_empty %} onclick="window.confirm_draft()" {% endif %}>
     <!-- TODO: Change to gender of student's teacher  -->
-    <input type="submit" name="submit" value="שליחה לחונכ/ת">
+    <input type="submit" name="submit" value="שליחה ל{{evaluation.student.homeroom_teacher.pronoun_dict.mentor}}">
     {% else %}
-    <input type="submit" name="withdraw" value="ביטול שליחת הדיווח לחונכ/ת">
+    <input type="submit" name="withdraw" value="ביטול שליחת הדיווח ל{{evaluation.student.homeroom_teacher.pronoun_dict.mentor}}">
     {% endif %}
 
     {% if evaluation.is_submitted %}
-    <i class="fas fa-check-circle"> נשלח לחונכ/ת</i>
+    <i class="fas fa-check-circle"> נשלח ל{{evaluation.student.homeroom_teacher.pronoun_dict.mentor}}</i>
     {% elif not evaluation.is_empty %}
     <i class="fas fa-save"> נשמר כטיוטא</i>
     {% endif %}

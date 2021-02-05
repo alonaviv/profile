@@ -1,0 +1,104 @@
+/* Reset */
+
+@page {
+        size: A4;
+        margin: 20mm 0mm 20mm 0mm;
+        background-color: #f6f7ec;
+        @top-center {
+            content: counter(page);
+          }
+        @bottom-center {
+            content: "הופק על ידי מערכת הדיווחים של בית הספר הדמוקרטי בכפר סבא"
+        }
+      }
+
+@page: first {
+    margin: 0mm 0mm 20mm 0mm;
+        @top-center {
+            content: "";
+          }
+}
+
+
+* {
+  margin: 0;
+  padding: 0;
+  line-height: 1.7em;
+}
+
+main h1 {
+    text-align: center;
+    margin-bottom: 0;
+    margin-top: 20px;
+
+}
+
+h2#homeroom_teacher_text {
+    text-align: center;
+    margin-top: 0;
+    font-style: italic;
+}
+
+h4 {
+    padding-top: 15px
+}
+
+p {
+    margin: 20px;
+  }
+
+
+.evaluation_output {
+    margin: 40px
+}
+
+a {
+    text-decoration: none;
+    color: inherit
+  }
+
+
+/* Navbar */
+#navbar {
+    background:#116bee;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    height: 80px;
+    width: 100%;
+    top: 0;
+    padding: 0 20px;
+  }
+  
+
+.logo_section {
+    width: 150px;
+    padding-top: 30px;
+}
+
+  #navbar .nav_sections {
+    color: #ffc400;
+    font-size: 18px;
+    font-family: 'Pfennig', serif;
+  }
+  
+  
+  
+  #navbar .logo {
+    display: flex;
+    align-items: center;
+    color: #fff;
+    padding-bottom: 15px;
+    font-family: 'Pfennig', serif;
+    font-size: 30px;
+    font-weight: 100px;
+    line-height: 1em;
+  }
+
+
+  #navbar .date_section {
+    margin-right: 250px;
+    font-weight: bold;
+    text-align: center;
+    color: wheat;
+  }
