@@ -22,6 +22,8 @@ classes.
 * Make list of classes with bullets and not look like a link. Also, link to read evaluations there.
 * Improve security (https/TLS)
 * Move digital ocean account to dedicated user with password - not my gmail
+* Bug: CSS issue when looking at dashboard before you added students to homeroom. The box for managing the email alerts
+overlaps with the homeroom teacher hat. 
 
 
 - Nice to have:
