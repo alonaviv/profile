@@ -62,12 +62,12 @@ a {
 #navbar {
     background:#116bee;
     display: flex;
-    justify-content: flex-start;
+    justify-content: space-around;
     align-items: center;
     height: 80px;
     width: 100%;
     top: 0;
-    padding: 0 20px;
+    /* padding: 0 20px; */
   }
   
 
@@ -81,7 +81,6 @@ a {
     font-size: 18px;
     font-family: 'Pfennig', serif;
   }
-  
   
   
   #navbar .logo {
