@@ -197,7 +197,7 @@ def download_student_evaluations(request, student_id):
     trimester_name = context['trimester'].name.lower().replace("_"," ")
     trimester_year = context['trimester'].meeting_end_of_trimester.year
     filename = f"School reports for {unidecode(str(context['student']))} - {trimester_name} {trimester_year} "
-    response['Content-Disposition'] = f"attachment; filename={filename}"
+    response['Content-Disposition'] = f"attachment; filename={filename}.pdf"
     html_string = render_to_string("evaluations/evaluations_as_pdf.html", context)
     with open('profile_server/static/css/style_for_pdf.css') as f:
         css_string = f.read()
