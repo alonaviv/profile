@@ -639,3 +639,8 @@ strong.negative_strong{
     color: #6984a5;
     margin-right: 10px;
 }
+
+.ltr {
+    direction: ltr;
+    unicode-bidi: bidi-override;
+}

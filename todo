@@ -23,7 +23,9 @@ classes.
 * Improve security (https/TLS)
 * Move digital ocean account to dedicated user with password - not my gmail
 * Bug: CSS issue when looking at dashboard before you added students to homeroom. The box for managing the email alerts
-overlaps with the homeroom teacher hat. 
+overlaps with the homeroom teacher hat.
+* Bug: The anchor thing in writing evaluations doesn't work in firefox, only in chrome
+
 
 
 - Nice to have:
