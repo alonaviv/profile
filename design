@@ -66,6 +66,20 @@ So it won't be deleted. Basically, big problem if a teacher leaves the school an
 the same name joins the school. I'll assume for now that that's not possible.
 
 
+=========
+Deletion stuff that was written in the To-Do list:
+
+Rules to enforce when deleting teachers and students and classes (of course by delete I mean soft delete - add
+is_deleted):
+* TeacherUser can't be deleted if he is teaching active classes or has kids in homeroom. When you delete a teacheruser,
+you also soft delete its teacher object.
+* Class can't be deleted if it has students in it. Classes of a year that passed don't get deleted,
+it just has a previous year. The only reason that a class can get deleted is if a teacher changes his mind in the middle
+of that year. But the evaluations will still stay there. Currently this is enforced by frontend. Can't delete classes
+with students.
+* (Student can get deleted at any time. He won't show up anywhere. But his evaluations will stay.)
+
+
 
 
 
