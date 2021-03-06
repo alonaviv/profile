@@ -95,3 +95,7 @@ Requests from the teachers:
 Have it built in that a class can have several teachers.
 * Several teachers in a homeroom, see how to deal with that.
 * Several subjects for a class.
+* Deal with external classes (like galili). External teachers write evals for all kids in the external class, and then
+give it to the mazkirut or to each chonech for his kids. Need a way to add this into the system. Have the external
+teachers use the site (maybe), or that the mazkirut adds these classes, or that each chonech adds his own kids. Need
+to think about it. 
