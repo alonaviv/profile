@@ -67,10 +67,12 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'profile_server.urls'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True
-EMAIL_PORT = 587
+EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'profile.democrati.ks@gmail.com'
+with open('../email-password') as f:
+    EMAIL_HOST_PASSWORD = f.read().strip()
+EMAIL_PORT = 587
 SERVER_EMAIL = 'profile@democrati.xyz'
 
 DEFAULT_FROM_EMAIL = "מערכת הדיווחים - דמוקרטי כפר סבא" + f" <{EMAIL_HOST_USER}>"
@@ -90,8 +92,6 @@ ADMINS = (
   ('alon aviv', 'alonaviv@gmail.com'),
 )
 
-with open('../email-password') as f:
-    EMAIL_HOST_PASSWORD = f.read().strip()
 
 EMAIL_PASSWORD = EMAIL_HOST_PASSWORD
 
