@@ -19,10 +19,16 @@ class SoftDeletionAdmin(admin.ModelAdmin):
 
 
 class EvaluationAdmin(admin.ModelAdmin):
-    list_display = ('id', 'student', 'evaluated_class', 'evaluation_text', 'trimester', 'hebrew_year')
+    def get_homeroom_teacher(self, evaluation):
+        return evaluation.student.homeroom_teacher
+    get_homeroom_teacher.admin_order_field = 'teacher'  #Allows column order sorting
+    get_homeroom_teacher.short_description = 'Teacher'  #Renames column head
+
+    list_display = ('id', 'student', 'evaluated_class', 'evaluation_text', 'trimester', 'hebrew_year',
+                    'get_homeroom_teacher')
     list_display_links = ('id', 'student', 'evaluated_class')
 
-    list_filter = ('student', 'evaluated_class', 'trimester')
+    list_filter = ('student', 'evaluated_class', 'trimester', 'student__homeroom_teacher')
 
 
 class ClassAdmin(SoftDeletionAdmin):
