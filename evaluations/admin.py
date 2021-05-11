@@ -21,8 +21,8 @@ class SoftDeletionAdmin(admin.ModelAdmin):
 class EvaluationAdmin(admin.ModelAdmin):
     def get_homeroom_teacher(self, evaluation):
         return evaluation.student.homeroom_teacher
-    get_homeroom_teacher.admin_order_field = 'teacher'  #Allows column order sorting
-    get_homeroom_teacher.short_description = 'Teacher'  #Renames column head
+    get_homeroom_teacher.admin_order_field = 'homeroom_teacher'  #Allows column order sorting
+    get_homeroom_teacher.short_description = 'Homeroom Teacher'  #Renames column head
 
     list_display = ('id', 'student', 'evaluated_class', 'evaluation_text', 'trimester', 'hebrew_year',
                     'get_homeroom_teacher')
