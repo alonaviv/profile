@@ -15,7 +15,7 @@ from utils.date_helpers import SchoolDay
 STUDENT_MEETING_DATES = {
     "first_meeting": SchoolDay(15, 10),
     "second_meeting": SchoolDay(16, 2),
-    "third_meeting": SchoolDay(25, 5),
+    "third_meeting": SchoolDay(8, 6),
 }
 
 GRACE_PERIOD = 30  # After this number of days after the meeting, the trimester will end and move on to the next.
