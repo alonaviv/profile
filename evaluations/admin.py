@@ -44,6 +44,7 @@ class TeacherAdmin(SoftDeletionAdmin):
 
     list_display = ('id', 'first_name', 'last_name')
     list_display_links = ('id', 'first_name', 'last_name')
+    list_filter = ('is_deleted',)
 
 
 class StudentAdmin(SoftDeletionAdmin):
@@ -58,7 +59,7 @@ class StudentAdmin(SoftDeletionAdmin):
 
     list_display = ('id', '_get_string', 'homeroom_teacher', 'house', 'pronoun_choice', '_get_classes')
     list_display_links = ('id', '_get_string')
-    list_filter = ('homeroom_teacher', 'house')
+    list_filter = ('homeroom_teacher', 'house', 'is_deleted')
 
 
 admin.site.register(Evaluation, EvaluationAdmin)

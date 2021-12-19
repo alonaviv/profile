@@ -19,5 +19,7 @@ class CustomUserAdmin(UserAdmin):
     list_display = (
     'username', 'first_name', 'last_name', 'is_homeroom_teacher', 'house', 'teacher_object', 'email', 'last_login')
 
+    list_filter = ('teacher_object__is_deleted',)
+
 
 admin.site.register(TeacherUser, CustomUserAdmin)

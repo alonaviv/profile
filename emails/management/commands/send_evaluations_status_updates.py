@@ -13,9 +13,9 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         if options['emails']:
-            teachers = TeacherUser.objects.filter(email__in=options['emails'])
+            teachers = TeacherUser.objects.filter(email__in=options['emails'], teacher_object__is_deleted=False)
         else:
-            teachers = TeacherUser.objects.filter(reminders_subscription=True)
+            teachers = TeacherUser.objects.filter(reminders_subscription=True, teacher_object__is_deleted=False)
 
         for teacher in teachers:
             # Don't send emails to teacher who are only professional teachers, and already completed everything
