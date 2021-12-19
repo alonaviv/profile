@@ -13,7 +13,7 @@ from utils.date_helpers import SchoolDay
 # No trimester: From after third meeting date + grace period, up to the START_OF_YEAR.
 
 STUDENT_MEETING_DATES = {
-    "first_meeting": SchoolDay(15, 10),
+    "first_meeting": SchoolDay(20, 10),
     "second_meeting": SchoolDay(16, 2),
     "third_meeting": SchoolDay(8, 6),
 }
