@@ -1,9 +1,10 @@
 from django.contrib import admin
+from import_export.admin import ExportActionModelAdmin
 
 from .models import Class, Teacher, Subject, House, Student, Evaluation
 
 
-class SoftDeletionAdmin(admin.ModelAdmin):
+class SoftDeletionAdmin(ExportActionModelAdmin, admin.ModelAdmin):
     def get_queryset(self, request):
         query_set = self.model.objects_with_deleted
 
