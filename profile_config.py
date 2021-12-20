@@ -14,7 +14,7 @@ from utils.date_helpers import SchoolDay
 
 STUDENT_MEETING_DATES = {
     "first_meeting": SchoolDay(20, 10),
-    "second_meeting": SchoolDay(16, 2),
+    "second_meeting": SchoolDay(4, 1),
     "third_meeting": SchoolDay(8, 6),
 }
 
