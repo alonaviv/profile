@@ -124,6 +124,11 @@ class Student(SoftDeleteModel):
                                             hebrew_year=current_trimester.hebrew_school_year))
 
     @property
+    def classes_current_year(self):
+        current_year = get_current_trimester().hebrew_school_year
+        return list(self.classes.filter(hebrew_year=current_year))
+
+    @property
     def num_classes(self):
         return self.classes.count()
 

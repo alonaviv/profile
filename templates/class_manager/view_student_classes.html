@@ -8,7 +8,7 @@
 <div class="centered_container">
 <div class="numbered_item_list">
 <ol>
-    {% for class in student.classes.all %}
+    {% for class in student.classes_current_year %}
     <li>
       <div class="class_listing">{{class.name}} - {{class.teacher}}</div>
     </li>

@@ -6,16 +6,16 @@ from .managers import TeacherUserManager
 
 
 class TeacherUser(AbstractUser):
-    is_homeroom_teacher = BooleanField()
     email = EmailField(unique=True)
 
     # Allowing NULL in order to make superuser creation easier. Will make sure that when regular user is created,
     # we pass these fields.
-    house = ForeignKey('evaluations.House', on_delete=PROTECT, null=True)
-    teacher_object = OneToOneField('evaluations.Teacher', on_delete=PROTECT, null=True)
+    house = ForeignKey('evaluations.House', on_delete=PROTECT, null=True, blank=True)
+    teacher_object = OneToOneField('evaluations.Teacher', on_delete=PROTECT, null=True, blank=True)
     pronoun_choice = CharField(max_length=30, choices=[(pronoun_option.name, pronoun_option.value)
-                                                       for pronoun_option in PronounOptions], null=True)
+                                                       for pronoun_option in PronounOptions], null=True, blank=True)
     reminders_subscription = BooleanField(default=True)
+    is_homeroom_teacher = BooleanField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
