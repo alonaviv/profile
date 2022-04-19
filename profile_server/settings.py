@@ -70,7 +70,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'profile.democrati.ks@gmail.com'
-with open('../email-password') as f:
+with open(os.path.join(BASE_DIR, '../email-password')) as f:
     EMAIL_HOST_PASSWORD = f.read().strip()
 EMAIL_PORT = 587
 SERVER_EMAIL = 'profile@democrati.xyz'
