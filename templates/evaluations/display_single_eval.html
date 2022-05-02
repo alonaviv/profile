@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block content %}
+        <article class="evaluation_output">
+            <h4 class="evaluation_title">{{evaluation.evaluated_class.name}} 
+                - {{evaluation.student}} </h4>
+            <p class="evaluation_text"> {{evaluation.evaluation_text|linebreaks}}</p>
+        </article>
+
+{% endblock %}

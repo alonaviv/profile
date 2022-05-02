@@ -34,9 +34,19 @@ window.location = (""+window.location).replace(/#[A-Za-z0-9_]*$/,'')+"#{{anchor}
 <div class="centered_container form_styling">
 <form action = "{% url 'write_class_evaluations' class.id %}" method="post">
     {% csrf_token %}
-<a id=anchor_{{evaluation.id}} class="bold">
-    דיווח על {{ evaluation.student }} ({% if evaluation.student.homeroom_teacher %}{{evaluation.student.homeroom_teacher.printable_description}}{% else %} עדיין לא צורפ\ה לחונכ/ת {% endif %})
-</a>
+
+<div class="write-eval-header">
+    <a id=anchor_{{evaluation.id}} class="bold">
+        דיווח על {{ evaluation.student }} ({% if evaluation.student.homeroom_teacher %}{{evaluation.student.homeroom_teacher.printable_description}}{% else %} עדיין לא צורפ\ה לחונכ/ת {% endif %})
+    </a>
+    <div class="previous-eval">
+        {% if evaluation.previous_eval != None %}
+        <a href="{% url 'view_single_eval' evaluation.previous_eval.id %}" target="_blank"><p style="color: blue">צפייה בדיווח קודם</p></a>
+        {% elif evaluation.trimester == "THIRD_TRIMESTER" %}
+        <p>לא קיים דיווח קודם</p>
+        {% endif %}
+    </div>
+</div>
     <br>
     {% if not evaluation.is_student_in_class %}
     <br>
@@ -74,7 +84,10 @@ window.location = (""+window.location).replace(/#[A-Za-z0-9_]*$/,'')+"#{{anchor}
     {% elif not evaluation.is_empty %}
     <i class="fas fa-save"> נשמר כטיוטא</i>
     {% endif %}
+
+
     </div>
+
 
     <br><br>
 </form>

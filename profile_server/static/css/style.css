@@ -296,10 +296,25 @@ p {
   padding: 15px;
 }
 
+.previous-eval {
+    color: red;
+    display: inline;
+}
+
+.write-eval-header {
+    display: flex;
+    justify-content: space-between;
+}
+
+/* .fa-magnifying-glass {
+  color: #0d6eaf;
+  padding: 15px;
+}
+
 .fa-exclamation-circle {
   color: #a10000;
   padding: 15px;
-}
+} */
 
 .fa-battery-quarter {
   color: red;

@@ -192,3 +192,17 @@ class Evaluation(Model):
     @property
     def is_empty(self):
         return not self.evaluation_text or self.evaluation_text.isspace()
+
+    @property
+    def previous_eval(self):
+        current_trimester_num = get_current_trimester().number
+
+        if current_trimester_num > 1:
+            try:
+                previous_eval = Evaluation.objects.get(student=self.student.id, evaluated_class=self.evaluated_class.id,
+                                                       trimester=TrimesterType(current_trimester_num - 1).name)
+                if previous_eval.evaluation_text:
+                    return previous_eval
+
+            except Evaluation.DoesNotExist:
+                return None

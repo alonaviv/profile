@@ -186,6 +186,13 @@ def view_student_evaluations(request, student_id):
 
 
 @login_required
+def view_single_eval(request, evaluation_id):
+    context = {'evaluation': Evaluation.objects.get(id=evaluation_id)}
+
+    return render(request, 'evaluations/display_single_eval.html', context)
+
+
+@login_required
 def download_student_evaluations(request, student_id):
     context = _get_student_evaluation_context(request, student_id)
 
