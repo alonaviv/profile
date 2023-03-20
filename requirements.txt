@@ -4,7 +4,7 @@ attrs==20.3.0
 backcall==0.2.0
 beautifulsoup4==4.9.3
 cairocffi==1.2.0
-CairoSVG==2.5.1
+CairoSVG==2.7.0
 cffi==1.14.4
 decorator==4.4.2
 defusedxml==0.6.0
