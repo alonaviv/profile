@@ -25,7 +25,11 @@ class Command(BaseCommand):
 
         for _, row in dataframe.iterrows():
             if 'house' in row:
-                row.house = House.objects.get(house_name=row.house)
+                try:
+                    row.house = House.objects.get(house_name=row.house)
+                except Exception:
+                    print(f"Problem with {row}")
+                    raise
 
             if 'pronoun_choice' in row:
                 row.pronoun_choice = PronounOptions(row.pronoun_choice).name
