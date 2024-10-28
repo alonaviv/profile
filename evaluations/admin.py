@@ -49,18 +49,15 @@ class TeacherAdmin(SoftDeletionAdmin):
 
 
 class StudentAdmin(SoftDeletionAdmin):
-    def _get_string(self, model):
-        return str(model)
-
     def _get_classes(self, model):
         return ', '.join(str(student_class) for student_class in model.classes.all())
 
     _get_classes.short_description = 'Classes'
-    _get_string.short_description = 'Student Name'
 
-    list_display = ('id', '_get_string', 'homeroom_teacher', 'house', 'pronoun_choice', '_get_classes')
+    list_display = ('id', 'first_name', 'last_name', 'homeroom_teacher', 'house', 'pronoun_choice', '_get_classes')
     list_display_links = ('id', '_get_string')
     list_filter = ('homeroom_teacher', 'house', 'is_deleted')
+    ordering = ('first_name', 'house')
 
 
 admin.site.register(Evaluation, EvaluationAdmin)
