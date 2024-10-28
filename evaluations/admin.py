@@ -59,6 +59,8 @@ class StudentAdmin(SoftDeletionAdmin):
     list_filter = ('homeroom_teacher', 'house', 'is_deleted')
     ordering = ('first_name', 'house')
 
+    list_per_page = 500
+
 
 admin.site.register(Evaluation, EvaluationAdmin)
 admin.site.register(Class, ClassAdmin)
