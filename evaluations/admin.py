@@ -55,7 +55,7 @@ class StudentAdmin(SoftDeletionAdmin):
     _get_classes.short_description = 'Classes'
 
     list_display = ('id', 'first_name', 'last_name', 'homeroom_teacher', 'house', 'pronoun_choice', '_get_classes')
-    list_display_links = ('id', '_get_string')
+    list_display_links = ('id',)
     list_filter = ('homeroom_teacher', 'house', 'is_deleted')
     ordering = ('first_name', 'house')
 
