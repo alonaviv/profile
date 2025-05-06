@@ -14,11 +14,11 @@ from utils.date_helpers import SchoolDay
 
 STUDENT_MEETING_DATES = {
     "first_meeting": SchoolDay(4, 11),
-    "second_meeting": SchoolDay(19, 2),
-    "third_meeting": SchoolDay(3, 6),
+    "second_meeting": SchoolDay(17, 2),
+    "third_meeting": SchoolDay(26, 5),
 }
 
 GRACE_PERIOD = 40  # After this number of days after the meeting, the trimester will end and move on to the next.
-EVALUATION_DEADLINE_DAYS = 9 # This number of days before the meeting deadline, all evaluations should be written.
+EVALUATION_DEADLINE_DAYS = 7 # This number of days before the meeting deadline, all evaluations should be written.
 
 MIN_AMOUNT_OF_CLASSES = 2  # Will alert admins for students that have less than this
