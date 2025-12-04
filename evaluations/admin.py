@@ -2,6 +2,7 @@ from django.contrib import admin
 from import_export.admin import ExportActionModelAdmin
 
 from .models import Class, Teacher, Subject, House, Student, Evaluation
+from accounts.models import TeacherUser
 
 
 class SoftDeletionAdmin(ExportActionModelAdmin, admin.ModelAdmin):
@@ -43,7 +44,13 @@ class TeacherAdmin(SoftDeletionAdmin):
     def _get_string(self, model):
         return str(model)
 
-    list_display = ('id', 'first_name', 'last_name')
+    def has_user(self, teacher: Teacher):
+        return TeacherUser.objects.filter(teacher_object=teacher).exists()
+
+    has_user.boolean = True
+    has_user.short_description = "Has User"
+
+    list_display = ('id', 'first_name', 'last_name', 'has_user')
     list_display_links = ('id', 'first_name', 'last_name')
     list_filter = ('is_deleted',)
 
