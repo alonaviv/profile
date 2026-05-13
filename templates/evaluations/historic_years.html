@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1>היסטוריית דיווחים - בחירת שנה עבור {{ student }}</h1>
+
+<div id="view_evaluations">
+<div id="summary">
+    <a class="back_button" href="{% url 'historic_house' student.house.id %}">חזרה לרשימת התלמידים</a>
+</div>
+</div>
+
+{% if year_entries %}
+<div class="items_list">
+<ul>
+    {% for entry in year_entries %}
+      <li>
+      <a href="{% url 'historic_student_year' student.id entry.hebrew_year %}">
+       <i class="fas fa-calendar-alt"></i>שנת {{ entry.label }}
+      </a>
+    </li>
+    {% endfor %}
+</ul>
+</div>
+{% else %}
+<div class="centered_container column">
+    <div class=error_message>לא קיימים דיווחים מוגשים עבור {{ student }} באף שנה</div>
+</div>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1>היסטוריית דיווחים - בחירת בית</h1>
+
+{% if houses %}
+<div class="items_list">
+<ul>
+    {% for house in houses %}
+      <li>
+      <a href="{% url 'historic_house' house.id %}">
+       <i class="fas fa-home"></i>{{ house }}
+      </a>
+    </li>
+    {% endfor %}
+</ul>
+</div>
+{% else %}
+<div class="centered_container column">
+    <div class=error_message>לא קיימים בתים במערכת</div>
+</div>
+{% endif %}
+
+{% endblock %}

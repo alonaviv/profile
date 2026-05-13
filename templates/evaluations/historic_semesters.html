@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1>היסטוריית דיווחים - {{ student }}, שנת {{ hebrew_year_label }}</h1>
+
+<div id="view_evaluations">
+<div id="summary">
+    <a class="back_button" href="{% url 'historic_student' student.id %}">חזרה לרשימת השנים</a>
+</div>
+</div>
+
+{% if semester_entries %}
+<div class="items_list">
+<ul>
+    {% for entry in semester_entries %}
+      <li>
+      <a href="{% url 'historic_download' student.id hebrew_year entry.number %}">
+       <i class="fas fa-file-download"></i>הורדת דיווחים - {{ entry.label }}
+      </a>
+    </li>
+    {% endfor %}
+</ul>
+</div>
+{% else %}
+<div class="centered_container column">
+    <div class=error_message>לא קיימים דיווחים מוגשים בשנה זו</div>
+</div>
+{% endif %}
+
+{% endblock %}
