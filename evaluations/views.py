@@ -482,13 +482,7 @@ def historic_download(request, student_id, hebrew_year, trimester_num):
         f"{unidecode(str(student))} -  "
         f"Year {_historic_hebrew_year_label(hebrew_year)}, semester {trimester_num}.pdf"
     )
-    # Use RFC 5987 encoding so Hebrew characters in the year survive intact in
-    # the Content-Disposition header, plus an ASCII fallback for old clients.
-    ascii_fallback = unidecode(filename) or 'evaluations.pdf'
-    response['Content-Disposition'] = (
-        f'attachment; filename="{ascii_fallback}"; '
-        f"filename*=UTF-8''{quote(filename)}"
-    )
+    response['Content-Disposition'] = f"attachment; filename*=UTF-8''{quote(filename)}"
 
     HTML(string=html_string).write_pdf(response, stylesheets=[CSS(string=css_string)])
     return response
