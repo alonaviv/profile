@@ -8,7 +8,6 @@ from django.shortcuts import render, reverse, redirect
 from django.template.loader import render_to_string
 from hebrew_numbers import int_to_gematria
 from weasyprint import HTML, CSS
-from unidecode import unidecode
 
 from profile_server.pronouns import PronounWordDictionary, PronounOptions
 from utils.date_helpers import get_printable_date, TrimesterType
@@ -207,8 +206,8 @@ def download_student_evaluations(request, student_id):
 
     trimester_name = context['trimester'].name.lower().replace("_"," ")
     trimester_year = context['trimester'].meeting_end_of_trimester.year
-    filename = f"School reports for {unidecode(str(context['student']))} - {trimester_name} {trimester_year}"
-    response['Content-Disposition'] = f"attachment; filename={filename}.pdf"
+    filename = f"דיווחים של {context['student']} - {trimester_name} {trimester_year}"
+    response['Content-Disposition'] = f"attachment; filename*=UTF-8''{quote(filename)}.pdf"
     html_string = render_to_string("evaluations/evaluations_as_pdf.html", context)
     with open('profile_server/static/css/style_for_pdf.css') as f:
         css_string = f.read()
@@ -476,11 +475,9 @@ def historic_download(request, student_id, hebrew_year, trimester_num):
         css_string = f.read()
 
     response = HttpResponse(content_type='application/pdf')
-    # Filename format requested by the user (note the double space after the dash):
-    # "<Hebrew student name> -  Year <hebrew year>, semester <n>"
     filename = (
-        f"{student} -  "
-        f"Year {_historic_hebrew_year_label(hebrew_year)}, semester {trimester_num}.pdf"
+        f"דיווחים היסטוריים של {student} - "
+        f"שנת {_historic_hebrew_year_label(hebrew_year)}, פגישה {trimester_num}.pdf"
     )
     response['Content-Disposition'] = f"attachment; filename*=UTF-8''{quote(filename)}"
 
