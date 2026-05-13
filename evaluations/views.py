@@ -477,9 +477,9 @@ def historic_download(request, student_id, hebrew_year, trimester_num):
 
     response = HttpResponse(content_type='application/pdf')
     # Filename format requested by the user (note the double space after the dash):
-    # "<English name> -  Year <hebrew year>, semester <n>"
+    # "<Hebrew student name> -  Year <hebrew year>, semester <n>"
     filename = (
-        f"{unidecode(str(student))} -  "
+        f"{student} -  "
         f"Year {_historic_hebrew_year_label(hebrew_year)}, semester {trimester_num}.pdf"
     )
     response['Content-Disposition'] = f"attachment; filename*=UTF-8''{quote(filename)}"
