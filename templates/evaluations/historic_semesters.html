@@ -14,15 +14,19 @@
 <div class="items_list">
 <ul>
     {% for entry in semester_entries %}
-      <li>
-      <a href="{% url 'historic_download' student.id hebrew_year entry.number %}">
-       <i class="fas fa-file-download"></i>הורדת PDF - {{ entry.label }}
-      </a>
-      <span class="ltr"> | </span>
-      <a href="{% url 'historic_download_docx' student.id hebrew_year entry.number %}">
-       <i class="fas fa-file"></i>הורדת Word - {{ entry.label }}
-      </a>
-    </li>
+      <li class="historic_semester_row">
+        <span class="historic_semester_label">{{ entry.label }}</span>
+        <span class="historic_semester_icons">
+          <a href="{% url 'historic_download' student.id hebrew_year entry.number %}"
+             class="clickable historic_download_icon" title="הורדת PDF" aria-label="הורדת PDF">
+            <i class="fas fa-file-pdf fa-2x"></i>
+          </a>
+          <a href="{% url 'historic_download_docx' student.id hebrew_year entry.number %}"
+             class="clickable historic_download_icon" title="הורדת Word (DOCX)" aria-label="הורדת Word">
+            <i class="fab fa-microsoft fa-2x"></i>
+          </a>
+        </span>
+      </li>
     {% endfor %}
 </ul>
 </div>

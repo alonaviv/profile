@@ -10,8 +10,10 @@ from django.template.loader import render_to_string
 from hebrew_numbers import int_to_gematria
 from weasyprint import HTML, CSS
 from docx import Document
-
-from profile_server.pronouns import PronounWordDictionary, PronounOptions
+from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.oxml import OxmlElement
+from docx.oxml.ns import qn
+from docx.shared import Pt, RGBColor
 from utils.date_helpers import get_printable_date, TrimesterType
 from utils.school_dates import get_current_trimester
 from .models import Evaluation, Class, Student, House
@@ -489,8 +491,8 @@ def historic_download(request, student_id, hebrew_year, trimester_num):
 
 def _historic_build_evaluations_docx(student, hebrew_year, trimester_num):
     """
-    Plain .docx (default black text, no colors) with the same evaluation content
-    as the historic PDF for the given student/year/semester.
+    Professional-looking .docx: black text only, larger header block, full-width
+    horizontal rules between sections. Same evaluation content as the historic PDF.
     """
     trimester_name = TrimesterType(trimester_num).name
     proxy = _HistoricStudent(student, hebrew_year, trimester_name)
@@ -505,26 +507,76 @@ def _historic_build_evaluations_docx(student, hebrew_year, trimester_num):
         teacher_line = f"{pronoun_dict['mentor']} - — אין מחנך/ת נוכחי/ת —"
 
     doc = Document()
-    doc.add_paragraph(f"הדיווחים של {student}")
-    doc.add_paragraph(f"({teacher_line})")
-    doc.add_paragraph(
-        f"שנת {_historic_hebrew_year_label(hebrew_year)}, "
-        f"{_HISTORIC_TRIMESTER_HEBREW_LABELS[trimester_num]}"
-    )
-    doc.add_paragraph(f"דיווח היסטורי - הופק {get_printable_date()}")
-    doc.add_paragraph("")
 
-    for evaluation in completed:
+    def _rtl_paragraph(text, size_pt=None, bold=False, space_before=0, space_after=8):
+        p = doc.add_paragraph()
+        p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+        p.paragraph_format.space_before = Pt(space_before)
+        p.paragraph_format.space_after = Pt(space_after)
+        run = p.add_run(text)
+        run.font.color.rgb = RGBColor(0, 0, 0)
+        if size_pt is not None:
+            run.font.size = Pt(size_pt)
+        run.bold = bold
+        return p
+
+    def _horizontal_rule():
+        """Full-width horizontal line (paragraph bottom border)."""
+        p = doc.add_paragraph()
+        p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+        p.paragraph_format.space_before = Pt(4)
+        p.paragraph_format.space_after = Pt(14)
+        pPr = p._p.get_or_add_pPr()
+        pBdr = OxmlElement('w:pBdr')
+        bottom = OxmlElement('w:bottom')
+        bottom.set(qn('w:val'), 'single')
+        bottom.set(qn('w:sz'), '18')
+        bottom.set(qn('w:space'), '1')
+        bottom.set(qn('w:color'), '000000')
+        pBdr.append(bottom)
+        pPr.append(pBdr)
+
+    _rtl_paragraph(f"הדיווחים של {student}", size_pt=22, bold=True, space_before=0, space_after=6)
+    _rtl_paragraph(f"({teacher_line})", size_pt=14, bold=False, space_before=0, space_after=4)
+    _rtl_paragraph(
+        f"שנת {_historic_hebrew_year_label(hebrew_year)}, "
+        f"{_HISTORIC_TRIMESTER_HEBREW_LABELS[trimester_num]}",
+        size_pt=14,
+        bold=False,
+        space_before=0,
+        space_after=4,
+    )
+    _rtl_paragraph(
+        f"דיווח היסטורי - הופק {get_printable_date()}",
+        size_pt=11,
+        bold=False,
+        space_before=0,
+        space_after=2,
+    )
+
+    _horizontal_rule()
+
+    for idx, evaluation in enumerate(completed):
         klass = evaluation.evaluated_class
         header = f"{klass.name} - {klass.teacher}"
         if not evaluation.is_student_in_class:
             header += f" ({evaluation.student.first_name} עזב/ה את השיעור)"
-        doc.add_paragraph(header)
+        _rtl_paragraph(header, size_pt=12, bold=True, space_before=12 if idx else 0, space_after=6)
+
         text = (evaluation.evaluation_text or "").strip()
         if text:
             for line in text.splitlines():
-                doc.add_paragraph(line if line else " ")
-        doc.add_paragraph("")
+                _rtl_paragraph(
+                    line if line else " ",
+                    size_pt=11,
+                    bold=False,
+                    space_before=0,
+                    space_after=4,
+                )
+        else:
+            _rtl_paragraph(" ", size_pt=11, space_before=0, space_after=4)
+
+        _horizontal_rule()
 
     buf = BytesIO()
     doc.save(buf)

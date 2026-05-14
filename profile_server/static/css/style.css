@@ -382,6 +382,27 @@ i.fa-times-circle {
   justify-content: space-between;
 }
 
+.items_list li.historic_semester_row {
+  justify-content: flex-start;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.items_list li.historic_semester_row .historic_semester_label {
+  font-size: 28px;
+}
+
+.items_list li.historic_semester_row .historic_semester_icons {
+  display: inline-flex;
+  gap: 1.1rem;
+  align-items: center;
+}
+
+.items_list li.historic_semester_row .historic_download_icon {
+  padding: 4px 8px;
+}
+
 .complete {
     color: green;
 }
