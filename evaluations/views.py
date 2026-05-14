@@ -14,6 +14,8 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.shared import Pt, RGBColor
+
+from profile_server.pronouns import PronounWordDictionary, PronounOptions
 from utils.date_helpers import get_printable_date, TrimesterType
 from utils.school_dates import get_current_trimester
 from .models import Evaluation, Class, Student, House
