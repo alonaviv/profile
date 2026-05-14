@@ -10,7 +10,6 @@ from django.template.loader import render_to_string
 from hebrew_numbers import int_to_gematria
 from weasyprint import HTML, CSS
 from docx import Document
-from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.shared import Pt, RGBColor
@@ -514,11 +513,16 @@ def _historic_build_evaluations_docx(student, hebrew_year, trimester_num):
     if settings_el.find(qn('w:bidiVisual')) is None:
         settings_el.append(OxmlElement('w:bidiVisual'))
 
-    def _paragraph_rtl(paragraph):
-        """Word needs w:bidi on the paragraph for RTL layout (not just right align)."""
+    def _rtl_paragraph_marks(paragraph):
+        """RTL paragraph: bidi + jc=start (Word: start = visually right for RTL)."""
         p_pr = paragraph._p.get_or_add_pPr()
         if p_pr.find(qn('w:bidi')) is None:
             p_pr.append(OxmlElement('w:bidi'))
+        jc = p_pr.find(qn('w:jc'))
+        if jc is None:
+            jc = OxmlElement('w:jc')
+            p_pr.append(jc)
+        jc.set(qn('w:val'), 'start')
 
     def _run_rtl(run):
         """Mark Hebrew runs as complex-script RTL so Word orders glyphs correctly."""
@@ -528,10 +532,13 @@ def _historic_build_evaluations_docx(student, hebrew_year, trimester_num):
 
     def _rtl_paragraph(text, size_pt=None, bold=False, space_before=0, space_after=8):
         p = doc.add_paragraph()
-        p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-        _paragraph_rtl(p)
-        p.paragraph_format.space_before = Pt(space_before)
-        p.paragraph_format.space_after = Pt(space_after)
+        _rtl_paragraph_marks(p)
+        fmt = p.paragraph_format
+        fmt.space_before = Pt(space_before)
+        fmt.space_after = Pt(space_after)
+        fmt.left_indent = Pt(0)
+        fmt.right_indent = Pt(0)
+        fmt.first_line_indent = Pt(0)
         run = p.add_run(text)
         _run_rtl(run)
         run.font.color.rgb = RGBColor(0, 0, 0)
@@ -543,8 +550,7 @@ def _historic_build_evaluations_docx(student, hebrew_year, trimester_num):
     def _horizontal_rule():
         """Full-width horizontal line (paragraph bottom border)."""
         p = doc.add_paragraph()
-        p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-        _paragraph_rtl(p)
+        _rtl_paragraph_marks(p)
         p.paragraph_format.space_before = Pt(4)
         p.paragraph_format.space_after = Pt(14)
         p_pr = p._p.get_or_add_pPr()
@@ -557,28 +563,35 @@ def _historic_build_evaluations_docx(student, hebrew_year, trimester_num):
         p_bdr.append(bottom)
         p_pr.append(p_bdr)
 
-    _rtl_paragraph(f"הדיווחים של {student}", size_pt=22, bold=True, space_before=0, space_after=6)
+    # Header block: larger type + air before the first rule.
+    _rtl_paragraph(
+        f"הדיווחים של {student}",
+        size_pt=30,
+        bold=True,
+        space_before=0,
+        space_after=8,
+    )
     _rtl_paragraph(
         f"({pronoun_dict['mentor']} - {teacher_line})",
-        size_pt=14,
+        size_pt=18,
         bold=False,
         space_before=0,
-        space_after=4,
+        space_after=6,
     )
     _rtl_paragraph(
         f"שנת {_historic_hebrew_year_label(hebrew_year)}, "
         f"{_HISTORIC_TRIMESTER_HEBREW_LABELS[trimester_num]}",
-        size_pt=14,
-        bold=False,
+        size_pt=18,
+        bold=True,
         space_before=0,
-        space_after=4,
+        space_after=6,
     )
     _rtl_paragraph(
         f"דיווח היסטורי - הופק {get_printable_date()}",
-        size_pt=11,
+        size_pt=13,
         bold=False,
         space_before=0,
-        space_after=2,
+        space_after=18,
     )
 
     _horizontal_rule()
