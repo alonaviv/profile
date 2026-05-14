@@ -358,6 +358,22 @@ class _HistoricStudent:
             hebrew_year=self._hebrew_year))
 
 
+def _historic_homeroom_for_exports(student, hebrew_year):
+    if hebrew_year != get_current_trimester().hebrew_school_year:
+        return (
+            PronounWordDictionary(PronounOptions.FEMALE),
+            'דיווח היסטורי - אין חונך/ת נוכחי/ת',
+        )
+
+    homeroom_teacher = student.homeroom_teacher
+    if homeroom_teacher is not None:
+        return (
+            PronounWordDictionary(homeroom_teacher.pronoun_as_enum),
+            str(homeroom_teacher),
+        )
+    return PronounWordDictionary(PronounOptions.FEMALE), '— אין מחנך/ת נוכחי/ת —'
+
+
 def _historic_submitted_evals_for_student(student):
     return student.evaluations.filter(is_submitted=True).exclude(evaluation_text='')
 
@@ -446,17 +462,7 @@ def historic_download(request, student_id, hebrew_year, trimester_num):
                  
     trimester_name = TrimesterType(trimester_num).name
 
-    homeroom_teacher = student.homeroom_teacher
-    if homeroom_teacher is not None:
-        pronoun_dict = PronounWordDictionary(homeroom_teacher.pronoun_as_enum)
-        teacher_for_template = homeroom_teacher
-    else:
-        # Fallback used only when no homeroom teacher is currently assigned to
-        # the student (e.g. graduated). Keeps the PDF rendering safe; the rest
-        # of the document - the evaluations themselves - is unchanged.
-        pronoun_dict = PronounWordDictionary(PronounOptions.FEMALE)
-        teacher_for_template = '— אין מחנך/ת נוכחי/ת —'
-   
+    pronoun_dict, teacher_for_template = _historic_homeroom_for_exports(student, hebrew_year)
 
     context = {
         # Wrap the student so the shared PDF template's
@@ -500,22 +506,34 @@ def _historic_build_evaluations_docx(student, hebrew_year, trimester_num):
     proxy = _HistoricStudent(student, hebrew_year, trimester_name)
     completed = proxy.completed_evals_in_current_trimester
 
-    homeroom_teacher = student.homeroom_teacher
-    if homeroom_teacher is not None:
-        pronoun_dict = PronounWordDictionary(homeroom_teacher.pronoun_as_enum)
-        teacher_line = f"{pronoun_dict['mentor']} - {homeroom_teacher}"
-    else:
-        pronoun_dict = PronounWordDictionary(PronounOptions.FEMALE)
-        teacher_line = f"{pronoun_dict['mentor']} - — אין מחנך/ת נוכחי/ת —"
+    pronoun_dict, teacher_line = _historic_homeroom_for_exports(student, hebrew_year)
 
     doc = Document()
+    # Document-level hint so Word applies bidirectional layout (not only right align).
+    settings_el = doc.settings.element
+    if settings_el.find(qn('w:bidiVisual')) is None:
+        settings_el.append(OxmlElement('w:bidiVisual'))
+
+    def _paragraph_rtl(paragraph):
+        """Word needs w:bidi on the paragraph for RTL layout (not just right align)."""
+        p_pr = paragraph._p.get_or_add_pPr()
+        if p_pr.find(qn('w:bidi')) is None:
+            p_pr.append(OxmlElement('w:bidi'))
+
+    def _run_rtl(run):
+        """Mark Hebrew runs as complex-script RTL so Word orders glyphs correctly."""
+        r_pr = run._element.get_or_add_rPr()
+        if r_pr.find(qn('w:rtl')) is None:
+            r_pr.append(OxmlElement('w:rtl'))
 
     def _rtl_paragraph(text, size_pt=None, bold=False, space_before=0, space_after=8):
         p = doc.add_paragraph()
         p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+        _paragraph_rtl(p)
         p.paragraph_format.space_before = Pt(space_before)
         p.paragraph_format.space_after = Pt(space_after)
         run = p.add_run(text)
+        _run_rtl(run)
         run.font.color.rgb = RGBColor(0, 0, 0)
         if size_pt is not None:
             run.font.size = Pt(size_pt)
@@ -526,20 +544,27 @@ def _historic_build_evaluations_docx(student, hebrew_year, trimester_num):
         """Full-width horizontal line (paragraph bottom border)."""
         p = doc.add_paragraph()
         p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+        _paragraph_rtl(p)
         p.paragraph_format.space_before = Pt(4)
         p.paragraph_format.space_after = Pt(14)
-        pPr = p._p.get_or_add_pPr()
-        pBdr = OxmlElement('w:pBdr')
+        p_pr = p._p.get_or_add_pPr()
+        p_bdr = OxmlElement('w:pBdr')
         bottom = OxmlElement('w:bottom')
         bottom.set(qn('w:val'), 'single')
         bottom.set(qn('w:sz'), '18')
         bottom.set(qn('w:space'), '1')
         bottom.set(qn('w:color'), '000000')
-        pBdr.append(bottom)
-        pPr.append(pBdr)
+        p_bdr.append(bottom)
+        p_pr.append(p_bdr)
 
     _rtl_paragraph(f"הדיווחים של {student}", size_pt=22, bold=True, space_before=0, space_after=6)
-    _rtl_paragraph(f"({teacher_line})", size_pt=14, bold=False, space_before=0, space_after=4)
+    _rtl_paragraph(
+        f"({pronoun_dict['mentor']} - {teacher_line})",
+        size_pt=14,
+        bold=False,
+        space_before=0,
+        space_after=4,
+    )
     _rtl_paragraph(
         f"שנת {_historic_hebrew_year_label(hebrew_year)}, "
         f"{_HISTORIC_TRIMESTER_HEBREW_LABELS[trimester_num]}",
