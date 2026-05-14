@@ -1,4 +1,5 @@
 from functools import wraps
+from io import BytesIO
 from urllib.parse import quote
 
 from django.contrib import messages
@@ -8,6 +9,7 @@ from django.shortcuts import render, reverse, redirect
 from django.template.loader import render_to_string
 from hebrew_numbers import int_to_gematria
 from weasyprint import HTML, CSS
+from docx import Document
 
 from profile_server.pronouns import PronounWordDictionary, PronounOptions
 from utils.date_helpers import get_printable_date, TrimesterType
@@ -482,4 +484,74 @@ def historic_download(request, student_id, hebrew_year, trimester_num):
     response['Content-Disposition'] = f"attachment; filename*=UTF-8''{quote(filename)}"
 
     HTML(string=html_string).write_pdf(response, stylesheets=[CSS(string=css_string)])
+    return response
+
+
+def _historic_build_evaluations_docx(student, hebrew_year, trimester_num):
+    """
+    Plain .docx (default black text, no colors) with the same evaluation content
+    as the historic PDF for the given student/year/semester.
+    """
+    trimester_name = TrimesterType(trimester_num).name
+    proxy = _HistoricStudent(student, hebrew_year, trimester_name)
+    completed = proxy.completed_evals_in_current_trimester
+
+    homeroom_teacher = student.homeroom_teacher
+    if homeroom_teacher is not None:
+        pronoun_dict = PronounWordDictionary(homeroom_teacher.pronoun_as_enum)
+        teacher_line = f"{pronoun_dict['mentor']} - {homeroom_teacher}"
+    else:
+        pronoun_dict = PronounWordDictionary(PronounOptions.FEMALE)
+        teacher_line = f"{pronoun_dict['mentor']} - — אין מחנך/ת נוכחי/ת —"
+
+    doc = Document()
+    doc.add_paragraph(f"הדיווחים של {student}")
+    doc.add_paragraph(f"({teacher_line})")
+    doc.add_paragraph(
+        f"שנת {_historic_hebrew_year_label(hebrew_year)}, "
+        f"{_HISTORIC_TRIMESTER_HEBREW_LABELS[trimester_num]}"
+    )
+    doc.add_paragraph(f"דיווח היסטורי - הופק {get_printable_date()}")
+    doc.add_paragraph("")
+
+    for evaluation in completed:
+        klass = evaluation.evaluated_class
+        header = f"{klass.name} - {klass.teacher}"
+        if not evaluation.is_student_in_class:
+            header += f" ({evaluation.student.first_name} עזב/ה את השיעור)"
+        doc.add_paragraph(header)
+        text = (evaluation.evaluation_text or "").strip()
+        if text:
+            for line in text.splitlines():
+                doc.add_paragraph(line if line else " ")
+        doc.add_paragraph("")
+
+    buf = BytesIO()
+    doc.save(buf)
+    buf.seek(0)
+    return buf.getvalue()
+
+
+@_historic_staff_required
+def historic_download_docx(request, student_id, hebrew_year, trimester_num):
+    try:
+        student = Student.objects.get(id=student_id)
+    except Student.DoesNotExist:
+        return render(request, 'common/general_error_page.html',
+                      {'error_message': 'תלמיד/ה זה/זו לא נמצא/ת בבית הספר'})
+
+    if trimester_num not in _HISTORIC_TRIMESTER_HEBREW_LABELS:
+        return render(request, 'common/general_error_page.html',
+                      {'error_message': 'סמסטר לא תקין'})
+
+    data = _historic_build_evaluations_docx(student, hebrew_year, trimester_num)
+    response = HttpResponse(
+        data,
+        content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    )
+    filename = (
+        f"דיווחים היסטוריים של {student} - "
+        f"שנת {_historic_hebrew_year_label(hebrew_year)}, פגישה {trimester_num}.docx"
+    )
+    response['Content-Disposition'] = f"attachment; filename*=UTF-8''{quote(filename)}"
     return response

@@ -16,7 +16,11 @@
     {% for entry in semester_entries %}
       <li>
       <a href="{% url 'historic_download' student.id hebrew_year entry.number %}">
-       <i class="fas fa-file-download"></i>הורדת דיווחים - {{ entry.label }}
+       <i class="fas fa-file-download"></i>הורדת PDF - {{ entry.label }}
+      </a>
+      <span class="ltr"> | </span>
+      <a href="{% url 'historic_download_docx' student.id hebrew_year entry.number %}">
+       <i class="fas fa-file"></i>הורדת Word - {{ entry.label }}
       </a>
     </li>
     {% endfor %}

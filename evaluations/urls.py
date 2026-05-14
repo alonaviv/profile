@@ -23,4 +23,6 @@ urlpatterns = [
          views.historic_student_year, name='historic_student_year'),
     path('historic/student/<int:student_id>/year/<int:hebrew_year>/semester/<int:trimester_num>/download',
          views.historic_download, name='historic_download'),
+    path('historic/student/<int:student_id>/year/<int:hebrew_year>/semester/<int:trimester_num>/download-docx',
+         views.historic_download_docx, name='historic_download_docx'),
 ]
