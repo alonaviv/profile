@@ -65,6 +65,9 @@ class Teacher(SoftDeleteModel):
     """
     first_name = CharField(max_length=20)
     last_name = CharField(max_length=30)
+    # Salted hash of the teacher's ת.ז., set by the admin on creation and by the staff import. Registration finds the
+    # Teacher by it.
+    external_id = CharField(max_length=64, unique=True, null=True, blank=True, editable=False)
 
     class Meta:
         unique_together = ['first_name', 'last_name']

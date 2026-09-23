@@ -11,8 +11,8 @@ to this year's students.
 For every row of the file:
 - a student with the same external_id is that child: their house and class are updated, and a soft-deleted one is
   restored;
-- otherwise it's a new student. The ministry name cell is surname first, so the first word becomes the last name and
-  the rest the first name. Names of existing students are never changed.
+- otherwise it's a new student. The ministry name cell is surname first, so the last word becomes the first name and
+  the rest the last name. Names of existing students are never changed.
 Active students that no row matched are soft-deleted.
 """
 import hashlib
@@ -80,9 +80,11 @@ def house_for_grade(grade):
 
 def split_ministry_name(full_name):
     """
-    The ministry name cell is surname first: "זוסמן דויד בנימין" -> ('דויד בנימין', 'זוסמן').
+    The ministry name cell is surname first. The last word is the first name and the rest the surname, which is right
+    for two-word surnames ("בן יהודה אורי" -> ('אורי', 'בן יהודה')) but wrong for middle names ("זוסמן דויד בנימין"
+    -> ('בנימין', 'זוסמן דויד')). On the students of 2026 it matched the school's spelling of 267 of 315 names.
     """
-    parts = full_name.split(maxsplit=1)
+    parts = full_name.rsplit(maxsplit=1)
     if len(parts) < 2:
         raise ValueError(f"Can't split into first and last name: {full_name!r}")
     last_name, first_name = parts

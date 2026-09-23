@@ -2,6 +2,7 @@ from django.contrib import auth, messages
 from django.contrib.auth import get_user_model, password_validation
 from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.views import PasswordResetConfirmView
+from django.conf import settings
 from django.db import IntegrityError
 from django.forms import ValidationError
 from django.shortcuts import render, redirect, reverse
@@ -10,6 +11,7 @@ from django_email_verification import sendConfirm
 from accounts.forms import RegisterForm, LoginForm, MySetPasswordForm
 from emails.send_emails import send_forgot_password_email
 from evaluations.models import Teacher
+from evaluations.roster_import import hash_ministry_id
 from profile_server.pronouns import PronounWordDictionary
 
 TeacherUser = get_user_model()
@@ -42,9 +44,10 @@ def register(request):
             last_name = form.cleaned_data['last_name']
 
             try:
-                teacher_object = Teacher.objects.get(first_name=first_name, last_name=last_name)
-            except Teacher.DoesNotExist:
-                messages.error(request, f"המורה {first_name} {last_name} לא רשומ/ה במאגר בית הספר")
+                external_id = hash_ministry_id(form.cleaned_data['ministry_id'], settings.STUDENT_ID_SALT)
+                teacher_object = Teacher.objects.get(external_id=external_id)
+            except (ValueError, Teacher.DoesNotExist):
+                messages.error(request, "תעודת הזהות אינה תואמת את הרישום בבית הספר")
                 return render(request, "accounts/register.html", {'form': form})
 
             try:

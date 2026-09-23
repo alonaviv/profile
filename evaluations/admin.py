@@ -58,6 +58,11 @@ class TeacherAdmin(SoftDeletionAdmin):
     list_display_links = ('id', 'first_name', 'last_name')
     list_filter = ('is_deleted',)
 
+    def get_form(self, request, obj=None, **kwargs):
+        if obj is None:
+            kwargs['form'] = TeacherAddForm
+        return super().get_form(request, obj, **kwargs)
+
 
 class StudentAddForm(ModelForm):
     """Adding a student requires the ministry id, so next year's ministry file matches them. Only its hash is kept."""
@@ -87,16 +92,46 @@ class StudentAddForm(ModelForm):
         return super().save(commit)
 
 
+class TeacherAddForm(ModelForm):
+    """Adding a teacher requires their ת.ז.: they register with it, and the staff file matches them by it."""
+    ministry_id = CharField(label='ת.ז.', max_length=12, help_text="Stored only as a salted hash")
+
+    class Meta:
+        model = Teacher
+        fields = ('first_name', 'last_name')
+
+    def clean_ministry_id(self):
+        try:
+            ministry_id = normalize_ministry_id(self.cleaned_data['ministry_id'])
+        except ValueError as e:
+            raise ValidationError(str(e))
+        if not is_valid_israeli_id(ministry_id):
+            raise ValidationError("Invalid ת.ז. (check digit doesn't match)")
+
+        external_id = hash_ministry_id(ministry_id, settings.STUDENT_ID_SALT)
+        existing = Teacher.objects_with_deleted.filter(external_id=external_id).first()
+        if existing:
+            deleted = ", soft-deleted - restore it instead" if existing.is_deleted else ""
+            raise ValidationError(f"This ת.ז. belongs to teacher {existing.id} ({existing}{deleted})")
+        return external_id
+
+    def save(self, commit=True):
+        self.instance.external_id = self.cleaned_data['ministry_id']
+        return super().save(commit)
+
+
 class StudentAdmin(SoftDeletionAdmin):
     def _get_classes(self, model):
         return ', '.join(str(student_class) for student_class in model.classes.all())
 
     _get_classes.short_description = 'Classes'
 
-    list_display = ('id', 'first_name', 'last_name', 'homeroom_teacher', 'house', 'pronoun_choice', '_get_classes')
+    list_display = ('id', 'first_name', 'last_name', 'homeroom_teacher', 'house', 'grade', 'pronoun_choice',
+                    '_get_classes')
     list_display_links = ('id',)
     list_filter = ('homeroom_teacher', 'house', 'is_deleted')
     ordering = ('first_name', 'house')
+    readonly_fields = ('grade',)
 
     list_per_page = 500
 

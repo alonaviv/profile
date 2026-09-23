@@ -56,7 +56,8 @@ def test_israeli_id_check_digit():
 
 @pytest.mark.parametrize("full_name, expected", [
     ("זלפוגה עמנואל", ('עמנואל', 'זלפוגה')),
-    ("זוסמן דויד בנימין", ('דויד בנימין', 'זוסמן')),
+    ("בן יהודה אורי", ('אורי', 'בן יהודה')),
+    ("זוסמן דויד בנימין", ('בנימין', 'זוסמן דויד')),
 ])
 def test_split_ministry_name(full_name, expected):
     assert split_ministry_name(full_name) == expected
@@ -82,7 +83,7 @@ def test_plan():
     assert [m.db_student.id for m in plan.restored_students] == [2]
     assert [m.db_student.id for m in plan.house_changes] == [1, 2]
     assert plan.students_to_create == [
-        StudentToCreate('נועם אלי', 'חדש', 'חט״צ', "א' - 1", 'h4', 'חדש נועם אלי')]
+        StudentToCreate('אלי', 'חדש נועם', 'חט״צ', "א' - 1", 'h4', 'חדש נועם אלי')]
     assert [s.id for s in plan.students_to_soft_delete] == [3, 4]
     assert plan.errors == []
 

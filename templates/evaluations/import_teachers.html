@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div dir="ltr">
+<h1>Import teachers</h1>
+
+{% for message in messages %}<p><strong>{{ message }}</strong></p>{% endfor %}
+
+<p>
+  Once a year, upload the school's teachers file: everyone in it is a teacher who may have an account. Every teacher is
+  matched by ת.ז.: new teachers get a record so they can register (registration asks for their ת.ז.), and active
+  teachers who aren't in the file are soft-deleted and can no longer sign in (their classes and evaluations stay).
+  Superusers are never touched. Names already in the system are never changed.
+</p>
+<p>First submit without "Apply" to preview. To apply, select the file again, tick "Apply" and submit.</p>
+
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  {{ form.non_field_errors }}
+  <table>{{ form.as_table }}</table>
+  <input type="submit" value="Submit">
+</form>
+
+{% if plan %}
+  <h2>
+    Unchanged {{ plan.teachers_to_keep|length }} &middot; To create {{ plan.teachers_to_create|length }} &middot;
+    To restore {{ plan.teachers_to_restore|length }} &middot; To soft-delete {{ plan.teachers_to_soft_delete|length }}
+    &middot; Errors {{ plan.errors|length }}
+  </h2>
+
+  {% if plan.errors %}
+    <h2>Errors: nothing can be applied until these are fixed</h2>
+    <ul class="errorlist">{% for error in plan.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+  {% endif %}
+
+  <h2>Teachers to create ({{ plan.teachers_to_create|length }})</h2>
+  <table>
+    <tr><th>First name</th><th>Last name</th></tr>
+    {% for teacher in plan.teachers_to_create %}
+      <tr><td>{{ teacher.first_name }}</td><td>{{ teacher.last_name }}</td></tr>
+    {% endfor %}
+  </table>
+
+  {% if plan.teachers_to_restore %}
+    <h2>Teachers to restore: soft-deleted and back in the file ({{ plan.teachers_to_restore|length }})</h2>
+    <table>
+      <tr><th>ID</th><th>Name</th></tr>
+      {% for teacher in plan.teachers_to_restore %}
+        <tr><td>{{ teacher.id }}</td><td>{{ teacher.name }}</td></tr>
+      {% endfor %}
+    </table>
+  {% endif %}
+
+  <h2>To soft-delete: active teachers not in the file ({{ plan.teachers_to_soft_delete|length }})</h2>
+  <p>"No ת.ז." marks a teacher who was never linked to the teachers file, so they can't be matched even if they are in
+    it. After the first import there should be none: check any before applying.</p>
+  <table>
+    <tr><th>ID</th><th>Name</th><th></th></tr>
+    {% for teacher in plan.teachers_to_soft_delete %}
+      <tr><td>{{ teacher.id }}</td><td>{{ teacher.name }}</td>
+          <td>{% if not teacher.external_id %}No ת.ז.{% endif %}</td></tr>
+    {% endfor %}
+  </table>
+{% endif %}
+</div>
+{% endblock %}

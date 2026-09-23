@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import roster_view, views
+from . import roster_view, teacher_view, views
 
 urlpatterns = [
     path('write_evaluations', views.write_evaluations_main_page, name='write'),
@@ -28,4 +28,6 @@ urlpatterns = [
 
     # Yearly student roster import from the ministry file (superuser-only), not linked from anywhere.
     path('import_roster', roster_view.import_roster_view, name='import_roster'),
+    # Yearly teacher list import from the teachers file (superuser-only), not linked from anywhere.
+    path('import_teachers', teacher_view.import_teachers_view, name='import_teachers'),
 ]
