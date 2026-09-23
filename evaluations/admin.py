@@ -54,9 +54,15 @@ class TeacherAdmin(SoftDeletionAdmin):
     has_user.boolean = True
     has_user.short_description = "Has User"
 
-    list_display = ('id', 'first_name', 'last_name', 'has_user')
+    def short_external_id(self, teacher: Teacher):
+        return teacher.external_id[:8] if teacher.external_id else None
+
+    short_external_id.short_description = "ת.ז. hash"
+
+    list_display = ('id', 'first_name', 'last_name', 'has_user', 'short_external_id')
     list_display_links = ('id', 'first_name', 'last_name')
     list_filter = ('is_deleted',)
+    readonly_fields = ('external_id',)
 
     def get_form(self, request, obj=None, **kwargs):
         if obj is None:
@@ -126,12 +132,17 @@ class StudentAdmin(SoftDeletionAdmin):
 
     _get_classes.short_description = 'Classes'
 
+    def short_external_id(self, student: Student):
+        return student.external_id[:8] if student.external_id else None
+
+    short_external_id.short_description = "ת.ז. hash"
+
     list_display = ('id', 'first_name', 'last_name', 'homeroom_teacher', 'house', 'grade', 'pronoun_choice',
-                    '_get_classes')
+                    '_get_classes', 'short_external_id')
     list_display_links = ('id',)
     list_filter = ('homeroom_teacher', 'house', 'is_deleted')
     ordering = ('first_name', 'house')
-    readonly_fields = ('grade',)
+    readonly_fields = ('grade', 'external_id')
 
     list_per_page = 500
 
