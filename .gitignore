@@ -152,3 +152,7 @@ dmypy.json
 psycopg2
 
 # End of https://www.toptal.com/developers/gitignore/api/django
+
+# Ministry roster and mapping files hold personal data of students
+*.xlsx
+*.XLSX

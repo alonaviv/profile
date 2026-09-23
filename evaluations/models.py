@@ -88,6 +88,11 @@ class Student(SoftDeleteModel):
                                                        for pronoun_option in PronounOptions], null=True)
     # To be later added when the homeroom teachers add their kids
     homeroom_teacher = ForeignKey(TeacherUser, on_delete=PROTECT, blank=True, null=True)
+    # Salted hash of the ministry student id (ת.ז. תלמיד), set by the admin on creation and by the import_roster
+    # command. Empty for students who left before ids were recorded.
+    external_id = CharField(max_length=64, unique=True, null=True, blank=True, editable=False)
+    # The ministry's כיתת אם, e.g. "ט' - 3". Informational, written only by import_roster. Not formatted - saved exactly as Misrad hachinuch writes it.
+    grade = CharField(max_length=20, blank=True, default='', editable=False)
 
     @property
     def completed_evals(self):

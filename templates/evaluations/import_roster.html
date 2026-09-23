@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div dir="ltr">
+<h1>Import ministry roster</h1>
+
+{% for message in messages %}<p><strong>{{ message }}</strong></p>{% endfor %}
+
+<p>
+  Once a year, upload the full roster from the Ministry of Education. Every child is matched by ת.ז.: their house and
+  class are updated, new children are created, and active students who aren't in the file are soft-deleted (their
+  evaluations stay). Names already in the system are never changed.
+</p>
+<p>First submit without "Apply" to preview. To apply, select the file again, tick "Apply" and submit.</p>
+
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  {{ form.non_field_errors }}
+  <table>{{ form.as_table }}</table>
+  <input type="submit" value="Submit">
+</form>
+
+{% if plan %}
+  <h2>
+    To update {{ plan.students_to_update|length }} &middot; To create {{ plan.students_to_create|length }} &middot;
+    To soft-delete {{ plan.students_to_soft_delete|length }} &middot;
+    Restored {{ plan.restored_students|length }} &middot;
+    House changes {{ plan.house_changes|length }} &middot; Errors {{ plan.errors|length }}
+  </h2>
+
+  {% if plan.errors %}
+    <h2>Errors: nothing can be applied until these are fixed</h2>
+    <ul class="errorlist">{% for error in plan.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+  {% endif %}
+
+  {% if plan.restored_students %}
+    <h2>Restored: soft-deleted students who are back in the file</h2>
+    <table>
+      <tr><th>ID</th><th>Name in the system</th><th>Name in the file</th><th>Class</th></tr>
+      {% for restored in plan.restored_students %}
+        <tr><td>{{ restored.db_student.id }}</td><td>{{ restored.db_student.name }}</td>
+            <td>{{ restored.ministry_row.name }}</td><td>{{ restored.ministry_row.grade }}</td></tr>
+      {% endfor %}
+    </table>
+  {% endif %}
+
+  <h2>Students to create ({{ plan.students_to_create|length }})</h2>
+  <p>The first word in the file is the last name, the rest the first name. Fix any wrong split in the admin after
+    applying.</p>
+  <table>
+    <tr><th>First name</th><th>Last name</th><th>Name in the file</th><th>Class</th><th>House</th></tr>
+    {% for to_create in plan.students_to_create %}
+      <tr><td>{{ to_create.first_name }}</td><td>{{ to_create.last_name }}</td>
+          <td>{{ to_create.name_in_ministry_file }}</td><td>{{ to_create.grade }}</td>
+          <td>{{ to_create.house }}</td></tr>
+    {% endfor %}
+  </table>
+
+  <h2>To soft-delete: active students not in the file ({{ plan.students_to_soft_delete|length }})</h2>
+  <p>"No ת.ז." marks a student who was never linked to the ministry file, so they can't be matched even if they are
+    in it. After the first import there should be none: check any before applying.</p>
+  <table>
+    <tr><th>ID</th><th>Name</th><th>House</th><th></th></tr>
+    {% for student in plan.students_to_soft_delete %}
+      <tr><td>{{ student.id }}</td><td>{{ student.name }}</td><td>{{ student.house }}</td>
+          <td>{% if not student.external_id %}No ת.ז.{% endif %}</td></tr>
+    {% endfor %}
+  </table>
+{% endif %}
+</div>
+{% endblock %}

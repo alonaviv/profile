@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import views
+from . import roster_view, views
 
 urlpatterns = [
     path('write_evaluations', views.write_evaluations_main_page, name='write'),
@@ -25,4 +25,7 @@ urlpatterns = [
          views.historic_download, name='historic_download'),
     path('historic/student/<int:student_id>/year/<int:hebrew_year>/semester/<int:trimester_num>/download-docx',
          views.historic_download_docx, name='historic_download_docx'),
+
+    # Yearly student roster import from the ministry file (superuser-only), not linked from anywhere.
+    path('import_roster', roster_view.import_roster_view, name='import_roster'),
 ]
