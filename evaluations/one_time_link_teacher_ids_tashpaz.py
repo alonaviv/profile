@@ -10,7 +10,6 @@ a teacher who should be linked but isn't, fix their name in the admin to match t
 looks at teachers that don't have an id yet. The upload on /evaluations/import_teachers then creates the unlinked rows
 and soft-deletes the unlinked teachers.
 """
-import getpass
 import os
 import sys
 from collections import defaultdict
@@ -28,8 +27,7 @@ from evaluations.models import Teacher  # noqa: E402
 from evaluations.teacher_import import read_teachers_file  # noqa: E402
 
 with open(sys.argv[1], 'rb') as f:
-    file_rows = read_teachers_file(f, getpass.getpass("Password for the teachers file (Enter if none): "),
-                                 settings.STUDENT_ID_SALT)
+    file_rows = read_teachers_file(f, settings.STUDENT_ID_SALT)
 db_teachers = list(Teacher.objects_with_deleted.filter(external_id__isnull=True))
 emails = {user.teacher_object_id: user.email.lower() for user in TeacherUser.objects.exclude(teacher_object=None)}
 linked_ids = set(Teacher.objects_with_deleted.exclude(external_id=None).values_list('external_id', flat=True))

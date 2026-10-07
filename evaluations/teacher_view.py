@@ -12,9 +12,7 @@ from evaluations.teacher_import import DbTeacher, TeachersFileError, plan_teache
 
 
 class TeacherImportForm(forms.Form):
-    teachers_file = forms.FileField(label="Teachers file")
-    password = forms.CharField(required=False, widget=forms.PasswordInput,
-                               help_text="If the file is password-protected")
+    teachers_file = forms.FileField(label="Teachers file", help_text="CSV")
     apply = forms.BooleanField(required=False, help_text="Leave unticked to preview. Ticked, writes the plan "
                                                          "unless it has errors")
 
@@ -30,7 +28,7 @@ def import_teachers_view(request):
     if request.method == 'POST' and form.is_valid():
         data = form.cleaned_data
         try:
-            file_rows = read_teachers_file(data['teachers_file'].file, data['password'], settings.STUDENT_ID_SALT)
+            file_rows = read_teachers_file(data['teachers_file'].file, settings.STUDENT_ID_SALT)
         except TeachersFileError as e:
             form.add_error(None, str(e))
         else:
@@ -44,10 +42,14 @@ def import_teachers_view(request):
 
 
 def _db_teachers():
-    superuser_teacher_ids = set(TeacherUser.objects.filter(is_superuser=True).values_list('teacher_object', flat=True))
-    return [DbTeacher(teacher.id, teacher.first_name, teacher.last_name, teacher.external_id, teacher.is_deleted,
-                      teacher.id in superuser_teacher_ids)
-            for teacher in Teacher.objects_with_deleted.all()]
+    users_by_teacher_id = {user.teacher_object_id: user for user in TeacherUser.objects.exclude(teacher_object=None)}
+    db_teachers = []
+    for teacher in Teacher.objects_with_deleted.all():
+        user = users_by_teacher_id.get(teacher.id)
+        db_teachers.append(DbTeacher(teacher.id, teacher.first_name, teacher.last_name, teacher.external_id,
+                                     teacher.is_deleted, bool(user and user.is_superuser),
+                                     bool(user.is_homeroom_teacher) if user else None))
+    return db_teachers
 
 
 def _apply(plan, request):
@@ -65,7 +67,11 @@ def _apply(plan, request):
     Teacher.objects.filter(id__in=ids_to_soft_delete).update(is_deleted=True)
     TeacherUser.objects.filter(teacher_object__in=ids_to_soft_delete, is_superuser=False).update(is_active=False)
 
+    for change in plan.homeroom_changes:
+        TeacherUser.objects.filter(teacher_object=change.teacher.id).update(is_homeroom_teacher=change.is_homeroom)
+
     messages.success(request, f"Teachers imported: {len(plan.teachers_to_create)} created, "
                               f"{len(plan.teachers_to_restore)} restored, "
-                              f"{len(plan.teachers_to_soft_delete)} soft-deleted and their accounts deactivated. "
+                              f"{len(plan.teachers_to_soft_delete)} soft-deleted and their accounts deactivated, "
+                              f"{len(plan.homeroom_changes)} homeroom changes. "
                               f"Active teachers: {Teacher.objects.count()}")

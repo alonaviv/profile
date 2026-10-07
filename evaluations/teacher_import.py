@@ -1,30 +1,32 @@
 """
 Yearly teacher list import from the school's teachers file, run from the page /evaluations/import_teachers
-(evaluations/teacher_view.py). Everyone in the file is a teacher who may have an account. No Django dependency, so it is
-unit-tested without a database.
+(evaluations/teacher_view.py). No Django dependency, so it is unit-tested without a database.
 
-Teachers are keyed on their ת.ז., stored like the students' (Teacher.external_id, a salted hash, see roster_import).
-A Teacher record is what lets a person register an account: registration asks for the ת.ז. and finds the Teacher by
-it. For every row of the file:
+The file is a CSV of the school staff. Only rows whose role (תפקיד) contains "מורה" are teachers who get access;
+every other row is skipped. Teachers are keyed on their ת.ז., stored like the students' (Teacher.external_id, a salted
+hash, see roster_import). A Teacher record is what lets a person register an account: registration asks for the ת.ז.
+and finds the Teacher by it. For every teacher row:
 - a teacher with the same external_id is that person, and a soft-deleted one is restored;
-- otherwise a new Teacher is created, with the file's first and last name, so they can register.
-Active teachers that no row matched are soft-deleted and their account is deactivated. Teachers whose account is a
-superuser are never touched. Names of existing teachers are never changed.
+- otherwise a new Teacher is created, with the file's first and last name, so they can register;
+- the homeroom column (חונכ/ת, "כן" or empty) sets whether their account is a homeroom teacher.
+Active teachers that no teacher row matched are soft-deleted and their account is deactivated. Teachers whose account
+is a superuser are never touched. Names of existing teachers are never changed.
 """
+import csv
 import io
 from dataclasses import dataclass, field
 from typing import List, Optional
-
-import msoffcrypto
-import openpyxl
-from msoffcrypto.exceptions import InvalidKeyError
 
 from evaluations.roster_import import hash_ministry_id
 
 FIRST_NAME_COLUMN = 'שם'
 LAST_NAME_COLUMN = 'שם משפחה'
 ID_COLUMN = 'ת.ז'
+ROLE_COLUMN = 'תפקיד'
+HOMEROOM_COLUMN = 'חונכ/ת'
 EMAIL_COLUMN = 'מייל'  # Optional; only the one-time linking script uses it
+TEACHER_ROLE = 'מורה'  # A row is a teacher if its role contains this
+HOMEROOM_YES = 'כן'
 
 
 class TeachersFileError(ValueError):
@@ -39,6 +41,7 @@ class TeacherFileRow:
     first_name: str
     last_name: str
     email: str
+    is_homeroom: bool
 
     @property
     def name(self):
@@ -54,6 +57,7 @@ class DbTeacher:
     external_id: Optional[str]
     is_deleted: bool
     is_superuser: bool  # Their account is a superuser
+    is_homeroom: Optional[bool]  # Their account's homeroom flag; None if they have no account
 
     @property
     def name(self):
@@ -69,58 +73,51 @@ class TeacherToCreate:
 
 
 @dataclass
+class HomeroomChange:
+    """A teacher whose account's homeroom flag differs from the file's."""
+    teacher: DbTeacher
+    is_homeroom: bool  # The file's value
+
+
+@dataclass
 class TeacherPlan:
     """What importing the teachers file would do to the DB."""
     teachers_to_keep: List[DbTeacher] = field(default_factory=list)  # Active and in the file: nothing changes
     teachers_to_restore: List[DbTeacher] = field(default_factory=list)  # Soft-deleted and back in the file
     teachers_to_create: List[TeacherToCreate] = field(default_factory=list)
     teachers_to_soft_delete: List[DbTeacher] = field(default_factory=list)  # Active, not in the file, not superusers
+    homeroom_changes: List[HomeroomChange] = field(default_factory=list)
     errors: List[str] = field(default_factory=list)  # Any error blocks applying the plan
 
 
-def read_teachers_file(file, password, salt):
+def read_teachers_file(file, salt):
     """
-    Reads the columns שם, שם משפחה, ת.ז and (if present) מייל from the first sheet, whose first row holds the headers.
-    Every other column is skipped. `file` is a binary file object.
+    Reads the teacher rows of the CSV teachers file: first name, last name, ת.ז., the homeroom column and (if present)
+    email. Rows whose role doesn't contain "מורה" are skipped. `file` is a binary file object.
     """
     try:
-        office_file = msoffcrypto.OfficeFile(file)
-        if office_file.is_encrypted():
-            if not password:
-                raise TeachersFileError("The file is password-protected")
-            office_file.load_key(password=password)
-            content = io.BytesIO()
-            office_file.decrypt(content)
-        else:
-            file.seek(0)
-            content = io.BytesIO(file.read())
-        sheet_rows = openpyxl.load_workbook(content, read_only=True, data_only=True).worksheets[0].iter_rows(
-            values_only=True)
-        headers = [str(header or '').strip() for header in next(sheet_rows)]
-    except InvalidKeyError:
-        raise TeachersFileError("Wrong password for the file")
-    except TeachersFileError:
-        raise
-    except Exception:
-        raise TeachersFileError("Can't read the file as an Excel file")
-
-    required = (FIRST_NAME_COLUMN, LAST_NAME_COLUMN, ID_COLUMN)
+        text = file.read().decode('utf-8-sig')
+    except UnicodeDecodeError:
+        raise TeachersFileError("Can't read the file: save it as CSV UTF-8")
+    lines = csv.reader(io.StringIO(text))
+    headers = [header.strip() for header in next(lines, [])]
+    required = (FIRST_NAME_COLUMN, LAST_NAME_COLUMN, ID_COLUMN, ROLE_COLUMN, HOMEROOM_COLUMN)
     if not all(column in headers for column in required):
         raise TeachersFileError(f"The first row must have the columns {', '.join(required)}")
-    first_index, last_index, id_index = (headers.index(column) for column in required)
+    first_index, last_index, id_index, role_index, homeroom_index = (headers.index(column) for column in required)
     email_index = headers.index(EMAIL_COLUMN) if EMAIL_COLUMN in headers else None
 
     file_rows = []
-    for row_number, values in enumerate(sheet_rows, start=2):
-        first_name, last_name, raw_id = (' '.join(str(values[index] or '').split()) or None
-                                         for index in (first_index, last_index, id_index))
-        if not first_name and not last_name and not raw_id:
+    for row_number, values in enumerate(lines, start=2):
+        values = [' '.join(value.split()) for value in values] + [''] * len(headers)
+        if TEACHER_ROLE not in values[role_index]:
             continue
         try:
-            if not first_name or not last_name:
+            if not values[first_index] or not values[last_index]:
                 raise ValueError(f"missing {FIRST_NAME_COLUMN} or {LAST_NAME_COLUMN}")
-            email = str(values[email_index] or '').strip().lower() if email_index is not None else ''
-            file_rows.append(TeacherFileRow(row_number, hash_ministry_id(raw_id, salt), first_name, last_name, email))
+            email = values[email_index].lower() if email_index is not None else ''
+            file_rows.append(TeacherFileRow(row_number, hash_ministry_id(values[id_index], salt), values[first_index],
+                                            values[last_index], email, values[homeroom_index] == HOMEROOM_YES))
         except ValueError as e:
             raise TeachersFileError(f"Row {row_number}: {e}")
     return file_rows
@@ -146,6 +143,8 @@ def plan_teacher_import(file_rows: List[TeacherFileRow], db_teachers: List[DbTea
         if db_teacher:
             (plan.teachers_to_restore if db_teacher.is_deleted else plan.teachers_to_keep).append(db_teacher)
             matched_db_teacher_ids.add(db_teacher.id)
+            if db_teacher.is_homeroom is not None and db_teacher.is_homeroom != file_row.is_homeroom:
+                plan.homeroom_changes.append(HomeroomChange(db_teacher, file_row.is_homeroom))
             continue
 
         if len(file_row.first_name) > 20 or len(file_row.last_name) > 30:
