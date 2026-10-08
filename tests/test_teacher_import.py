@@ -46,6 +46,18 @@ def test_second_run_changes_nothing():
     assert plan.teachers_to_restore == plan.teachers_to_create == plan.teachers_to_soft_delete == plan.errors == []
 
 
+
+def test_teacher_added_in_the_admin_is_matched_by_the_next_file():
+    # Added in the admin with the ת.ז. typed with its leading zero; the file has the number without it and spells the
+    # name differently
+    db_teachers = [db_teacher(158, 'אלון', 'מורה-בדיקה', external_id=hash_ministry_id('056789027', 'salt'),
+                              is_homeroom=True)]
+    file_rows = [file_row(2, hash_ministry_id(56789027, 'salt'), 'אלון', 'מורה בדיקה', is_homeroom=True)]
+    plan = plan_teacher_import(file_rows, db_teachers)
+    assert [t.id for t in plan.teachers_to_keep] == [158]
+    assert plan.teachers_to_restore == plan.teachers_to_create == plan.teachers_to_soft_delete == []
+    assert plan.homeroom_changes == plan.errors == []
+
 @pytest.mark.parametrize("file_rows, db_teachers, message", [
     ([file_row(2, 'h1', 'דנה', 'כהן'), file_row(3, 'h1', 'רון', 'לוי')], [], "same ת.ז. as an earlier row"),
     ([file_row(2, 'h1', 'דנה', 'כהן')], [db_teacher(7, 'דנה', 'כהן', is_deleted=True)], "already belongs to teacher 7"),

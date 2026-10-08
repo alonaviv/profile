@@ -95,6 +95,15 @@ def test_second_run_changes_nothing():
     assert plan.house_changes == plan.students_to_create == plan.students_to_soft_delete == plan.errors == []
 
 
+
+def test_student_added_in_the_admin_is_matched_by_the_next_file():
+    # Added in the admin with the ת.ז. typed with its leading zero; the ministry file has the number without it and
+    # spells the name differently
+    db_students = [db_student(950, 'אלון', 'בדיקה', house='חט״ב', external_id=hash_ministry_id('056789019', 'salt'))]
+    plan = plan_import([ministry_row(2, hash_ministry_id(56789019, 'salt'), 'בדיקה אלון יעל', "ח' - 2")], db_students)
+    assert [m.db_student.id for m in plan.students_to_update] == [950]
+    assert plan.house_changes == plan.students_to_create == plan.students_to_soft_delete == plan.errors == []
+
 @pytest.mark.parametrize("ministry_rows, db_students, message", [
     ([ministry_row(2, 'h1', 'כהן דן'), ministry_row(3, 'h1', 'לוי יעל')], [], "same ת.ז. as an earlier row"),
     ([ministry_row(2, 'h1', 'כהן דן', "גן - 1")], [], "Unrecognised grade"),
