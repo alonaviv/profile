@@ -3,7 +3,7 @@
 {% block content %}
 
 
-<h1>ניהול קבוצת החונכות של {{teacher}}</h1>
+<h1>ניהול קבוצת החונכות של {{teacher}} (סה"כ {{teacher.student_set.count}} חניכים)</h1>
 
 <div class="items_list">
   <!-- If you want to add numbers here, you need to use a counter - ol doesn't work within flexbox -->
