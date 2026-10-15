@@ -1,6 +1,7 @@
 """
-Yearly student roster import from the Ministry of Education file (אלפון מלא), run from the page
-/evaluations/import_roster (evaluations/roster_view.py). This module has no Django dependency, so it is unit-tested
+Student roster import from the Ministry of Education files (אלפון תלמידים), run from the page
+/evaluations/import_roster (evaluations/roster_view.py). The school's roster comes as two files exported by the office
+as they are, one for א'-ו' and one for ז'-יב'', and every import reads both together. This module has no Django dependency, so it is unit-tested
 without a database.
 
 Students are keyed on the ministry student id (ת.ז. תלמיד). The raw id is never stored: Student.external_id holds an
@@ -8,7 +9,7 @@ HMAC-SHA256 of it, keyed with the secret settings.STUDENT_ID_SALT (set in profil
 not in git). The salt must be backed up together with the database - without it, next year's file can't be matched
 to this year's students.
 
-For every row of the file:
+For every row of the files:
 - a student with the same external_id is that child: their house and class are updated, and a soft-deleted one is
   restored;
 - otherwise it's a new student. The ministry name cell is surname first, so the last word becomes the first name and
@@ -135,14 +136,17 @@ class StudentToCreate:
     grade: str
     external_id: str
     name_in_ministry_file: str  # Shown in the preview next to the split first/last name
+    # Soft-deleted students without a ת.ז. who share the surname: possibly this child, back after leaving before ids
+    # were recorded. Giving the old student the ת.ז. in the admin makes the import restore them instead.
+    maybe_returning: List[DbStudent] = field(default_factory=list)
 
 
 @dataclass
 class Plan:
-    """What importing the ministry file would do to the DB."""
+    """What importing the ministry files would do to the DB."""
     students_to_update: List[StudentToUpdate] = field(default_factory=list)
     students_to_create: List[StudentToCreate] = field(default_factory=list)
-    students_to_soft_delete: List[DbStudent] = field(default_factory=list)  # Active DB students not in the file
+    students_to_soft_delete: List[DbStudent] = field(default_factory=list)  # Active DB students not in the files
     errors: List[str] = field(default_factory=list)  # Any error blocks applying the plan
 
     @property
@@ -156,8 +160,9 @@ class Plan:
 
 def read_ministry_file(file, password, salt):
     """
-    Reads the columns ת.ז. תלמיד, כיתת אם and שם תלמיד from the first sheet, whose first row holds the headers.
-    Every other column is skipped. `file` is a binary file object.
+    Reads the columns ת.ז. תלמיד, כיתת אם and שם תלמיד from the first sheet. The headers are the first row that has
+    all three: the ministry's export puts warning rows above them. Every other column is skipped. `file` is a binary
+    file object.
     """
     try:
         office_file = msoffcrypto.OfficeFile(file)
@@ -172,7 +177,6 @@ def read_ministry_file(file, password, salt):
             content = io.BytesIO(file.read())
         sheet_rows = openpyxl.load_workbook(content, read_only=True, data_only=True).worksheets[0].iter_rows(
             values_only=True)
-        headers = [str(header or '').strip() for header in next(sheet_rows)]
     except InvalidKeyError:
         raise MinistryFileError("Wrong password for the file")
     except MinistryFileError:
@@ -180,12 +184,16 @@ def read_ministry_file(file, password, salt):
     except Exception:
         raise MinistryFileError("Can't read the file as an Excel file")
 
-    if not all(column in headers for column in (ID_COLUMN, GRADE_COLUMN, NAME_COLUMN)):
-        raise MinistryFileError(f"The first row must have the columns {ID_COLUMN}, {GRADE_COLUMN}, {NAME_COLUMN}")
+    for header_row_number, values in enumerate(sheet_rows, start=1):
+        headers = [str(header or '').strip() for header in values]
+        if all(column in headers for column in (ID_COLUMN, GRADE_COLUMN, NAME_COLUMN)):
+            break
+    else:
+        raise MinistryFileError(f"No row has the columns {ID_COLUMN}, {GRADE_COLUMN}, {NAME_COLUMN}")
     columns = [headers.index(column) for column in (ID_COLUMN, GRADE_COLUMN, NAME_COLUMN)]
 
     ministry_rows = []
-    for row_number, values in enumerate(sheet_rows, start=2):
+    for row_number, values in enumerate(sheet_rows, start=header_row_number + 1):
         raw_id, grade, name = (values[index] for index in columns)
         if raw_id is None and not grade and not name:
             continue
@@ -199,8 +207,20 @@ def read_ministry_file(file, password, salt):
     return ministry_rows
 
 
+def _surname_in_ministry_name(last_name, ministry_name):
+    """
+    Every word of the school's last name is a word of the ministry name cell, or the start of one or the other: the
+    ministry file cuts some long surnames ("דוידוב עובדי" for "דוידוב עובדיה").
+    """
+    ministry_words = ministry_name.replace('-', ' ').split()
+    return all(any(word == ministry_word or (min(len(word), len(ministry_word)) >= 3
+                                             and (word.startswith(ministry_word) or ministry_word.startswith(word)))
+                   for ministry_word in ministry_words)
+               for word in last_name.replace('-', ' ').split())
+
+
 def plan_import(ministry_rows: List[MinistryRow], db_students: List[DbStudent]) -> Plan:
-    """ministry_rows: every student row of the ministry file. db_students: every DB student, soft-deleted included."""
+    """ministry_rows: every student row of the ministry files. db_students: every DB student, soft-deleted included."""
     plan = Plan()
     db_students_by_external_id = {student.external_id: student for student in db_students if student.external_id}
     taken_names = {(student.first_name, student.last_name): student.id for student in db_students}
@@ -237,8 +257,10 @@ def plan_import(ministry_rows: List[MinistryRow], db_students: List[DbStudent]) 
             plan.errors.append(f"{label}: a student named '{first_name} {last_name}' already exists "
                                f"(id {taken_names[(first_name, last_name)]})")
         taken_names[(first_name, last_name)] = f"new, row {ministry_row.row_number}"
+        maybe_returning = [student for student in db_students if student.is_deleted and not student.external_id
+                           and _surname_in_ministry_name(student.last_name, ministry_row.name)]
         plan.students_to_create.append(StudentToCreate(first_name, last_name, house, ministry_row.grade,
-                                            ministry_row.external_id, ministry_row.name))
+                                                       ministry_row.external_id, ministry_row.name, maybe_returning))
 
     plan.students_to_soft_delete = [student for student in db_students
                                     if not student.is_deleted and student.id not in db_student_ids_to_update]

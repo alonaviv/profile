@@ -65,20 +65,25 @@ class TeacherAdmin(SoftDeletionAdmin):
     readonly_fields = ('external_id',)
 
     def get_form(self, request, obj=None, **kwargs):
-        if obj is None:
-            kwargs['form'] = TeacherAddForm
+        kwargs['form'] = TeacherAddForm
         return super().get_form(request, obj, **kwargs)
 
 
 class StudentAddForm(ModelForm):
-    """Adding a student requires the ministry id, so next year's ministry file matches them. Only its hash is kept."""
-    ministry_id = CharField(label='ת.ז. תלמיד', max_length=12, help_text="Stored only as a salted hash")
+    """
+    Adding a student requires the ministry id, so next year's ministry file matches them. Editing can set or replace it,
+    e.g. for a student who left before ids were recorded and is back. Only its hash is kept.
+    """
+    ministry_id = CharField(label='ת.ז. תלמיד', max_length=12, required=False,
+                            help_text="Stored only as a salted hash. When editing, leave empty to keep the current one")
 
     class Meta:
         model = Student
-        fields = ('first_name', 'last_name', 'house', 'pronoun_choice', 'homeroom_teacher')
+        fields = '__all__'
 
     def clean_ministry_id(self):
+        if not self.cleaned_data['ministry_id'] and self.instance.pk:
+            return self.instance.external_id
         try:
             ministry_id = normalize_ministry_id(self.cleaned_data['ministry_id'])
         except ValueError as e:
@@ -87,7 +92,7 @@ class StudentAddForm(ModelForm):
             raise ValidationError("Invalid ת.ז. (check digit doesn't match)")
 
         external_id = hash_ministry_id(ministry_id, settings.STUDENT_ID_SALT)
-        existing = Student.objects_with_deleted.filter(external_id=external_id).first()
+        existing = Student.objects_with_deleted.filter(external_id=external_id).exclude(pk=self.instance.pk).first()
         if existing:
             deleted = ", soft-deleted - restore it instead" if existing.is_deleted else ""
             raise ValidationError(f"This ת.ז. belongs to student {existing.id} ({existing}{deleted})")
@@ -99,14 +104,20 @@ class StudentAddForm(ModelForm):
 
 
 class TeacherAddForm(ModelForm):
-    """Adding a teacher requires their ת.ז.: they register with it, and the staff file matches them by it."""
-    ministry_id = CharField(label='ת.ז.', max_length=12, help_text="Stored only as a salted hash")
+    """
+    Adding a teacher requires their ת.ז.: they register with it, and the staff file matches them by it. Editing can set
+    or replace it. Only its hash is kept.
+    """
+    ministry_id = CharField(label='ת.ז.', max_length=12, required=False,
+                            help_text="Stored only as a salted hash. When editing, leave empty to keep the current one")
 
     class Meta:
         model = Teacher
-        fields = ('first_name', 'last_name')
+        fields = '__all__'
 
     def clean_ministry_id(self):
+        if not self.cleaned_data['ministry_id'] and self.instance.pk:
+            return self.instance.external_id
         try:
             ministry_id = normalize_ministry_id(self.cleaned_data['ministry_id'])
         except ValueError as e:
@@ -115,7 +126,7 @@ class TeacherAddForm(ModelForm):
             raise ValidationError("Invalid ת.ז. (check digit doesn't match)")
 
         external_id = hash_ministry_id(ministry_id, settings.STUDENT_ID_SALT)
-        existing = Teacher.objects_with_deleted.filter(external_id=external_id).first()
+        existing = Teacher.objects_with_deleted.filter(external_id=external_id).exclude(pk=self.instance.pk).first()
         if existing:
             deleted = ", soft-deleted - restore it instead" if existing.is_deleted else ""
             raise ValidationError(f"This ת.ז. belongs to teacher {existing.id} ({existing}{deleted})")
@@ -147,8 +158,7 @@ class StudentAdmin(SoftDeletionAdmin):
     list_per_page = 500
 
     def get_form(self, request, obj=None, **kwargs):
-        if obj is None:
-            kwargs['form'] = StudentAddForm
+        kwargs['form'] = StudentAddForm
         return super().get_form(request, obj, **kwargs)
 
 

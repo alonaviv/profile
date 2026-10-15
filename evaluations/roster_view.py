@@ -1,4 +1,4 @@
-"""Page /evaluations/import_roster, once a year: upload the ministry file, preview the plan, apply it."""
+"""Page /evaluations/import_roster: upload the two ministry files, preview the plan, apply it."""
 from django import forms
 from django.conf import settings
 from django.contrib import messages
@@ -12,9 +12,11 @@ from evaluations.roster_import import DbStudent, MinistryFileError, plan_import,
 
 
 class RosterImportForm(forms.Form):
-    ministry_file = forms.FileField(label="Ministry file (אלפון מלא)")
+    # Both files are required: the import soft-deletes every student missing from what was uploaded
+    first_file = forms.FileField(label="Ministry file 1", help_text="א'-ו' or ז'-יב'', in either order")
+    second_file = forms.FileField(label="Ministry file 2")
     password = forms.CharField(required=False, widget=forms.PasswordInput,
-                               help_text="If the file is password-protected")
+                               help_text="If the files are password-protected")
     new_school_year = forms.BooleanField(required=False, label="New school year",
                                          help_text="Also clear every homeroom teacher")
     apply = forms.BooleanField(required=False, help_text="Leave unticked to preview. Ticked, writes the plan "
@@ -32,7 +34,8 @@ def import_roster_view(request):
     if request.method == 'POST' and form.is_valid():
         data = form.cleaned_data
         try:
-            ministry_rows = read_ministry_file(data['ministry_file'].file, data['password'], settings.STUDENT_ID_SALT)
+            ministry_rows = (_read_ministry_file(data['first_file'], data['password'])
+                             + _read_ministry_file(data['second_file'], data['password']))
         except MinistryFileError as e:
             form.add_error(None, str(e))
         else:
@@ -43,6 +46,13 @@ def import_roster_view(request):
                     return redirect('import_roster')
             context['plan'] = plan
     return render(request, 'evaluations/import_roster.html', context)
+
+
+def _read_ministry_file(uploaded_file, password):
+    try:
+        return read_ministry_file(uploaded_file.file, password, settings.STUDENT_ID_SALT)
+    except MinistryFileError as e:
+        raise MinistryFileError(f"{uploaded_file.name}: {e}")
 
 
 def _db_students():

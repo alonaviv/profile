@@ -104,6 +104,19 @@ def test_student_added_in_the_admin_is_matched_by_the_next_file():
     assert [m.db_student.id for m in plan.students_to_update] == [950]
     assert plan.house_changes == plan.students_to_create == plan.students_to_soft_delete == plan.errors == []
 
+def test_new_student_lists_soft_deleted_students_without_id_who_share_the_surname():
+    db_students = [
+        db_student(605, 'דניאל', 'קלמברג', is_deleted=True),  # Left before ids: maybe this child
+        db_student(17, 'אורי', 'דוידוב עובדיה', is_deleted=True),  # The file cuts the surname
+        db_student(8, 'רון', 'קלמברג', is_deleted=True, external_id='h8'),  # Has an id, so not this child
+        db_student(9, 'נועה', 'קלמברג'),  # Active
+        db_student(10, 'יעל', 'לוי', is_deleted=True),  # Other surname
+    ]
+    plan = plan_import([ministry_row(2, 'h1', 'קלמברג דניאל יוסף', "ה' - 1"),
+                        ministry_row(3, 'h2', 'דוידוב עובדי אורי')], db_students)
+    assert [[s.id for s in c.maybe_returning] for c in plan.students_to_create] == [[605], [17]]
+
+
 @pytest.mark.parametrize("ministry_rows, db_students, message", [
     ([ministry_row(2, 'h1', 'כהן דן'), ministry_row(3, 'h1', 'לוי יעל')], [], "same ת.ז. as an earlier row"),
     ([ministry_row(2, 'h1', 'כהן דן', "גן - 1")], [], "Unrecognised grade"),
@@ -136,8 +149,15 @@ def test_read_ministry_file_reads_only_the_three_columns():
         MinistryRow(4, hash_ministry_id(26, 'salt'), 'לוי יעל', "יא'' - 2")]
 
 
+def test_read_ministry_file_skips_the_rows_above_the_headers():
+    # The ministry's export has warning rows above the headers
+    file = xlsx(['הנתונים בקובץ כוללים מידע רגיש'], [None], [None], ['ת.ז. תלמיד', 'כיתת אם', 'שם תלמיד'],
+                [18, "א' - 1", 'כהן דן'])
+    assert read_ministry_file(file, None, 'salt') == [MinistryRow(5, hash_ministry_id(18, 'salt'), 'כהן דן', "א' - 1")]
+
+
 @pytest.mark.parametrize("sheet_rows, message", [
-    ([['כותרת'], ['ת.ז. תלמיד', 'כיתת אם', 'שם תלמיד']], 'first row must have'),
+    ([['ת.ז. תלמיד', 'כיתת אם'], [18, "א' - 1"]], 'No row has the columns'),
     ([['ת.ז. תלמיד', 'כיתת אם', 'שם תלמיד'], [18, None, 'כהן דן']], 'Row 2: missing'),
     ([['ת.ז. תלמיד', 'כיתת אם', 'שם תלמיד'], ['12a', "א' - 1", 'כהן דן']], 'Row 2: ת.ז.'),
 ])
